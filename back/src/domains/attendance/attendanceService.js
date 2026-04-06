@@ -31,3 +31,30 @@ export const markAttendance = async ({ lectureId, studentId, academyId, status, 
 export const getAttendancesByLecture = async (lectureId) => {
   return attendanceRepository.findAttendancesByLecture(lectureId)
 }
+
+export const getAttendanceList = async ({ lectureId, studentId, date }) => {
+  return attendanceRepository.findAttendances({ lectureId, studentId, date })
+}
+
+export const updateAttendance = async ({ id, status, markedBy }) => {
+  return attendanceRepository.updateAttendance(id, status, markedBy)
+}
+
+export const bulkMarkAttendance = async ({ academyId, lectureId, records, markedBy }) => {
+  const results = []
+  for (const record of records) {
+    const attendance = await attendanceRepository.markAttendance({
+      lecture_id: lectureId,
+      student_id: record.student_id,
+      academy_id: academyId,
+      status: record.status || 'present',
+      marked_by: markedBy,
+    })
+    results.push(attendance)
+  }
+  return results
+}
+
+export const getMyAttendance = async ({ studentId, academyId }) => {
+  return attendanceRepository.findAttendancesByStudent(studentId, academyId)
+}

@@ -22,6 +22,8 @@ const submitSchema = z.object({
 })
 
 router.post('/generate', authMiddleware, requireRole('student'), aiLimiter, validate(generateSchema), examController.generateExam)
+router.get('/me/history', authMiddleware, examController.getMyHistory)
+router.get('/:id/status', authMiddleware, examController.getExamStatus)
 router.post('/:id/submit', authMiddleware, requireRole('student'), validate(submitSchema), examController.submitExam)
 router.get('/:id/report', authMiddleware, examController.getExamReport)
 

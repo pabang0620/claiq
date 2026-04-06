@@ -145,6 +145,63 @@ export const getLecture = async (id) => {
   return lecture
 }
 
+export const deleteLecture = async ({ lectureId, teacherId }) => {
+  const lecture = await lectureRepository.findLectureById(lectureId)
+  if (!lecture) {
+    const err = new Error('강의를 찾을 수 없습니다')
+    err.status = 404
+    throw err
+  }
+  if (lecture.teacher_id !== teacherId) {
+    const err = new Error('본인 강의만 삭제할 수 있습니다')
+    err.status = 403
+    throw err
+  }
+  await lectureRepository.deleteLecture(lectureId)
+}
+
+export const getMaterials = async (lectureId) => {
+  return lectureRepository.findMaterials(lectureId)
+}
+
+export const uploadMaterial = async ({ lectureId, teacherId, file, title }) => {
+  const lecture = await lectureRepository.findLectureById(lectureId)
+  if (!lecture) {
+    const err = new Error('강의를 찾을 수 없습니다')
+    err.status = 404
+    throw err
+  }
+  if (lecture.teacher_id !== teacherId) {
+    const err = new Error('본인 강의에만 자료를 업로드할 수 있습니다')
+    err.status = 403
+    throw err
+  }
+
+  let file_url = null
+  if (file) {
+    const path = `materials/${teacherId}/${Date.now()}_${file.originalname}`
+    const { uploadToStorage } = await import('../../config/supabase.js')
+    const { env } = await import('../../config/env.js')
+    file_url = await uploadToStorage(env.supabase.bucketMaterial || env.supabase.bucketAudio, path, file.buffer, file.mimetype)
+  }
+
+  return lectureRepository.createMaterial({
+    lecture_id: lectureId,
+    teacher_id: teacherId,
+    title: title || file?.originalname || '자료',
+    file_url,
+    file_type: file?.mimetype || null,
+  })
+}
+
+export const deleteMaterial = async ({ lectureId, materialId, teacherId }) => {
+  await lectureRepository.deleteMaterial(materialId, lectureId, teacherId)
+}
+
+export const getMyMaterials = async (studentId) => {
+  return lectureRepository.findMaterialsByStudent(studentId)
+}
+
 export const getLectures = async ({ academy_id, teacher_id, subject_id, page = 1, limit = 20 }) => {
   const offset = (page - 1) * limit
   const { lectures, total } = await lectureRepository.findLectures({

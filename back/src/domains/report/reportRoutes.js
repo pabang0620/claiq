@@ -8,12 +8,19 @@ import * as reportController from './reportController.js'
 const router = Router()
 
 const generateSchema = z.object({
-  student_id: z.string().uuid(),
-  academy_id: z.string().uuid(),
+  student_id: z.string().uuid().optional(),
+  studentId: z.string().uuid().optional(),
+  academy_id: z.string().uuid().optional(),
+  academyId: z.string().uuid().optional(),
   period: z.string().regex(/^\d{4}-\d{2}$/, 'YYYY-MM 형식으로 입력하세요').optional(),
-})
+}).transform((data) => ({
+  student_id: data.student_id || data.studentId,
+  academy_id: data.academy_id || data.academyId,
+  period: data.period,
+}))
 
 router.post('/generate', authMiddleware, requireRole('operator'), validate(generateSchema), reportController.generateReport)
 router.post('/:id/send', authMiddleware, requireRole('operator'), reportController.sendReport)
+router.post('/:id/send-sms', authMiddleware, requireRole('operator'), reportController.sendReport)
 
 export default router

@@ -42,6 +42,20 @@ export const createRoadmap = async ({ student_id, academy_id, dday_count, suneun
   })
 }
 
+export const updateItemStatus = async (itemId, status, userId) => {
+  const { rows } = await pool.query(
+    `UPDATE roadmap_items ri
+     SET status = $2, updated_at = NOW()
+     FROM learning_roadmaps lr
+     WHERE ri.id = $1
+       AND ri.roadmap_id = lr.id
+       AND lr.student_id = $3
+     RETURNING ri.*`,
+    [itemId, status, userId]
+  )
+  return rows[0] || null
+}
+
 export const findAllCurrentRoadmaps = async (academy_id) => {
   const { rows } = await pool.query(
     `SELECT lr.student_id

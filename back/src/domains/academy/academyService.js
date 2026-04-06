@@ -68,3 +68,98 @@ export const joinAcademy = async ({ code, userId, userRole }) => {
 export const getMembers = async (academyId, role = null) => {
   return academyRepository.findMembers(academyId, role)
 }
+
+export const getMyAcademy = async (userId) => {
+  const academies = await academyRepository.findUserAcademies(userId)
+  if (!academies.length) {
+    const err = new Error('소속된 학원이 없습니다')
+    err.status = 404
+    throw err
+  }
+  return academies[0]
+}
+
+export const updateMyAcademy = async ({ userId, updates }) => {
+  const academies = await academyRepository.findUserAcademies(userId)
+  if (!academies.length) {
+    const err = new Error('소속된 학원이 없습니다')
+    err.status = 404
+    throw err
+  }
+  const academyId = academies[0].id
+  return academyRepository.updateAcademy(academyId, updates)
+}
+
+export const getMyMembers = async ({ userId, role }) => {
+  const academies = await academyRepository.findUserAcademies(userId)
+  if (!academies.length) return []
+  return academyRepository.findMembers(academies[0].id, role || null)
+}
+
+export const inviteMember = async ({ userId, email, role }) => {
+  const academies = await academyRepository.findUserAcademies(userId)
+  if (!academies.length) {
+    const err = new Error('소속된 학원이 없습니다')
+    err.status = 404
+    throw err
+  }
+
+  const targetUser = await authRepository.findUserByEmail(email)
+  if (!targetUser) {
+    const err = new Error('해당 이메일의 사용자를 찾을 수 없습니다')
+    err.status = 404
+    throw err
+  }
+
+  const academy = academies[0]
+  const existing = await academyRepository.findMembership(academy.id, targetUser.id)
+  if (existing && existing.status === 'active') {
+    const err = new Error('이미 가입된 멤버입니다')
+    err.status = 409
+    throw err
+  }
+
+  const member = await academyRepository.addMember({
+    academy_id: academy.id,
+    user_id: targetUser.id,
+    role: role || targetUser.role,
+  })
+  return { academy, member }
+}
+
+export const removeMember = async ({ operatorId, targetUserId }) => {
+  const academies = await academyRepository.findUserAcademies(operatorId)
+  if (!academies.length) {
+    const err = new Error('소속된 학원이 없습니다')
+    err.status = 404
+    throw err
+  }
+  const academyId = academies[0].id
+  await academyRepository.removeMember(academyId, targetUserId)
+}
+
+export const getMyCoupons = async (userId) => {
+  const academies = await academyRepository.findUserAcademies(userId)
+  if (!academies.length) return []
+  return academyRepository.findCoupons(academies[0].id)
+}
+
+export const createCoupon = async ({ userId, couponData }) => {
+  const academies = await academyRepository.findUserAcademies(userId)
+  if (!academies.length) {
+    const err = new Error('소속된 학원이 없습니다')
+    err.status = 404
+    throw err
+  }
+  return academyRepository.createCoupon({ academy_id: academies[0].id, ...couponData })
+}
+
+export const deleteCoupon = async ({ userId, couponId }) => {
+  const academies = await academyRepository.findUserAcademies(userId)
+  if (!academies.length) {
+    const err = new Error('소속된 학원이 없습니다')
+    err.status = 404
+    throw err
+  }
+  await academyRepository.deleteCoupon(couponId, academies[0].id)
+}

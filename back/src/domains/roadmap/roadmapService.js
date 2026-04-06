@@ -31,6 +31,16 @@ export const getMyRoadmap = async (studentId) => {
   return roadmap
 }
 
+export const updateItem = async ({ itemId, status, userId }) => {
+  const item = await roadmapRepository.updateItemStatus(itemId, status, userId)
+  if (!item) {
+    const err = new Error('로드맵 항목을 찾을 수 없습니다')
+    err.status = 404
+    throw err
+  }
+  return item
+}
+
 export const generateStudentRoadmap = async ({ studentId, academyId, studentName }) => {
   // 취약 유형 조회
   const typeStats = await questionRepository.findTypeStats(studentId, academyId)

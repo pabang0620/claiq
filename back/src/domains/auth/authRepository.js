@@ -59,6 +59,22 @@ export const revokeRefreshToken = async (token) => {
   )
 }
 
+export const findUserByIdWithPassword = async (id) => {
+  const { rows } = await pool.query(
+    `SELECT id, email, password_hash, name, role, phone, is_active
+     FROM users WHERE id = $1 AND deleted_at IS NULL`,
+    [id]
+  )
+  return rows[0] || null
+}
+
+export const updatePassword = async (userId, newHash) => {
+  await pool.query(
+    `UPDATE users SET password_hash = $2, updated_at = NOW() WHERE id = $1`,
+    [userId, newHash]
+  )
+}
+
 export const revokeAllUserRefreshTokens = async (userId) => {
   await pool.query(
     `UPDATE refresh_tokens SET revoked_at = NOW()

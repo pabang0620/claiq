@@ -45,3 +45,27 @@ export const logout = async (req, res, next) => {
     next(err)
   }
 }
+
+export const me = async (req, res, next) => {
+  try {
+    const token = req.cookies?.refreshToken
+    const { user, accessToken } = await authService.me(token)
+    return successResponse(res, { user, accessToken })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body
+    await authService.changePassword({
+      userId: req.user.id,
+      currentPassword,
+      newPassword,
+    })
+    return successResponse(res, null, '비밀번호가 변경되었습니다')
+  } catch (err) {
+    next(err)
+  }
+}

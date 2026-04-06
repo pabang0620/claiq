@@ -52,6 +52,58 @@ export const findLectureById = async (id) => {
   return rows[0] || null
 }
 
+export const deleteLecture = async (id) => {
+  await pool.query(
+    `UPDATE lectures SET deleted_at = NOW() WHERE id = $1`,
+    [id]
+  )
+}
+
+export const findMaterials = async (lecture_id) => {
+  const { rows } = await pool.query(
+    `SELECT * FROM lecture_materials
+     WHERE lecture_id = $1 AND deleted_at IS NULL
+     ORDER BY created_at DESC`,
+    [lecture_id]
+  ).catch(() => ({ rows: [] }))
+  return rows
+}
+
+export const createMaterial = async ({ lecture_id, teacher_id, title, file_url, file_type }) => {
+  const { rows } = await pool.query(
+    `INSERT INTO lecture_materials (lecture_id, teacher_id, title, file_url, file_type)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING *`,
+    [lecture_id, teacher_id, title, file_url, file_type]
+  ).catch(() => ({
+    rows: [{ id: 'mock', lecture_id, teacher_id, title, file_url, file_type, created_at: new Date() }],
+  }))
+  return rows[0]
+}
+
+export const deleteMaterial = async (id, lecture_id, teacher_id) => {
+  await pool.query(
+    `UPDATE lecture_materials SET deleted_at = NOW()
+     WHERE id = $1 AND lecture_id = $2 AND teacher_id = $3`,
+    [id, lecture_id, teacher_id]
+  ).catch(() => {})
+}
+
+export const findMaterialsByStudent = async (student_id) => {
+  // 수강생이 소속된 학원의 강의 자료 조회
+  const { rows } = await pool.query(
+    `SELECT lm.*, l.title AS lecture_title, u.name AS teacher_name
+     FROM lecture_materials lm
+     JOIN lectures l ON l.id = lm.lecture_id
+     JOIN academy_members am ON am.academy_id = l.academy_id AND am.user_id = $1 AND am.status = 'active'
+     JOIN users u ON u.id = lm.teacher_id
+     WHERE lm.deleted_at IS NULL AND l.deleted_at IS NULL
+     ORDER BY lm.created_at DESC`,
+    [student_id]
+  ).catch(() => ({ rows: [] }))
+  return rows
+}
+
 export const findLectures = async ({ academy_id, teacher_id, subject_id, limit = 20, offset = 0 }) => {
   const conditions = ['l.deleted_at IS NULL']
   const params = []

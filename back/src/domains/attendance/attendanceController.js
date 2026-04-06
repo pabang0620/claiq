@@ -25,3 +25,54 @@ export const getAttendances = async (req, res, next) => {
     next(err)
   }
 }
+
+export const getAttendanceList = async (req, res, next) => {
+  try {
+    const { lectureId, studentId, date } = req.query
+    const attendances = await attendanceService.getAttendanceList({ lectureId, studentId, date })
+    return successResponse(res, attendances)
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const updateAttendance = async (req, res, next) => {
+  try {
+    const attendance = await attendanceService.updateAttendance({
+      id: req.params.id,
+      status: req.body.status,
+      markedBy: req.user.id,
+    })
+    return successResponse(res, attendance, '출결이 수정되었습니다')
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const bulkMarkAttendance = async (req, res, next) => {
+  try {
+    const { academy_id, lecture_id, records } = req.body
+    const results = await attendanceService.bulkMarkAttendance({
+      academyId: academy_id,
+      lectureId: lecture_id,
+      records,
+      markedBy: req.user.id,
+    })
+    return successResponse(res, results, '일괄 출결이 처리되었습니다')
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const getMyAttendance = async (req, res, next) => {
+  try {
+    const { academy_id } = req.query
+    const attendances = await attendanceService.getMyAttendance({
+      studentId: req.user.id,
+      academyId: academy_id,
+    })
+    return successResponse(res, attendances)
+  } catch (err) {
+    next(err)
+  }
+}

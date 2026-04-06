@@ -15,9 +15,13 @@ const reviewSchema = z.object({
 })
 
 const submitSchema = z.object({
-  submitted: z.string().min(1, '답안을 입력하세요'),
+  submitted: z.string().min(1).optional(),
+  answer: z.string().min(1).optional(),
   academy_id: z.string().uuid('유효하지 않은 학원 ID'),
-})
+}).transform((data) => ({
+  submitted: data.submitted || data.answer,
+  academy_id: data.academy_id,
+}))
 
 // 교사용
 router.get('/pending', authMiddleware, requireRole('teacher', 'operator'), questionController.getPendingQuestions)

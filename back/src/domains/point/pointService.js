@@ -42,6 +42,32 @@ export const getMyPoints = async (userId) => {
   }
 }
 
+export const getMyBalance = async (userId) => {
+  const balance = await pointRepository.getPointBalance(userId)
+  return {
+    balance: balance?.balance || 0,
+    total_earned: balance?.total_earned || 0,
+  }
+}
+
+export const getMyTransactions = async ({ userId, page, limit }) => {
+  const offset = (page - 1) * limit
+  return pointRepository.findTransactions(userId, limit, offset)
+}
+
+export const getRewards = async () => {
+  // 교환 가능한 쿠폰/보상 목록 (환경변수 기준 mock)
+  return [
+    {
+      id: 'coupon_1000',
+      name: '1,000P 쿠폰',
+      description: '1,000 포인트를 쿠폰 1매로 교환',
+      required_points: env.points.toCoupon,
+      type: 'coupon',
+    },
+  ]
+}
+
 export const redeemPoints = async ({ userId, academyId }) => {
   const balance = await pointRepository.getPointBalance(userId)
   if (!balance || balance.balance < env.points.toCoupon) {

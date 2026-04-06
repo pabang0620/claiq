@@ -74,6 +74,23 @@ export const submitExam = async ({ examId, studentId, answers }) => {
   return examRepository.submitExam({ exam_id: examId, student_id: studentId, answers })
 }
 
+export const getExamStatus = async (examId) => {
+  const exam = await examRepository.findExamById(examId)
+  if (!exam) {
+    const err = new Error('모의고사를 찾을 수 없습니다')
+    err.status = 404
+    throw err
+  }
+  // generating: 문항이 없거나 status가 pending, ready: 문항이 있고 graded가 아닌 경우
+  const status = !exam.questions || exam.questions.length === 0 ? 'generating' : 'ready'
+  return { id: exam.id, status, questionCount: exam.questions?.length || 0, examStatus: exam.status }
+}
+
+export const getMyHistory = async ({ userId, page, limit }) => {
+  const offset = (page - 1) * limit
+  return examRepository.findExamHistory(userId, limit, offset)
+}
+
 export const getExamReport = async ({ examId, userId }) => {
   const report = await examRepository.findExamReport(examId)
   if (!report) {

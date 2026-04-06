@@ -90,6 +90,20 @@ export const submitExam = async ({ exam_id, student_id, answers }) => {
   })
 }
 
+export const findExamHistory = async (student_id, limit = 20, offset = 0) => {
+  const { rows } = await pool.query(
+    `SELECT me.id, me.status, me.score, me.total_questions, me.submitted_at, me.created_at,
+            s.name AS subject_name
+     FROM mini_exams me
+     LEFT JOIN subjects s ON s.id = me.subject_id
+     WHERE me.student_id = $1
+     ORDER BY me.created_at DESC
+     LIMIT $2 OFFSET $3`,
+    [student_id, limit, offset]
+  )
+  return rows
+}
+
 export const findExamReport = async (exam_id) => {
   const [examResult, subResult] = await Promise.all([
     pool.query(

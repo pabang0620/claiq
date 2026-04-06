@@ -36,6 +36,38 @@ export const findAttendancesByStudent = async (student_id, academy_id) => {
   return rows
 }
 
+export const findAttendances = async ({ lectureId, studentId, date }) => {
+  const conditions = []
+  const params = []
+  let idx = 1
+
+  if (lectureId) { conditions.push(`a.lecture_id = $${idx++}`); params.push(lectureId) }
+  if (studentId) { conditions.push(`a.student_id = $${idx++}`); params.push(studentId) }
+  if (date) { conditions.push(`DATE(a.marked_at) = $${idx++}`); params.push(date) }
+
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
+
+  const { rows } = await pool.query(
+    `SELECT a.*, u.name AS student_name, u.email AS student_email
+     FROM attendances a
+     JOIN users u ON u.id = a.student_id
+     ${where}
+     ORDER BY a.marked_at DESC`,
+    params
+  )
+  return rows
+}
+
+export const updateAttendance = async (id, status, markedBy) => {
+  const { rows } = await pool.query(
+    `UPDATE attendances SET status = $2, marked_by = $3, marked_at = NOW()
+     WHERE id = $1
+     RETURNING *`,
+    [id, status, markedBy]
+  )
+  return rows[0] || null
+}
+
 export const findTodayAttendance = async (student_id) => {
   const { rows } = await pool.query(
     `SELECT * FROM attendances

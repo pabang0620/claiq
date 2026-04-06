@@ -1,5 +1,6 @@
 import * as lectureService from './lectureService.js'
 import { successResponse, paginatedResponse } from '../../utils/response.js'
+import { errorResponse } from '../../utils/response.js'
 
 export const uploadLecture = async (req, res, next) => {
   try {
@@ -35,6 +36,51 @@ export const getLecture = async (req, res, next) => {
   try {
     const lecture = await lectureService.getLecture(req.params.id)
     return successResponse(res, lecture)
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const deleteLecture = async (req, res, next) => {
+  try {
+    await lectureService.deleteLecture({ lectureId: req.params.id, teacherId: req.user.id })
+    return successResponse(res, null, '강의가 삭제되었습니다')
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const getMaterials = async (req, res, next) => {
+  try {
+    const materials = await lectureService.getMaterials(req.params.lectureId)
+    return successResponse(res, materials)
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const uploadMaterial = async (req, res, next) => {
+  try {
+    const material = await lectureService.uploadMaterial({
+      lectureId: req.params.lectureId,
+      teacherId: req.user.id,
+      file: req.file,
+      title: req.body.title,
+    })
+    return successResponse(res, material, '자료가 업로드되었습니다', 201)
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const deleteMaterial = async (req, res, next) => {
+  try {
+    await lectureService.deleteMaterial({
+      lectureId: req.params.lectureId,
+      materialId: req.params.materialId,
+      teacherId: req.user.id,
+    })
+    return successResponse(res, null, '자료가 삭제되었습니다')
   } catch (err) {
     next(err)
   }

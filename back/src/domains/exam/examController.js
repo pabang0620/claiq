@@ -40,3 +40,26 @@ export const getExamReport = async (req, res, next) => {
     next(err)
   }
 }
+
+export const getExamStatus = async (req, res, next) => {
+  try {
+    const status = await examService.getExamStatus(req.params.id)
+    return successResponse(res, status)
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const getMyHistory = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 20 } = req.query
+    const history = await examService.getMyHistory({
+      userId: req.user.id,
+      page: Number(page),
+      limit: Math.min(Number(limit), 100),
+    })
+    return successResponse(res, history)
+  } catch (err) {
+    next(err)
+  }
+}

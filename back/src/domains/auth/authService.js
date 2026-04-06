@@ -107,4 +107,60 @@ export const logout = async (refreshToken) => {
   }
 }
 
+export const me = async (refreshToken) => {
+  if (!refreshToken) {
+    const err = new Error('리프레시 토큰이 없습니다')
+    err.status = 401
+    throw err
+  }
+
+  const record = await authRepository.findRefreshToken(refreshToken)
+  if (!record) {
+    const err = new Error('유효하지 않은 리프레시 토큰입니다')
+    err.status = 401
+    throw err
+  }
+  if (record.revoked_at) {
+    const err = new Error('만료된 리프레시 토큰입니다')
+    err.status = 401
+    throw err
+  }
+  if (new Date(record.expires_at) < new Date()) {
+    const err = new Error('리프레시 토큰이 만료되었습니다')
+    err.status = 401
+    throw err
+  }
+  if (!record.is_active) {
+    const err = new Error('비활성화된 계정입니다')
+    err.status = 403
+    throw err
+  }
+
+  const user = await authRepository.findUserById(record.user_id)
+  const accessToken = signAccessToken({ id: record.user_id, email: record.email, role: record.role })
+
+  return { user, accessToken }
+}
+
+export const changePassword = async ({ userId, currentPassword, newPassword }) => {
+  const user = await authRepository.findUserByIdWithPassword(userId)
+  if (!user) {
+    const err = new Error('사용자를 찾을 수 없습니다')
+    err.status = 404
+    throw err
+  }
+
+  const valid = await comparePassword(currentPassword, user.password_hash)
+  if (!valid) {
+    const err = new Error('현재 비밀번호가 올바르지 않습니다')
+    err.status = 400
+    throw err
+  }
+
+  const newHash = await hashPassword(newPassword)
+  await authRepository.updatePassword(userId, newHash)
+  // 기존 리프레시 토큰 전체 무효화
+  await authRepository.revokeAllUserRefreshTokens(userId)
+}
+
 export { REFRESH_COOKIE_OPTIONS }
