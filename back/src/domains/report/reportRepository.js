@@ -1,0 +1,73 @@
+import { pool } from '../../config/db.js'
+
+export const createReport = async ({ student_id, academy_id, report_period, content_json }) => {
+  const { rows } = await pool.query(
+    `INSERT INTO achievement_reports (student_id, academy_id, report_period, content_json)
+     VALUES ($1, $2, $3, $4)
+     RETURNING *`,
+    [student_id, academy_id, report_period, JSON.stringify(content_json)]
+  )
+  return rows[0]
+}
+
+export const findReportById = async (id) => {
+  const { rows } = await pool.query(
+    `SELECT ar.*, u.name AS student_name, u.phone AS student_phone
+     FROM achievement_reports ar
+     JOIN users u ON u.id = ar.student_id
+     WHERE ar.id = $1`,
+    [id]
+  )
+  return rows[0] || null
+}
+
+export const markReportSent = async (id, phone) => {
+  const { rows } = await pool.query(
+    `UPDATE achievement_reports
+     SET sent_to_phone = $2, sent_at = NOW()
+     WHERE id = $1
+     RETURNING *`,
+    [id, phone]
+  )
+  return rows[0]
+}
+
+export const findStudentStatsForReport = async (student_id, academy_id, period) => {
+  const [attendResult, submitResult, typeResult, pointResult] = await Promise.all([
+    pool.query(
+      `SELECT COUNT(*) AS total, SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) AS present_count
+       FROM attendances
+       WHERE student_id = $1 AND academy_id = $2
+         AND TO_CHAR(marked_at, 'YYYY-MM') = $3`,
+      [student_id, academy_id, period]
+    ),
+    pool.query(
+      `SELECT COUNT(*) AS total, SUM(CASE WHEN is_correct THEN 1 ELSE 0 END) AS correct_count
+       FROM answer_submissions
+       WHERE student_id = $1 AND academy_id = $2
+         AND TO_CHAR(submitted_at, 'YYYY-MM') = $3`,
+      [student_id, academy_id, period]
+    ),
+    pool.query(
+      `SELECT type_code, correct_rate
+       FROM student_type_stats
+       WHERE student_id = $1 AND academy_id = $2
+       ORDER BY correct_rate ASC LIMIT 5`,
+      [student_id, academy_id]
+    ),
+    pool.query(
+      `SELECT COALESCE(SUM(amount), 0) AS earned
+       FROM point_transactions
+       WHERE user_id = $1 AND amount > 0
+         AND TO_CHAR(created_at, 'YYYY-MM') = $2`,
+      [student_id, period]
+    ),
+  ])
+
+  return {
+    attendance: attendResult.rows[0],
+    submissions: submitResult.rows[0],
+    weakTypes: typeResult.rows,
+    pointsEarned: pointResult.rows[0]?.earned || 0,
+  }
+}

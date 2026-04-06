@@ -1,0 +1,161 @@
+import * as lectureRepository from './lectureRepository.js'
+import * as vectorRepository from './vectorRepository.js'
+import * as questionRepository from '../question/questionRepository.js'
+import { uploadToStorage } from '../../config/supabase.js'
+import { transcribeAudio } from '../../ai/whisper.js'
+import { embedTexts } from '../../ai/embedding.js'
+import { mapTypes } from '../../ai/typeMapper.js'
+import { generateAllQuestions } from '../../ai/questionGenerator.js'
+import { chunkText } from '../../utils/textChunker.js'
+import { env } from '../../config/env.js'
+import { logger } from '../../utils/logger.js'
+
+// SSE 클라이언트 관리
+const sseClients = new Map()
+
+export const addSseClient = (lectureId, res) => {
+  if (!sseClients.has(lectureId)) sseClients.set(lectureId, new Set())
+  sseClients.get(lectureId).add(res)
+}
+
+export const removeSseClient = (lectureId, res) => {
+  sseClients.get(lectureId)?.delete(res)
+}
+
+export const broadcastStatus = (lectureId, status, extra = {}) => {
+  const clients = sseClients.get(lectureId)
+  if (!clients) return
+  const data = JSON.stringify({ status, ...extra })
+  for (const res of clients) {
+    res.write(`data: ${data}\n\n`)
+  }
+}
+
+export const uploadLecture = async ({ file, materialFiles, body, user }) => {
+  const { subject_id, title, description, scheduled_at } = body
+  const { academy_id } = body
+
+  // 1. 오디오 Supabase 업로드
+  let audio_url = null
+  if (file) {
+    const path = `lectures/${user.id}/${Date.now()}_${file.originalname}`
+    audio_url = await uploadToStorage(env.supabase.bucketAudio, path, file.buffer, file.mimetype)
+  }
+
+  // 2. lectures 레코드 생성
+  const lecture = await lectureRepository.createLecture({
+    academy_id,
+    teacher_id: user.id,
+    subject_id,
+    title,
+    description,
+    audio_url,
+    scheduled_at,
+  })
+
+  // 3. 백그라운드 처리 (비동기 - 응답을 기다리지 않음)
+  processLecture(lecture, file).catch((err) => {
+    logger.error(`강의 처리 실패 [${lecture.id}]:`, err.message)
+  })
+
+  return lecture
+}
+
+const processLecture = async (lecture, file) => {
+  try {
+    // STT
+    await lectureRepository.updateLectureStatus(lecture.id, 'stt_processing')
+    broadcastStatus(lecture.id, 'stt_processing')
+
+    let transcript = ''
+    if (file) {
+      transcript = await transcribeAudio(file.buffer, file.mimetype, file.originalname)
+    }
+    await lectureRepository.updateLectureStatus(lecture.id, 'embedding', { transcript })
+    broadcastStatus(lecture.id, 'embedding')
+
+    // 청킹 + 임베딩
+    const chunks = chunkText(transcript)
+    const texts = chunks.map((c) => c.content)
+    const embeddings = await embedTexts(texts)
+
+    const chunkDocs = chunks.map((c, i) => ({
+      lecture_id: lecture.id,
+      teacher_id: lecture.teacher_id,
+      academy_id: lecture.academy_id,
+      chunk_index: c.chunk_index,
+      content: c.content,
+      token_count: c.token_count,
+      embedding: embeddings[i],
+    }))
+    await vectorRepository.saveChunks(chunkDocs)
+
+    // 유형 매핑
+    await lectureRepository.updateLectureStatus(lecture.id, 'type_mapping')
+    broadcastStatus(lecture.id, 'type_mapping')
+
+    // 강의 과목으로 area 조회
+    const fullLecture = await lectureRepository.findLectureById(lecture.id)
+    const area = fullLecture?.subject_area || '국어'
+    const typeCodes = await mapTypes(transcript, area)
+
+    await lectureRepository.updateLectureStatus(lecture.id, 'question_gen', { type_tags: typeCodes })
+    broadcastStatus(lecture.id, 'question_gen')
+
+    // 문제 생성
+    const chunkContents = chunks.map((c) => c.content)
+    const questions = await generateAllQuestions(chunkContents, area, typeCodes)
+
+    // 문제 저장
+    for (const q of questions) {
+      await questionRepository.createQuestion({
+        lecture_id: lecture.id,
+        academy_id: lecture.academy_id,
+        teacher_id: lecture.teacher_id,
+        subject_id: lecture.subject_id,
+        type_code: q.type_code,
+        content: q.content,
+        answer_type: q.answer_type || 'multiple_choice',
+        correct_answer: q.correct_answer,
+        explanation: q.explanation,
+        difficulty: q.difficulty,
+        options: q.options,
+      })
+    }
+
+    await lectureRepository.updateLectureStatus(lecture.id, 'done')
+    broadcastStatus(lecture.id, 'done', { questionCount: questions.length })
+    logger.info(`강의 처리 완료 [${lecture.id}]: 문제 ${questions.length}개 생성`)
+  } catch (err) {
+    await lectureRepository.updateLectureStatus(lecture.id, 'error', {
+      processing_error: err.message,
+    })
+    broadcastStatus(lecture.id, 'error', { error: err.message })
+    logger.error(`강의 처리 에러 [${lecture.id}]:`, err.message)
+  }
+}
+
+export const getLecture = async (id) => {
+  const lecture = await lectureRepository.findLectureById(id)
+  if (!lecture) {
+    const err = new Error('강의를 찾을 수 없습니다')
+    err.status = 404
+    throw err
+  }
+  return lecture
+}
+
+export const getLectures = async ({ academy_id, teacher_id, subject_id, page = 1, limit = 20 }) => {
+  const offset = (page - 1) * limit
+  const { lectures, total } = await lectureRepository.findLectures({
+    academy_id,
+    teacher_id,
+    subject_id,
+    limit,
+    offset,
+  })
+  return {
+    data: lectures,
+    meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+  }
+}

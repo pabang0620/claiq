@@ -1,0 +1,42 @@
+import * as examService from './examService.js'
+import { successResponse } from '../../utils/response.js'
+
+export const generateExam = async (req, res, next) => {
+  try {
+    const { academy_id, subject_id, area } = req.body
+    const exam = await examService.generateStudentExam({
+      studentId: req.user.id,
+      academyId: academy_id,
+      subjectId: subject_id,
+      area,
+    })
+    return successResponse(res, exam, '모의고사가 생성되었습니다', 201)
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const submitExam = async (req, res, next) => {
+  try {
+    const result = await examService.submitExam({
+      examId: req.params.id,
+      studentId: req.user.id,
+      answers: req.body.answers,
+    })
+    return successResponse(res, result, '모의고사 제출이 완료되었습니다')
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const getExamReport = async (req, res, next) => {
+  try {
+    const report = await examService.getExamReport({
+      examId: req.params.id,
+      userId: req.user.id,
+    })
+    return successResponse(res, report)
+  } catch (err) {
+    next(err)
+  }
+}
