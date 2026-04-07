@@ -101,6 +101,19 @@ export const removeMember = async (req, res, next) => {
   }
 }
 
+export const updateMemberRole = async (req, res, next) => {
+  try {
+    const member = await academyService.updateMemberRole({
+      operatorId: req.user.id,
+      targetUserId: req.params.userId,
+      role: req.body.role,
+    })
+    return successResponse(res, member, '멤버 역할이 수정되었습니다')
+  } catch (err) {
+    next(err)
+  }
+}
+
 export const getMyCoupons = async (req, res, next) => {
   try {
     const coupons = await academyService.getMyCoupons(req.user.id)

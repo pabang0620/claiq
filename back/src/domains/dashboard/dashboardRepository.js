@@ -53,9 +53,9 @@ export const findTeacherDashboard = async ({ teacherId, academyId }) => {
     ),
     pool.query(
       `SELECT COUNT(*) FROM qa_messages qm
-       JOIN qa_threads qt ON qt.id = qm.thread_id
-       WHERE qt.teacher_id = $1 AND qm.is_escalated = true AND qm.resolved_at IS NULL
-       ${academyId ? `AND qt.academy_id = $2` : ''}`,
+       JOIN qa_sessions qs ON qs.id = qm.session_id
+       WHERE qs.teacher_id = $1 AND qm.is_escalated = true AND qm.escalation_response IS NULL
+       ${academyId ? `AND qs.academy_id = $2` : ''}`,
       academyId ? [teacherId, academyId] : [teacherId]
     ).catch(() => ({ rows: [{ count: '0' }] })),
   ])
@@ -108,7 +108,12 @@ export const findStudentDashboard = async ({ studentId, academyId }) => {
 export const findOperatorDashboard = async (academy_id) => {
   const riskDays = env.churn.riskDays
 
-  const [churnResult, reportResult] = await Promise.all([
+  const [studentResult, churnResult, attendanceResult, reportResult] = await Promise.all([
+    pool.query(
+      `SELECT COUNT(*) FROM academy_members
+       WHERE academy_id = $1 AND role = 'student' AND status = 'active'`,
+      [academy_id]
+    ),
     pool.query(
       `SELECT COUNT(*) FROM (
          SELECT u.id
@@ -122,16 +127,26 @@ export const findOperatorDashboard = async (academy_id) => {
       [academy_id, riskDays]
     ),
     pool.query(
+      `SELECT ROUND(
+         COUNT(CASE WHEN a.status = 'present' THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0), 1
+       ) AS rate
+       FROM attendances a
+       WHERE a.academy_id = $1
+         AND a.marked_at >= date_trunc('month', NOW())`,
+      [academy_id]
+    ),
+    pool.query(
       `SELECT COUNT(*) FROM achievement_reports
-       WHERE academy_id = $1
-       ORDER BY created_at DESC`,
+       WHERE academy_id = $1 AND sent_at IS NULL`,
       [academy_id]
     ).catch(() => ({ rows: [{ count: '0' }] })),
   ])
 
   return {
-    churn_risk_count: parseInt(churnResult.rows[0].count),
-    achievement_report_count: parseInt(reportResult.rows[0].count),
+    totalStudents: parseInt(studentResult.rows[0].count),
+    churnRiskCount: parseInt(churnResult.rows[0].count),
+    attendanceRate: parseFloat(attendanceResult.rows[0]?.rate || 0),
+    pendingReports: parseInt(reportResult.rows[0].count),
   }
 }
 

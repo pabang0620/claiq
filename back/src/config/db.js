@@ -9,7 +9,12 @@ export const pool = new Pool({
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
-  ssl: env.nodeEnv === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: { rejectUnauthorized: false },
+})
+
+// claiq 스키마를 기본 search_path로 설정 (public 포함: uuid_generate_v4, vector 타입 접근)
+pool.on('connect', (client) => {
+  client.query('SET search_path TO claiq, public')
 })
 
 pool.on('error', (err) => {

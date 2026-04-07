@@ -43,8 +43,8 @@ export default function TeacherDashboardPage() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="bg-white rounded-xl border border-zinc-200 p-5 flex items-center gap-4">
-            <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${color}`}>
+          <div key={label} className="bg-white rounded-lg border border-zinc-200 p-5 flex items-center gap-4 hover:border-primary-200 hover:shadow-sm transition-all duration-150">
+            <div className={`w-11 h-11 rounded-lg flex items-center justify-center ${color}`}>
               <Icon size={22} />
             </div>
             <div>

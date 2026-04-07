@@ -130,6 +130,16 @@ export const deleteCoupon = async (id, academy_id) => {
   ).catch(() => {})
 }
 
+export const updateMemberRole = async (academy_id, user_id, role) => {
+  const { rows } = await pool.query(
+    `UPDATE academy_members SET role = $3, updated_at = NOW()
+     WHERE academy_id = $1 AND user_id = $2 AND status = 'active'
+     RETURNING *`,
+    [academy_id, user_id, role]
+  )
+  return rows[0] || null
+}
+
 export const findUserAcademies = async (user_id) => {
   const { rows } = await pool.query(
     `SELECT a.*, am.role AS member_role, am.status, am.joined_at

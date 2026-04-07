@@ -28,6 +28,7 @@ router.get('/pending', authMiddleware, requireRole('teacher', 'operator'), quest
 router.patch('/:id/review', authMiddleware, requireRole('teacher', 'operator'), validate(reviewSchema), questionController.reviewQuestion)
 
 // 학생용
+router.get('/today', authMiddleware, requireRole('student'), questionController.getTodayQuiz)
 router.get('/student', authMiddleware, requireRole('student'), questionController.getStudentQuestions)
 router.post('/:id/submit', authMiddleware, requireRole('student'), validate(submitSchema), questionController.submitAnswer)
 

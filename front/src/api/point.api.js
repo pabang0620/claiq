@@ -5,6 +5,6 @@ export const pointApi = {
   getTransactions: () => api.get('/points/me/transactions'),
   getBadges: () => api.get('/points/me/badges'),
   getStreak: () => api.get('/points/me/streak'),
-  redeem: (rewardId, points) => api.post('/points/me/redeem', { rewardId, points }),
+  redeem: (academyId) => api.post('/points/me/redeem', { academy_id: academyId }),
   getRewards: () => api.get('/points/rewards'),
 }

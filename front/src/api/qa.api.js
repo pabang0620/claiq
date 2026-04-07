@@ -8,8 +8,6 @@ export const qaApi = {
   // 에스컬레이션
   getEscalations: (params) =>
     api.get('/qa/escalations', { params }),
-  answerEscalation: (id, answer) =>
-    api.patch(`/qa/escalations/${id}/answer`, { answer }),
-  replyEscalation: (id, data) =>
-    api.post(`/qa/escalations/${id}/reply`, data),
+  replyEscalation: (id, response) =>
+    api.post(`/qa/escalations/${id}/reply`, { response }),
 }

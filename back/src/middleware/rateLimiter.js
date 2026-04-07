@@ -1,6 +1,7 @@
 import rateLimit from 'express-rate-limit'
+import { env } from '../config/env.js'
 
-const isTest = process.env.NODE_ENV === 'test'
+const isTest = env.nodeEnv === 'test'
 
 export const defaultLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

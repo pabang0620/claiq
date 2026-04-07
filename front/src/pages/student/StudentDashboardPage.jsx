@@ -99,7 +99,7 @@ export default function StudentDashboardPage() {
 
       {/* Today stats */}
       {summary?.todayStats && (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {[
             { label: '오늘 푼 문제', value: summary.todayStats.quizCount ?? 0, unit: '문제' },
             { label: '오늘 정답률', value: `${summary.todayStats.correctRate ?? 0}%`, unit: '' },

@@ -32,6 +32,29 @@ export const markReportSent = async (id, phone) => {
   return rows[0]
 }
 
+export const findReports = async ({ academy_id, student_id, page = 1, limit = 20 }) => {
+  const offset = (page - 1) * limit
+  const params = []
+  const conditions = []
+
+  if (academy_id) { params.push(academy_id); conditions.push(`ar.academy_id = $${params.length}`) }
+  if (student_id) { params.push(student_id); conditions.push(`ar.student_id = $${params.length}`) }
+
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
+  params.push(limit, offset)
+
+  const { rows } = await pool.query(
+    `SELECT ar.*, u.name AS student_name
+     FROM achievement_reports ar
+     JOIN users u ON u.id = ar.student_id
+     ${where}
+     ORDER BY ar.created_at DESC
+     LIMIT $${params.length - 1} OFFSET $${params.length}`,
+    params
+  )
+  return rows
+}
+
 export const findStudentStatsForReport = async (student_id, academy_id, period) => {
   const [attendResult, submitResult, typeResult, pointResult] = await Promise.all([
     pool.query(

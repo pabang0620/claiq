@@ -6,6 +6,7 @@ import { PageSpinner } from '../../components/ui/Spinner.jsx'
 import { reportApi } from '../../api/report.api.js'
 import { academyApi } from '../../api/academy.api.js'
 import { useUIStore } from '../../store/uiStore.js'
+import { useAcademyStore } from '../../store/academyStore.js'
 
 export default function ReportPage() {
   const [reports, setReports] = useState([])
@@ -14,6 +15,7 @@ export default function ReportPage() {
   const [generatingFor, setGeneratingFor] = useState(null)
   const [sendingId, setSendingId] = useState(null)
   const addToast = useUIStore((s) => s.addToast)
+  const academy = useAcademyStore((s) => s.academy)
 
   useEffect(() => {
     Promise.all([
@@ -32,7 +34,7 @@ export default function ReportPage() {
   async function handleGenerate(studentId) {
     setGeneratingFor(studentId)
     try {
-      const res = await reportApi.generate({ studentId, period: 'monthly' })
+      const res = await reportApi.generate({ studentId, period: new Date().toISOString().slice(0, 7), academyId: academy?.id })
       setReports((prev) => [res.data, ...prev])
       addToast({ type: 'success', message: '리포트가 생성됐습니다.' })
     } catch (err) {

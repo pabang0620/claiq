@@ -154,6 +154,22 @@ export const createCoupon = async ({ userId, couponData }) => {
   return academyRepository.createCoupon({ academy_id: academies[0].id, ...couponData })
 }
 
+export const updateMemberRole = async ({ operatorId, targetUserId, role }) => {
+  const academies = await academyRepository.findUserAcademies(operatorId)
+  if (!academies.length) {
+    const err = new Error('소속된 학원이 없습니다')
+    err.status = 404
+    throw err
+  }
+  const member = await academyRepository.updateMemberRole(academies[0].id, targetUserId, role)
+  if (!member) {
+    const err = new Error('멤버를 찾을 수 없습니다')
+    err.status = 404
+    throw err
+  }
+  return member
+}
+
 export const deleteCoupon = async ({ userId, couponId }) => {
   const academies = await academyRepository.findUserAcademies(userId)
   if (!academies.length) {

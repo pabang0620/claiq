@@ -8,7 +8,9 @@ CREATE TABLE IF NOT EXISTS learning_roadmaps (
   summary       TEXT,
   is_current    BOOLEAN      NOT NULL DEFAULT true,
   generated_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-  expires_at    TIMESTAMPTZ
+  expires_at    TIMESTAMPTZ,
+  created_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_learning_roadmaps_student ON learning_roadmaps(student_id);
@@ -27,7 +29,8 @@ CREATE TABLE IF NOT EXISTS roadmap_items (
   recommended_lecture_id UUID         REFERENCES lectures(id),
   note                   TEXT,
   completed_at           TIMESTAMPTZ,
-  created_at             TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+  created_at             TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  updated_at             TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_roadmap_items_roadmap ON roadmap_items(roadmap_id);

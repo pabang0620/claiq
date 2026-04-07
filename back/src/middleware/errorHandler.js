@@ -1,4 +1,5 @@
 import { logger } from '../utils/logger.js'
+import { env } from '../config/env.js'
 
 export const errorHandler = (err, req, res, next) => {
   const status = err.status || 500
@@ -6,7 +7,7 @@ export const errorHandler = (err, req, res, next) => {
 
   if (status >= 500) {
     logger.error(`[${req.method}] ${req.path} - ${status}: ${message}`)
-    if (process.env.NODE_ENV !== 'production') {
+    if (env.nodeEnv !== 'production') {
       logger.error(err.stack)
     }
   }

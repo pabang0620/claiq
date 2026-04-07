@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS student_type_stats (
   correct_count     INTEGER      NOT NULL DEFAULT 0,
   correct_rate      DECIMAL(5,4) NOT NULL DEFAULT 0.0000,
   last_attempted_at TIMESTAMPTZ,
+  created_at        TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
   updated_at        TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
   UNIQUE (student_id, type_code)
 );

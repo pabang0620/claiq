@@ -1,5 +1,5 @@
 import * as questionService from './questionService.js'
-import { successResponse, paginatedResponse } from '../../utils/response.js'
+import { successResponse } from '../../utils/response.js'
 
 export const getPendingQuestions = async (req, res, next) => {
   try {
@@ -54,6 +54,20 @@ export const submitAnswer = async (req, res, next) => {
       submitted: req.body.submitted,
     })
     return successResponse(res, result, result.is_correct ? '정답입니다!' : '오답입니다')
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const getTodayQuiz = async (req, res, next) => {
+  try {
+    const { academy_id } = req.query
+    const questions = await questionService.getStudentQuestions({
+      academy_id,
+      page: 1,
+      limit: 10,
+    })
+    return successResponse(res, questions)
   } catch (err) {
     next(err)
   }

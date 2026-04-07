@@ -3,36 +3,44 @@ dotenv.config()
 
 const isProd = process.env.NODE_ENV === 'production'
 
-function required(key) {
+/**
+ * 환경변수를 읽는다.
+ * - production: 값이 없으면 서버 시작을 즉시 중단 (throw)
+ * - 그 외: defaultValue 반환
+ */
+function required(key, defaultValue = '') {
   const val = process.env[key]
-  if (!val && isProd) throw new Error(`환경변수 누락: ${key}`)
-  return val || ''
+  if (!val) {
+    if (isProd) throw new Error(`필수 환경변수 누락: ${key}`)
+    return defaultValue
+  }
+  return val
 }
 
 export const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
-  port: parseInt(process.env.PORT || '4000'),
+  port: parseInt(process.env.PORT || '5000'),
 
   db: {
-    url: process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/claiq_db',
+    url: required('DATABASE_URL', 'postgresql://postgres:password@localhost:5432/claiq_db'),
   },
 
   supabase: {
-    url: process.env.SUPABASE_URL || 'https://placeholder.supabase.co',
-    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder',
+    url: required('SUPABASE_URL', 'https://placeholder.supabase.co'),
+    serviceRoleKey: required('SUPABASE_SERVICE_ROLE_KEY', 'placeholder'),
     bucketAudio: process.env.SUPABASE_STORAGE_BUCKET_AUDIO || 'claiq-audio',
     bucketMaterial: process.env.SUPABASE_STORAGE_BUCKET_MATERIAL || 'claiq-material',
   },
 
   jwt: {
-    secret: process.env.JWT_SECRET || (isProd ? required('JWT_SECRET') : 'dev_jwt_secret_claiq_2026'),
+    secret: required('JWT_SECRET', 'dev_jwt_secret_claiq_2026'),
     expiresIn: process.env.JWT_EXPIRES_IN || '1h',
-    refreshSecret: process.env.REFRESH_TOKEN_SECRET || (isProd ? required('REFRESH_TOKEN_SECRET') : 'dev_refresh_secret_claiq_2026'),
+    refreshSecret: required('REFRESH_TOKEN_SECRET', 'dev_refresh_secret_claiq_2026'),
     refreshExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '30d',
   },
 
   openai: {
-    apiKey: process.env.OPENAI_API_KEY || 'sk-placeholder',
+    apiKey: required('OPENAI_API_KEY', 'sk-placeholder'),
     modelChat: process.env.OPENAI_MODEL_CHAT || 'gpt-4o',
     modelEmbedding: process.env.OPENAI_MODEL_EMBEDDING || 'text-embedding-3-small',
     modelStt: process.env.OPENAI_MODEL_STT || 'whisper-1',

@@ -1,0 +1,67 @@
+import { create } from 'zustand'
+import api from '../api/axios.js'
+
+export const useExamStore = create((set, get) => ({
+  currentExam: null,
+  answers: {},
+  remainingTime: 0,
+  isSubmitted: false,
+  report: null,
+  isLoading: false,
+  isGenerating: false,
+  error: null,
+
+  generateExam: async () => {
+    set({ isGenerating: true, error: null, answers: {}, isSubmitted: false, report: null })
+    try {
+      const data = await api.post('/exams/generate')
+      const exam = data.data
+      set({
+        currentExam: exam,
+        remainingTime: exam.timeLimitSec || 1200,
+        isGenerating: false,
+      })
+      return exam
+    } catch (err) {
+      set({ error: err.message, isGenerating: false })
+      throw err
+    }
+  },
+
+  setAnswer: (questionId, answer) =>
+    set((state) => ({
+      answers: { ...state.answers, [questionId]: answer },
+    })),
+
+  submitExam: async () => {
+    const { currentExam, answers } = get()
+    if (!currentExam) return
+    set({ isLoading: true, error: null })
+    try {
+      const data = await api.post(`/exams/${currentExam.id}/submit`, { answers })
+      set({ isSubmitted: true, report: data.data, isLoading: false })
+      return data.data
+    } catch (err) {
+      set({ error: err.message, isLoading: false })
+      throw err
+    }
+  },
+
+  fetchReport: async (examId) => {
+    set({ isLoading: true, error: null })
+    try {
+      const data = await api.get(`/exams/${examId}/report`)
+      set({ report: data.data, isLoading: false })
+    } catch (err) {
+      set({ error: err.message, isLoading: false })
+    }
+  },
+
+  tick: () =>
+    set((state) => ({
+      remainingTime: Math.max(0, state.remainingTime - 1),
+    })),
+
+  resetExam: () =>
+    set({ currentExam: null, answers: {}, remainingTime: 0, isSubmitted: false, report: null }),
+}))

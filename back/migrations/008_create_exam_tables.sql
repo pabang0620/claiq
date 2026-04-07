@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS mini_exams (
   started_at      TIMESTAMPTZ,
   submitted_at    TIMESTAMPTZ,
   score           INTEGER,
-  created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+  created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_mini_exams_student ON mini_exams(student_id);

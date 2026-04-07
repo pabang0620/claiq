@@ -14,6 +14,15 @@ const sendSms = async (to, message) => {
   return { success: true }
 }
 
+export const getReports = async ({ academyId, studentId, page, limit }) => {
+  return reportRepository.findReports({
+    academy_id: academyId,
+    student_id: studentId,
+    page,
+    limit,
+  })
+}
+
 export const generateReport = async ({ studentId, academyId, period, operatorId }) => {
   const currentPeriod = period || new Date().toISOString().slice(0, 7)
 

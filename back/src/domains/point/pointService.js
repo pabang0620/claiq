@@ -11,11 +11,11 @@ export const addPoints = async ({ userId, academyId, type, amount, referenceId, 
 
   return withTransaction(async (client) => {
     // 잔액 조회 (없으면 생성)
-    const pointRow = await pointRepository.getOrCreatePointBalance(userId)
+    const pointRow = await pointRepository.getOrCreatePointBalance(userId, client)
     const newBalance = pointRow.balance + amount
     const earned = amount > 0 ? amount : 0
 
-    await pointRepository.updateBalance(userId, newBalance, earned)
+    await pointRepository.updateBalance(userId, newBalance, earned, client)
 
     const transaction = await pointRepository.addPointTransaction({
       userId,
@@ -26,6 +26,7 @@ export const addPoints = async ({ userId, academyId, type, amount, referenceId, 
       referenceId,
       idempotencyKey,
       note,
+      client,
     })
 
     return transaction
@@ -76,9 +77,9 @@ export const redeemPoints = async ({ userId, academyId }) => {
     throw err
   }
 
-  return withTransaction(async () => {
+  return withTransaction(async (client) => {
     const newBalance = balance.balance - env.points.toCoupon
-    await pointRepository.updateBalance(userId, newBalance, 0)
+    await pointRepository.updateBalance(userId, newBalance, 0, client)
 
     const transaction = await pointRepository.addPointTransaction({
       userId,
@@ -87,6 +88,7 @@ export const redeemPoints = async ({ userId, academyId }) => {
       amount: -env.points.toCoupon,
       balanceAfter: newBalance,
       note: '쿠폰으로 교환',
+      client,
     })
 
     return { transaction, couponCount: 1, remainingBalance: newBalance }

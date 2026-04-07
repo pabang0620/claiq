@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { Send, Plus, MessageSquare } from 'lucide-react'
+import { Send, Plus, MessageSquare, ChevronDown } from 'lucide-react'
 import { ChatBubble } from '../../components/student/ChatBubble.jsx'
 import { Button } from '../../components/ui/Button.jsx'
 import { PageSpinner } from '../../components/ui/Spinner.jsx'
@@ -28,6 +28,7 @@ export default function QAPage() {
   const user = useAuthStore((s) => s.user)
 
   const [inputText, setInputText] = useState('')
+  const [showSessionList, setShowSessionList] = useState(false)
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
 
@@ -77,8 +78,54 @@ export default function QAPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] gap-4">
-      {/* Session list */}
+    <div className="flex flex-col lg:flex-row h-[calc(100vh-8rem)] gap-3">
+      {/* 모바일 세션 선택 드롭다운 (lg 미만에서만) */}
+      <div className="lg:hidden relative flex-shrink-0">
+        <button
+          onClick={() => setShowSessionList((v) => !v)}
+          className="flex items-center gap-2 px-3 py-2 text-sm bg-white border border-zinc-200 rounded-lg hover:bg-zinc-50 transition-all duration-150 active:scale-[0.97]"
+        >
+          <MessageSquare size={15} className="text-zinc-500" />
+          <span className="text-zinc-700">{currentSession?.title || '대화 선택'}</span>
+          <ChevronDown size={14} className="text-zinc-400" />
+        </button>
+        {showSessionList && (
+          <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-zinc-200 rounded-lg shadow-lg z-10 overflow-hidden">
+            <div className="px-3 py-2 border-b border-zinc-100 flex items-center justify-between">
+              <span className="text-xs font-semibold text-zinc-600">대화 내역</span>
+              <button
+                onClick={() => { handleNewSession(); setShowSessionList(false) }}
+                className="p-1 hover:bg-zinc-100 rounded text-zinc-400"
+                aria-label="새 대화 시작"
+              >
+                <Plus size={14} />
+              </button>
+            </div>
+            <div className="max-h-48 overflow-y-auto py-1">
+              {sessions.length === 0 && (
+                <p className="text-xs text-zinc-400 text-center py-4">대화 내역이 없습니다</p>
+              )}
+              {sessions.map((session) => (
+                <button
+                  key={session.id}
+                  type="button"
+                  onClick={() => { selectSession(session.id); setShowSessionList(false) }}
+                  className={[
+                    'w-full text-left px-3 py-2 text-sm transition-colors duration-150',
+                    currentSession?.id === session.id
+                      ? 'bg-primary-50 text-primary-700'
+                      : 'text-zinc-600 hover:bg-zinc-50',
+                  ].join(' ')}
+                >
+                  <p className="truncate">{session.title || '새 대화'}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Session list (lg 이상에서만 사이드패널) */}
       <div className="w-56 flex-shrink-0 flex flex-col bg-white rounded-xl border border-zinc-200 overflow-hidden hidden lg:flex">
         <div className="px-3 py-3 border-b border-zinc-100 flex items-center justify-between">
           <span className="text-sm font-semibold text-zinc-700">대화 내역</span>

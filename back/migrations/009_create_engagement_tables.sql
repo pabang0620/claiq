@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS attendances (
     CHECK (status IN ('present', 'absent', 'late', 'excused')),
   marked_by   UUID        NOT NULL REFERENCES users(id),
   marked_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (lecture_id, student_id)
 );
 
@@ -21,6 +23,7 @@ CREATE TABLE IF NOT EXISTS points (
   user_id     UUID    NOT NULL REFERENCES users(id) UNIQUE,
   balance     INTEGER NOT NULL DEFAULT 0 CHECK (balance >= 0),
   total_earned INTEGER NOT NULL DEFAULT 0,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -53,7 +56,8 @@ CREATE TABLE IF NOT EXISTS badge_definitions (
   condition_value INTEGER      NOT NULL,
   points_reward   INTEGER      NOT NULL DEFAULT 50,
   is_active       BOOLEAN      NOT NULL DEFAULT true,
-  created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+  created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
 -- 수강생 획득 뱃지
@@ -74,6 +78,7 @@ CREATE TABLE IF NOT EXISTS learning_streaks (
   current_streak  INTEGER NOT NULL DEFAULT 0,
   longest_streak  INTEGER NOT NULL DEFAULT 0,
   last_active_date DATE,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -86,7 +91,8 @@ CREATE TABLE IF NOT EXISTS achievement_reports (
   content_json  JSONB       NOT NULL,
   sent_to_phone VARCHAR(20),
   sent_at       TIMESTAMPTZ,
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_achievement_reports_student ON achievement_reports(student_id);

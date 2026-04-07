@@ -41,6 +41,8 @@ CREATE TABLE IF NOT EXISTS academy_members (
   status      VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'suspended')),
   joined_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   left_at     TIMESTAMPTZ,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (academy_id, user_id)
 );
 
@@ -58,3 +60,18 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 );
 
 CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user ON refresh_tokens(user_id);
+
+-- 학원 쿠폰
+CREATE TABLE IF NOT EXISTS academy_coupons (
+  id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  academy_id       UUID         NOT NULL REFERENCES academies(id),
+  name             VARCHAR(200) NOT NULL,
+  description      TEXT,
+  discount_amount  INTEGER      NOT NULL DEFAULT 0,
+  expires_at       TIMESTAMPTZ,
+  created_at       TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  deleted_at       TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_academy_coupons_academy ON academy_coupons(academy_id) WHERE deleted_at IS NULL;

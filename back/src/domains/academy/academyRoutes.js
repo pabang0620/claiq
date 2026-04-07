@@ -28,6 +28,10 @@ const inviteSchema = z.object({
   role: z.enum(['teacher', 'student', 'operator']).optional(),
 })
 
+const updateMemberRoleSchema = z.object({
+  role: z.enum(['teacher', 'student', 'operator']),
+})
+
 const couponSchema = z.object({
   name: z.string().min(1, '쿠폰 이름을 입력하세요'),
   description: z.string().optional(),
@@ -40,14 +44,15 @@ router.get('/me', authMiddleware, academyController.getMyAcademy)
 router.patch('/me', authMiddleware, requireRole('operator'), validate(updateSchema), academyController.updateMyAcademy)
 router.get('/me/members', authMiddleware, academyController.getMyMembers)
 router.post('/me/members/invite', authMiddleware, requireRole('operator'), validate(inviteSchema), academyController.inviteMember)
+router.patch('/me/members/:userId/role', authMiddleware, requireRole('operator'), validate(updateMemberRoleSchema), academyController.updateMemberRole)
 router.delete('/me/members/:userId', authMiddleware, requireRole('operator'), academyController.removeMember)
 router.get('/me/coupons', authMiddleware, academyController.getMyCoupons)
 router.post('/me/coupons', authMiddleware, requireRole('operator'), validate(couponSchema), academyController.createCoupon)
 router.delete('/me/coupons/:id', authMiddleware, requireRole('operator'), academyController.deleteCoupon)
 
 router.post('/', authMiddleware, requireRole('operator'), validate(createSchema), academyController.createAcademy)
-router.get('/:id', authMiddleware, academyController.getAcademy)
 router.post('/join', authMiddleware, validate(joinSchema), academyController.joinAcademy)
+router.get('/:id', authMiddleware, academyController.getAcademy)
 router.get('/:id/members', authMiddleware, academyController.getMembers)
 
 export default router

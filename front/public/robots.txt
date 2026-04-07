@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /signup
+Allow: /privacy
+Allow: /terms
+Disallow: /student/
+Disallow: /teacher/
+Disallow: /operator/
+Disallow: /join-academy
+
+Sitemap: https://claiq.kr/sitemap.xml

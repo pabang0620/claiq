@@ -5,5 +5,5 @@ export const attendanceApi = {
   mark: (data) => api.post('/attendance', data),
   update: (id, data) => api.patch(`/attendance/${id}`, data),
   bulkMark: (data) => api.post('/attendance/bulk', data),
-  getMyAttendance: () => api.get('/attendance/me'),
+  getMyAttendance: (params) => api.get('/attendance/me', { params }),
 }
