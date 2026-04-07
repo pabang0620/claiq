@@ -8,7 +8,14 @@
     "start": "node src/server.js",
     "dev": "TZ=Asia/Seoul nodemon src/server.js",
     "migrate": "node scripts/migrate.js",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test:coverage": "node --experimental-vm-modules node_modules/.bin/jest --coverage"
+  },
+  "jest": {
+    "transform": {},
+    "testEnvironment": "node",
+    "testMatch": ["**/__tests__/**/*.test.js"]
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
