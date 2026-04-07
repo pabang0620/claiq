@@ -41,7 +41,7 @@ export const env = {
 
   openai: {
     apiKey: required('OPENAI_API_KEY', 'sk-placeholder'),
-    modelChat: process.env.OPENAI_MODEL_CHAT || 'gpt-4o',
+    modelChat: process.env.OPENAI_MODEL_CHAT || 'gpt-4o-mini',
     modelEmbedding: process.env.OPENAI_MODEL_EMBEDDING || 'text-embedding-3-small',
     modelStt: process.env.OPENAI_MODEL_STT || 'whisper-1',
   },

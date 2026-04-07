@@ -14,7 +14,7 @@ export const pool = new Pool({
 
 // claiq 스키마를 기본 search_path로 설정 (public 포함: uuid_generate_v4, vector 타입 접근)
 pool.on('connect', (client) => {
-  client.query('SET search_path TO claiq, public')
+  client.query("SET search_path TO claiq, public; SET timezone TO 'Asia/Seoul'")
 })
 
 pool.on('error', (err) => {
