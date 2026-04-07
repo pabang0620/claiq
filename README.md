@@ -55,7 +55,7 @@
 - **수능 유형별 약점 분석** - 문제 풀이 데이터를 수능 유형 단위로 누적 분석. 막연한 "약함"이 아니라 "수학 미적분 극값 유형 정답률 32%" 수준의 정밀 진단 (수치는 출력 예시)
 - **수능 D-day 역산 개인 학습 로드맵** - 수능까지 남은 일수 + 취약 유형 + 수업 일정을 AI가 종합 분석해 개인별 학습 우선순위 자동 설계. 매주 재계산
 - **개인별 맞춤 미니 모의고사** - 약점 유형 70% 이상 집중 편성, 실제 수능 형식(시간 제한·배점) 적용. 풀이 후 유형별 분석 리포트 자동 제공
-- **포인트 · 뱃지 · 스트릭** - 출석(20p), 정답(난이도별 10~25p), 7일 스트릭(100p) 등 누적 → 기프티콘/학원비 할인 쿠폰 교환
+- **포인트 · 뱃지 · 스트릭** - 출석(10p), 정답(난이도별 5~20p), 7일 스트릭(30p) / 30일 스트릭(100p) 등 누적 → 기프티콘/학원비 할인 쿠폰 교환
 
 ---
 
@@ -239,7 +239,7 @@ GPT-4o-mini 전략 분석
 
 ### 사전 요구사항
 
-- Node.js 20 이상
+- Node.js 18 이상
 - PostgreSQL (pgvector 확장 활성화)
 - OpenAI API 키
 
@@ -259,13 +259,20 @@ cp back/.env.example back/.env
 
 ```env
 # back/.env
-DATABASE_URL=postgresql://user:password@host:5432/postgres
-OPENAI_API_KEY=sk-...
-JWT_SECRET=your-jwt-secret
-JWT_REFRESH_SECRET=your-refresh-secret
 NODE_ENV=development
 PORT=4000
-FRONTEND_URL=http://localhost:5173
+
+DATABASE_URL=postgresql://user:password@host:5432/claiq_db
+
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+JWT_SECRET=your-jwt-secret
+REFRESH_TOKEN_SECRET=your-refresh-secret
+
+OPENAI_API_KEY=sk-...
+
+CORS_ORIGIN=http://localhost:5173
 ```
 
 ```bash
@@ -275,7 +282,9 @@ cp front/.env.example front/.env
 
 ```env
 # front/.env
-VITE_API_BASE_URL=http://localhost:4000/api
+VITE_API_URL=http://localhost:4000/api
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 ### 3. 의존성 설치 및 DB 초기화
@@ -371,8 +380,9 @@ claiq/
 │       └── utils/                  # jwt, date, suneung type helpers
 │
 ├── CLAIQ_기획안.md                 # 서비스 전체 기획서
-├── CLAIQ_플랜_백엔드.md            # 백엔드 구현 플랜 (DB 스키마 포함)
+├── CLAIQ_플랜_백엔드.md            # 백엔드 구현 플랜
 ├── CLAIQ_플랜_프론트엔드.md        # 프론트엔드 구현 플랜
+├── CLAIQ_플랜_데이터베이스.md      # DB 스키마 설계
 ├── CLAIQ_AI리포트.md               # AI 활용 상세 기록
 ├── AI_협업_기록.md                  # Claude Code 협업 로그
 └── CLAIQ_테스트_체크리스트.md       # 기능별 테스트 체크리스트
@@ -386,7 +396,7 @@ claiq/
 |------|-----|
 | **프론트엔드 (Vercel)** | https://claiq.vercel.app |
 | **백엔드 API (Render)** | https://claiq-api.onrender.com |
-| **API 헬스체크** | https://claiq-api.onrender.com/health |
+| **API 헬스체크** | https://claiq-api.onrender.com/api/health |
 
 ---
 
@@ -395,8 +405,9 @@ claiq/
 | 문서 | 설명 |
 |------|------|
 | [CLAIQ_기획안.md](./CLAIQ_기획안.md) | 서비스 기획 전문 - 해결 문제, 사용자 여정, 기능 목록, 기대효과 |
-| [CLAIQ_플랜_백엔드.md](./CLAIQ_플랜_백엔드.md) | DB 스키마 설계, API 엔드포인트 명세, 비즈니스 로직 |
+| [CLAIQ_플랜_백엔드.md](./CLAIQ_플랜_백엔드.md) | API 엔드포인트 명세, 비즈니스 로직 |
 | [CLAIQ_플랜_프론트엔드.md](./CLAIQ_플랜_프론트엔드.md) | 컴포넌트 구조, 페이지별 UI 설계, 상태관리 |
+| [CLAIQ_플랜_데이터베이스.md](./CLAIQ_플랜_데이터베이스.md) | DB 스키마 설계, pgvector 인덱스 전략 |
 | [CLAIQ_AI리포트.md](./CLAIQ_AI리포트.md) | AI 모델 선택 근거, 프롬프트 전략, 파이프라인 설계 |
 | [AI_협업_기록.md](./AI_협업_기록.md) | Claude Code와의 실제 협업 과정 및 주요 결정 기록 |
 | [CLAIQ_테스트_체크리스트.md](./CLAIQ_테스트_체크리스트.md) | 역할별 기능 E2E 테스트 체크리스트 |
