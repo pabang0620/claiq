@@ -35,7 +35,7 @@ export const addPointTransaction = async ({ userId, academyId, type, amount, bal
       [userId, academyId, type, amount, balanceAfter, referenceId || null, idempotencyKey, note || null]
     )
     if (rows[0]) return rows[0]
-    // 삽입이 생략된 경우 — 기존 행을 반환
+    // 삽입이 생략된 경우 - 기존 행을 반환
     const existing = await db.query(
       `SELECT * FROM point_transactions WHERE idempotency_key = $1`,
       [idempotencyKey]

@@ -15,6 +15,7 @@ export default function LectureMaterialPage() {
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef(null)
   const addToast = useUIStore((s) => s.addToast)
+  const showConfirm = useUIStore((s) => s.showConfirm)
 
   useEffect(() => {
     lectureApi.getList({ limit: 50 }).then((res) => {
@@ -53,7 +54,8 @@ export default function LectureMaterialPage() {
   }
 
   async function handleDelete(materialId) {
-    if (!confirm('자료를 삭제하시겠습니까?')) return
+    const ok = await showConfirm('자료를 삭제하시겠습니까?', { confirmLabel: '삭제', danger: true })
+    if (!ok) return
     try {
       await lectureApi.deleteMaterial(selectedLecture, materialId)
       setMaterials((prev) => prev.filter((m) => m.id !== materialId))

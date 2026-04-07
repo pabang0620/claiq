@@ -40,6 +40,18 @@ html, body {
   min-height: 100vh;
 }
 
+/* Dialog animations */
+@keyframes slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes fade-scale {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+.animate-slide-up  { animation: slide-up  0.22s ease-out; }
+.animate-fade-scale { animation: fade-scale 0.18s ease-out; }
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

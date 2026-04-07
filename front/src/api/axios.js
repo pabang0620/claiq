@@ -21,7 +21,7 @@ export function setupApiAuth({ getToken, setToken, logout }) {
   onAuthFailed = logout
 }
 
-// 요청 인터셉터 — Authorization 헤더 자동 주입
+// 요청 인터셉터 - Authorization 헤더 자동 주입
 api.interceptors.request.use((config) => {
   const token = getAccessToken()
   if (token) {
@@ -30,7 +30,7 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// 응답 인터셉터 — 401 시 토큰 갱신 후 재시도
+// 응답 인터셉터 - 401 시 토큰 갱신 후 재시도
 api.interceptors.response.use(
   (response) => response.data,
   async (error) => {

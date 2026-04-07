@@ -100,8 +100,8 @@ architect 에이전트 실행
 ### 3단계: 스키마 설계 (database-reviewer)
 ```
 database-reviewer 에이전트 실행
-→ lectures, lecture_chunks, embeddings 테이블 설계
-→ questions, question_reviews 테이블 설계
+→ lectures, lecture_chunks 테이블 설계
+→ questions, question_options, answer_submissions 테이블 설계
 → pgvector 인덱스 전략 (ivfflat, cosine distance)
 → 소프트 삭제 패턴 적용
 ```

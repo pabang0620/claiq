@@ -114,14 +114,15 @@ Fine-tuning 대비 비용 비교:
 
 ```sql
 -- 벡터 유사도 검색 (실제 구현 기준)
+-- pgvector 제약으로 임베딩 벡터는 '[...]'::vector 형식으로 직접 삽입
 SELECT lc.id, lc.lecture_id, lc.content,
-       1 - (lc.embedding <=> $1) AS similarity
+       1 - (lc.embedding <=> '[...]'::vector) AS similarity
 FROM lecture_chunks lc
-WHERE lc.teacher_id = $2
-  AND lc.academy_id = $3
+WHERE lc.teacher_id = $1
+  AND lc.academy_id = $2
   AND lc.embedding IS NOT NULL
-ORDER BY lc.embedding <=> $1
-LIMIT $4;
+ORDER BY lc.embedding <=> '[...]'::vector
+LIMIT $3;
 ```
 
 ---

@@ -16,6 +16,7 @@ export default function AcademySettingPage() {
   const [form, setForm] = useState({ name: '', code: '', description: '' })
   const [couponForm, setCouponForm] = useState({ name: '', discountType: 'percent', discountValue: '', validDays: 30 })
   const addToast = useUIStore((s) => s.addToast)
+  const showConfirm = useUIStore((s) => s.showConfirm)
 
   useEffect(() => {
     Promise.all([academyApi.getMe(), academyApi.getCoupons()])
@@ -56,7 +57,8 @@ export default function AcademySettingPage() {
   }
 
   async function handleDeleteCoupon(id) {
-    if (!confirm('쿠폰을 삭제하시겠습니까?')) return
+    const ok = await showConfirm('쿠폰을 삭제하시겠습니까?', { confirmLabel: '삭제', danger: true })
+    if (!ok) return
     try {
       await academyApi.deleteCoupon(id)
       setCoupons((prev) => prev.filter((c) => c.id !== id))
@@ -89,7 +91,7 @@ export default function AcademySettingPage() {
             <p className="text-sm font-medium text-zinc-700 mb-1">학원 코드</p>
             <div className="flex items-center gap-2">
               <span className="px-3 py-2 bg-zinc-100 border border-zinc-200 rounded-lg text-sm font-mono font-bold text-zinc-700 tracking-widest">
-                {form.code || '—'}
+                {form.code || '-'}
               </span>
               <p className="text-xs text-zinc-400">수강생에게 공유하세요</p>
             </div>

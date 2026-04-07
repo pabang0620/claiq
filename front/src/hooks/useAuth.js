@@ -36,7 +36,7 @@ export function useAuth() {
         const { user: u, accessToken: token } = res.data
         setAuth(u, token)
         addToast({ type: 'success', message: '회원가입이 완료됐습니다.' })
-        navigate('/join-academy')
+        navigate(u.role === 'operator' ? getDashboardPath(u.role) : '/join-academy')
         return { success: true }
       } catch (err) {
         const message = err.message || '회원가입에 실패했습니다.'

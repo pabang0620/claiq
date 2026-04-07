@@ -410,7 +410,7 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// 요청 인터셉터 — Authorization 헤더 자동 주입
+// 요청 인터셉터 - Authorization 헤더 자동 주입
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken
   if (token) {
@@ -419,7 +419,7 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// 응답 인터셉터 — 401 시 토큰 갱신 후 재시도
+// 응답 인터셉터 - 401 시 토큰 갱신 후 재시도
 api.interceptors.response.use(
   (response) => response.data,
   async (error) => {
@@ -545,7 +545,7 @@ export function useSSE(url, handlers) {
   return { disconnect }
 }
 
-// src/hooks/useQAStream.js — RAG Q&A 스트리밍 특화 훅
+// src/hooks/useQAStream.js - RAG Q&A 스트리밍 특화 훅
 import { useCallback, useState } from 'react'
 import { useQAStore } from '../stores/qaStore'
 
@@ -640,7 +640,7 @@ data: {"type": "done", "questionCount": 15}
 import { useEffect, useRef, useCallback } from 'react'
 
 /**
- * 폴링 훅 — 특정 조건 달성 시 자동 중단
+ * 폴링 훅 - 특정 조건 달성 시 자동 중단
  * @param {Function} fetchFn - 비동기 조회 함수
  * @param {Function} shouldStop - (data) => boolean, true이면 폴링 중단
  * @param {number} interval - 폴링 주기 (ms)
@@ -680,7 +680,7 @@ export function usePolling(fetchFn, shouldStop, interval = 3000, enabled = true)
   return { stop }
 }
 
-// 사용 예시 — 강의 업로드 처리 상태 폴링 (SSE 불가 환경 폴백)
+// 사용 예시 - 강의 업로드 처리 상태 폴링 (SSE 불가 환경 폴백)
 // LectureUploadPage.jsx 내부
 const { stop } = usePolling(
   () => lectureApi.getStatus(lectureId),
@@ -689,7 +689,7 @@ const { stop } = usePolling(
   isPollingEnabled
 )
 
-// 사용 예시 — 미니 모의고사 생성 완료 폴링
+// 사용 예시 - 미니 모의고사 생성 완료 폴링
 const { stop } = usePolling(
   () => examApi.getStatus(examId),
   (data) => data.status === 'ready',
@@ -781,96 +781,96 @@ export default {
 
 ## 8. 구현 단계 1~10 (파일 단위 체크리스트)
 
-### 단계 1 — 프로젝트 초기화 및 공통 기반
+### 단계 1 - 프로젝트 초기화 및 공통 기반
 
-- [ ] `vite.config.js` — React 19, 경로 별칭(@/) 설정
-- [ ] `tailwind.config.js` — 보라색 primary 테마 설정 (위 설정 그대로)
-- [ ] `index.html` — Pretendard 폰트 CDN 링크 추가
-- [ ] `.env.example` — VITE_API_URL, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY
-- [ ] `src/main.jsx` — React 19 createRoot 진입점
-- [ ] `src/App.jsx` — React Router v7 라우터 구성
-- [ ] `src/constants/roles.js` — TEACHER, STUDENT, OPERATOR 상수
+- [ ] `vite.config.js` - React 19, 경로 별칭(@/) 설정
+- [ ] `tailwind.config.js` - 보라색 primary 테마 설정 (위 설정 그대로)
+- [ ] `index.html` - Pretendard 폰트 CDN 링크 추가
+- [ ] `.env.example` - VITE_API_URL, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY
+- [ ] `src/main.jsx` - React 19 createRoot 진입점
+- [ ] `src/App.jsx` - React Router v7 라우터 구성
+- [ ] `src/constants/roles.js` - TEACHER, STUDENT, OPERATOR 상수
 - [ ] `src/utils/formatDate.js`, `calcDday.js`, `formatPoint.js`
-- [ ] `src/stores/uiStore.js` — Toast, Sidebar 전역 상태
-- [ ] `src/components/ui/` — Button, Input, Card, Modal, Spinner, Toast, Badge, ProgressBar (8종)
+- [ ] `src/stores/uiStore.js` - Toast, Sidebar 전역 상태
+- [ ] `src/components/ui/` - Button, Input, Card, Modal, Spinner, Toast, Badge, ProgressBar (8종)
 - [ ] `src/components/layout/AppLayout.jsx`, `Sidebar.jsx`, `Header.jsx`, `AuthLayout.jsx`
 
-### 단계 2 — 인증 및 라우팅
+### 단계 2 - 인증 및 라우팅
 
-- [ ] `src/api/axios.js` — Axios 인스턴스 (인터셉터 포함)
+- [ ] `src/api/axios.js` - Axios 인스턴스 (인터셉터 포함)
 - [ ] `src/api/auth.api.js`
 - [ ] `src/stores/authStore.js`
 - [ ] `src/hooks/useAuth.js`
-- [ ] `src/router/index.jsx` — 역할별 라우트 구성
-- [ ] `src/router/PrivateRoute.jsx` — 인증 보호
-- [ ] `src/router/RoleRoute.jsx` — 역할 기반 보호
+- [ ] `src/router/index.jsx` - 역할별 라우트 구성
+- [ ] `src/router/PrivateRoute.jsx` - 인증 보호
+- [ ] `src/router/RoleRoute.jsx` - 역할 기반 보호
 - [ ] `src/pages/auth/LoginPage.jsx`
-- [ ] `src/pages/auth/SignupPage.jsx` — 역할 선택 포함
-- [ ] `src/pages/auth/JoinAcademyPage.jsx` — 학원 코드 입력
+- [ ] `src/pages/auth/SignupPage.jsx` - 역할 선택 포함
+- [ ] `src/pages/auth/JoinAcademyPage.jsx` - 학원 코드 입력
 - [ ] `src/pages/common/NotFoundPage.jsx`, `UnauthorizedPage.jsx`
 
-### 단계 3 — 강의 업로드 (교강사)
+### 단계 3 - 강의 업로드 (교강사)
 
 - [ ] `src/api/lecture.api.js`
 - [ ] `src/stores/lectureStore.js`
-- [ ] `src/hooks/useUpload.js` — multipart 업로드 + 진행률
-- [ ] `src/hooks/useSSE.js` — 범용 SSE 훅
+- [ ] `src/hooks/useUpload.js` - multipart 업로드 + 진행률
+- [ ] `src/hooks/useSSE.js` - 범용 SSE 훅
 - [ ] `src/components/teacher/UploadDropzone.jsx`
 - [ ] `src/components/teacher/UploadProgressSSE.jsx`
 - [ ] `src/pages/teacher/LectureUploadPage.jsx`
 - [ ] `src/pages/teacher/TeacherDashboardPage.jsx` (기본 레이아웃)
 
-### 단계 4 — 문제 검증 화면 (Human-in-the-Loop)
+### 단계 4 - 문제 검증 화면 (Human-in-the-Loop)
 
 - [ ] `src/api/question.api.js`
 - [ ] `src/stores/questionStore.js`
-- [ ] `src/components/teacher/QuestionCard.jsx` — 승인/수정/반려 액션
+- [ ] `src/components/teacher/QuestionCard.jsx` - 승인/수정/반려 액션
 - [ ] `src/components/ui/Tabs.jsx`
-- [ ] `src/pages/teacher/QuestionReviewPage.jsx` — 검증 대기 목록
-- [ ] `src/pages/teacher/QuestionReviewDetailPage.jsx` — 문제 개별 수정
+- [ ] `src/pages/teacher/QuestionReviewPage.jsx` - 검증 대기 목록
+- [ ] `src/pages/teacher/QuestionReviewDetailPage.jsx` - 문제 개별 수정
 
-### 단계 5 — 출결 및 강의 자료 (교강사)
+### 단계 5 - 출결 및 강의 자료 (교강사)
 
 - [ ] `src/api/attendance.api.js`
 - [ ] `src/components/teacher/AttendanceTable.jsx`
 - [ ] `src/pages/teacher/AttendancePage.jsx`
-- [ ] `src/pages/teacher/LectureMaterialPage.jsx` — 파일 업로드 (PDF/이미지)
+- [ ] `src/pages/teacher/LectureMaterialPage.jsx` - 파일 업로드 (PDF/이미지)
 
-### 단계 6 — RAG Q&A 챗봇 (수강생)
+### 단계 6 - RAG Q&A 챗봇 (수강생)
 
 - [ ] `src/api/qa.api.js`
 - [ ] `src/stores/qaStore.js`
-- [ ] `src/hooks/useQAStream.js` — Fetch Streaming API 훅
+- [ ] `src/hooks/useQAStream.js` - Fetch Streaming API 훅
 - [ ] `src/components/student/ChatBubble.jsx`
 - [ ] `src/components/student/StreamingText.jsx`
 - [ ] `src/pages/student/QAPage.jsx`
 - [ ] `src/components/teacher/EscalationItem.jsx`
 - [ ] `src/pages/teacher/QAEscalationPage.jsx`
 
-### 단계 7 — 문제 풀기 및 약점 분석 (수강생)
+### 단계 7 - 문제 풀기 및 약점 분석 (수강생)
 
-- [ ] `src/components/student/QuizCard.jsx` — 5지선다/단답형
+- [ ] `src/components/student/QuizCard.jsx` - 5지선다/단답형
 - [ ] `src/pages/student/QuizPage.jsx`
 - [ ] `src/pages/student/QuizResultPage.jsx`
-- [ ] `src/components/student/WeakTypeChart.jsx` — 레이더 차트 (recharts)
+- [ ] `src/components/student/WeakTypeChart.jsx` - 레이더 차트 (recharts)
 - [ ] `src/pages/student/WeakPointPage.jsx`
 - [ ] `src/hooks/useWeakPoint.js`
 
-### 단계 8 — D-day 로드맵 및 미니 모의고사 (수강생)
+### 단계 8 - D-day 로드맵 및 미니 모의고사 (수강생)
 
 - [ ] `src/api/roadmap.api.js`, `exam.api.js`
 - [ ] `src/stores/roadmapStore.js`, `examStore.js`
 - [ ] `src/hooks/useRoadmap.js`
-- [ ] `src/hooks/usePolling.js` — 모의고사 생성 대기 폴링
+- [ ] `src/hooks/usePolling.js` - 모의고사 생성 대기 폴링
 - [ ] `src/components/student/DdayCounter.jsx`
 - [ ] `src/components/student/RoadmapTimeline.jsx`
 - [ ] `src/pages/student/RoadmapPage.jsx`
-- [ ] `src/pages/student/StudentDashboardPage.jsx` — D-day + 로드맵 + 추천 통합
+- [ ] `src/pages/student/StudentDashboardPage.jsx` - D-day + 로드맵 + 추천 통합
 - [ ] `src/components/student/QuizTimer.jsx`
 - [ ] `src/pages/student/MiniExamPage.jsx`
 - [ ] `src/pages/student/MiniExamResultPage.jsx`
 
-### 단계 9 — 포인트·뱃지·스트릭 (수강생)
+### 단계 9 - 포인트·뱃지·스트릭 (수강생)
 
 - [ ] `src/api/point.api.js`
 - [ ] `src/stores/pointStore.js`
@@ -879,13 +879,13 @@ export default {
 - [ ] `src/components/student/RecommendCard.jsx`
 - [ ] `src/pages/student/PointPage.jsx`
 - [ ] `src/pages/student/BadgePage.jsx`
-- [ ] `src/pages/student/MaterialPage.jsx` — 강의 정리자료 열람
+- [ ] `src/pages/student/MaterialPage.jsx` - 강의 정리자료 열람
 
-### 단계 10 — 운영자 대시보드
+### 단계 10 - 운영자 대시보드
 
 - [ ] `src/api/dashboard.api.js`, `report.api.js`
 - [ ] `src/components/operator/ChurnRiskTable.jsx`
-- [ ] `src/components/operator/LectureStatChart.jsx` — 정답률 차트 (recharts)
+- [ ] `src/components/operator/LectureStatChart.jsx` - 정답률 차트 (recharts)
 - [ ] `src/components/operator/ReportPreview.jsx`
 - [ ] `src/pages/operator/OperatorDashboardPage.jsx`
 - [ ] `src/pages/operator/ChurnRiskPage.jsx`

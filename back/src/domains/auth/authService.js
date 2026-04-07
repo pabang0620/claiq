@@ -1,4 +1,6 @@
 import * as authRepository from './authRepository.js'
+import { createAcademy, addMember } from '../academy/academyRepository.js'
+import { generateAcademyCode } from '../../utils/academyCode.js'
 import { hashPassword, comparePassword } from '../../utils/bcrypt.js'
 import { signAccessToken, signRefreshToken } from '../../utils/jwt.js'
 import { env } from '../../config/env.js'
@@ -17,7 +19,7 @@ const makeRefreshExpiry = () => {
   return d
 }
 
-export const signup = async ({ email, password, name, role, phone }) => {
+export const signup = async ({ email, password, name, role, phone, academyName }) => {
   const existing = await authRepository.findUserByEmail(email)
   if (existing) {
     const err = new Error('이미 사용 중인 이메일입니다')
@@ -27,6 +29,12 @@ export const signup = async ({ email, password, name, role, phone }) => {
 
   const password_hash = await hashPassword(password)
   const user = await authRepository.createUser({ email, password_hash, name, role, phone })
+
+  if (role === 'operator' && academyName) {
+    const code = generateAcademyCode()
+    const academy = await createAcademy({ name: academyName, code, owner_id: user.id })
+    await addMember({ academy_id: academy.id, user_id: user.id, role: 'operator' })
+  }
 
   const accessToken = signAccessToken({ id: user.id, email: user.email, role: user.role })
   const refreshToken = signRefreshToken({ id: user.id })

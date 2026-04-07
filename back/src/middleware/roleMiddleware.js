@@ -1,7 +1,7 @@
 import { errorResponse } from '../utils/response.js'
 
 /**
- * roles: string[] — 허용할 역할 목록
+ * roles: string[] - 허용할 역할 목록
  * 예: requireRole('teacher', 'operator')
  */
 export const requireRole = (...roles) => (req, res, next) => {

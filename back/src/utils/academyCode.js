@@ -18,7 +18,7 @@ export const generateAcademyCode = (length = 6) => {
 }
 
 /**
- * 코드 형식 유효성 검사 — 대문자+숫자 6자리인지 확인
+ * 코드 형식 유효성 검사 - 대문자+숫자 6자리인지 확인
  * @param {string} code
  * @returns {boolean}
  */

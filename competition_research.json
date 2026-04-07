@@ -1,0 +1,265 @@
+{
+  "naver_results": {
+    "KIT 바이브코딩 공모전 수상": [],
+    "바이브코딩 공모전 수상작 github": [],
+    "KIT 공모전 AI 플랫폼 수상": []
+  },
+  "github_repos": {
+    "바이브코딩 공모전": [
+      {
+        "name": "Jason-hub-star/gongmo1",
+        "url": "https://github.com/Jason-hub-star/gongmo1",
+        "description": "바이브코딩 공모전",
+        "stars": 0,
+        "language": "TypeScript",
+        "topics": [],
+        "created": "2026-01-10",
+        "updated": "2026-01-19"
+      },
+      {
+        "name": "projectmiluju/baegok",
+        "url": "https://github.com/projectmiluju/baegok",
+        "description": "KIT 바이브코딩 공모전",
+        "stars": 0,
+        "language": "TypeScript",
+        "topics": [],
+        "created": "2026-04-07",
+        "updated": "2026-04-07"
+      },
+      {
+        "name": "jwhong48250-commits/fourman",
+        "url": "https://github.com/jwhong48250-commits/fourman",
+        "description": "KIT 바이브코딩 공모전",
+        "stars": 0,
+        "language": null,
+        "topics": [],
+        "created": "2026-04-06",
+        "updated": "2026-04-06"
+      },
+      {
+        "name": "byungwook-dev/Sensitive",
+        "url": "https://github.com/byungwook-dev/Sensitive",
+        "description": "2026 KIT 바이브코딩 공모전",
+        "stars": 0,
+        "language": "JavaScript",
+        "topics": [],
+        "created": "2026-04-03",
+        "updated": "2026-04-04"
+      },
+      {
+        "name": "HaYul0611/AIcontest",
+        "url": "https://github.com/HaYul0611/AIcontest",
+        "description": "[KIT 바이브코딩 공모전] 주제 공개 및 공모전",
+        "stars": 0,
+        "language": "TypeScript",
+        "topics": [],
+        "created": "2026-04-07",
+        "updated": "2026-04-07"
+      }
+    ],
+    "AI education platform korea hackathon": [],
+    "수능 AI 학습 플랫폼": [],
+    "vibe coding competition korea": [],
+    "KIT 공모전": [
+      {
+        "name": "NamDanChu/KIT_Contest",
+        "url": "https://github.com/NamDanChu/KIT_Contest",
+        "description": "KIT 공모전 ",
+        "stars": 0,
+        "language": "Python",
+        "topics": [],
+        "created": "2026-04-05",
+        "updated": "2026-04-07"
+      },
+      {
+        "name": "projectmiluju/baegok",
+        "url": "https://github.com/projectmiluju/baegok",
+        "description": "KIT 바이브코딩 공모전",
+        "stars": 0,
+        "language": "TypeScript",
+        "topics": [],
+        "created": "2026-04-07",
+        "updated": "2026-04-07"
+      },
+      {
+        "name": "jwhong48250-commits/fourman",
+        "url": "https://github.com/jwhong48250-commits/fourman",
+        "description": "KIT 바이브코딩 공모전",
+        "stars": 0,
+        "language": null,
+        "topics": [],
+        "created": "2026-04-06",
+        "updated": "2026-04-06"
+      },
+      {
+        "name": "HaYul0611/AIcontest",
+        "url": "https://github.com/HaYul0611/AIcontest",
+        "description": "[KIT 바이브코딩 공모전] 주제 공개 및 공모전",
+        "stars": 0,
+        "language": "TypeScript",
+        "topics": [],
+        "created": "2026-04-07",
+        "updated": "2026-04-07"
+      },
+      {
+        "name": "byungwook-dev/Sensitive",
+        "url": "https://github.com/byungwook-dev/Sensitive",
+        "description": "2026 KIT 바이브코딩 공모전",
+        "stars": 0,
+        "language": "JavaScript",
+        "topics": [],
+        "created": "2026-04-03",
+        "updated": "2026-04-04"
+      }
+    ]
+  },
+  "detailed_analysis": [
+    {
+      "name": "Jason-hub-star/gongmo1",
+      "url": "https://github.com/Jason-hub-star/gongmo1",
+      "description": "바이브코딩 공모전",
+      "stars": 0,
+      "language": "TypeScript",
+      "topics": [],
+      "created": "2026-01-10",
+      "updated": "2026-01-19",
+      "structure": {
+        "total_files": 215,
+        "key_files": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "README.md",
+          "backend/.dockerignore",
+          "backend/IMPLEMENTATION_SUMMARY.md",
+          "backend/QUICKSTART.md",
+          "backend/README.md",
+          "backend/requirements.txt",
+          "docs/DEPLOYMENT.md",
+          "docs/LOG.md",
+          "docs/PLATFORM_REUSE_CATALOG.md",
+          "docs/SnsPage.md",
+          "docs/frontend_structure_analysis.md",
+          "docs/mypage_features.md",
+          "docs/mypage_guide.md",
+          "docs/readme.md",
+          "frontend/.dockerignore",
+          "frontend/DEPLOYMENT_CHECKLIST.md",
+          "frontend/Dockerfile.dev",
+          "frontend/IMPLEMENTATION_SUMMARY.md",
+          "frontend/QUICK_REFERENCE.md",
+          "frontend/README.md",
+          "frontend/src/components/organisms/README.md",
+          "프로젝트명세서.md"
+        ]
+      },
+      "readme_preview": "\n# 🚀 LinkON (링크온)\n\n### :bridge_at_night: Connecting the Field, Empowering the Worker\n\n**현장(On-site)과 지식(Link)을 잇다: 제조업 외국인 근로자를 위한 AI 통합 소통 플랫폼**\n\n<div align=\"center\">\n\n<img src=\"https://via.placeholder.com/1200x400?text=LinkON+Project+Banner\" alt=\"LinkON Banner\" width=\"100%\" />\n\n<br/><br/>\n\n<img src=\"https://img.shields.io/badge/Next.js-14.0-black?style=for-the-badge&logo=next.js\" />\n<img src=\"https://img.shields.io/badge/FastAPI-0.109-009688?style=for-the-badge&logo=fastapi\" />\n<img src=\"https"
+    },
+    {
+      "name": "projectmiluju/baegok",
+      "url": "https://github.com/projectmiluju/baegok",
+      "description": "KIT 바이브코딩 공모전",
+      "stars": 0,
+      "language": "TypeScript",
+      "topics": [],
+      "created": "2026-04-07",
+      "updated": "2026-04-07",
+      "structure": {
+        "total_files": 88,
+        "key_files": [
+          ".agents/skills/docs/SKILL.md",
+          ".agents/skills/ops/SKILL.md",
+          ".agents/skills/qa/SKILL.md",
+          ".agents/skills/ship/SKILL.md",
+          ".agents/skills/spec/SKILL.md",
+          ".agents/skills/ui/SKILL.md",
+          ".claude/commands/build.md",
+          ".claude/commands/docs.md",
+          ".claude/commands/ops.md",
+          ".claude/commands/qa.md",
+          ".claude/commands/ship.md",
+          ".claude/commands/spec.md",
+          ".claude/commands/ui.md",
+          ".claude/mcp.json",
+          ".github/ISSUE_TEMPLATE/bug_report.md",
+          ".github/ISSUE_TEMPLATE/feature_request.md",
+          ".github/ISSUE_TEMPLATE/task.md",
+          ".github/pull_request_template.md",
+          "README.md",
+          "apps/ai/requirements.txt",
+          "apps/web/CLAUDE.md",
+          "apps/web/README.md",
+          "apps/web/public/vercel.svg",
+          "docker-compose.yml",
+          "docs/STATUS.md",
+          "docs/decisions/ADR-001-node-main-backend.md",
+          "docs/decisions/ADR-002-fastapi-ai-server.md",
+          "docs/decisions/ADR-003-kafka-async.md",
+          "docs/decisions/ADR-004-claude-api.md",
+          "docs/decisions/ADR-005-mcp-server.md"
+        ]
+      },
+      "readme_preview": "# 배곡 (Baegok) - AI 기반 학습 성장 트래커\n\n> 배움곡선(Learning Curve)을 자동으로 기록하고 분석하는 교육 솔루션\n\nIT 교육생들이 매일 커밋하는 코드를 AI가 자동으로 분석하여,\n\"오늘 뭘 했는지\", \"이번 달 뭐가 부족한지\", \"다음에 뭘 공부해야 하는지\"를 알려줍니다.\n\n## 핵심 기능\n\n- **일일 학습 요약** - push 시 커밋 diff를 AI가 분석하여 자동 정리\n- **기간별 학습 리포트** - 특정 기간 동안의 학습 패턴, 강점/약점 분석\n- **학습 로드맵** - AI 기반 다음 학습 방향 제안\n- **MCP 서버** - Cursor, Claude Code 등 IDE에서 학습 데이터 직접 조회\n- **주간 자동 리포트** - Celery Beat으로 매주 학습 요약 자동 생성\n\n## 아키텍처\n\n```\n[수강생 IDE] → MCP 프로토콜 → [MCP 서버 (TypeScript)]\n                                "
+    },
+    {
+      "name": "jwhong48250-commits/fourman",
+      "url": "https://github.com/jwhong48250-commits/fourman",
+      "description": "KIT 바이브코딩 공모전",
+      "stars": 0,
+      "language": null,
+      "topics": [],
+      "created": "2026-04-06",
+      "updated": "2026-04-06",
+      "structure": {
+        "total_files": 0,
+        "key_files": []
+      },
+      "readme_preview": ""
+    },
+    {
+      "name": "byungwook-dev/Sensitive",
+      "url": "https://github.com/byungwook-dev/Sensitive",
+      "description": "2026 KIT 바이브코딩 공모전",
+      "stars": 0,
+      "language": "JavaScript",
+      "topics": [],
+      "created": "2026-04-03",
+      "updated": "2026-04-04",
+      "structure": {
+        "total_files": 10,
+        "key_files": [
+          ".github/workflows/docker-deploy.yml",
+          "Dockerfile",
+          "README.md"
+        ]
+      },
+      "readme_preview": "# Sensitive Project\n# Github test\n# Github test2\n# Github test3\n# Github test4"
+    },
+    {
+      "name": "HaYul0611/AIcontest",
+      "url": "https://github.com/HaYul0611/AIcontest",
+      "description": "[KIT 바이브코딩 공모전] 주제 공개 및 공모전",
+      "stars": 0,
+      "language": "TypeScript",
+      "topics": [],
+      "created": "2026-04-07",
+      "updated": "2026-04-07",
+      "structure": {
+        "total_files": 112,
+        "key_files": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "README.md",
+          "docs/00_마스터_프롬프트.md",
+          "docs/01_프로젝트_기획서.md",
+          "docs/02_개발_지침서.md",
+          "docs/03_데이터_명세서.md",
+          "docs/ai_pipeline_architecture.md",
+          "lib/claude.ts",
+          "public/vercel.svg"
+        ]
+      },
+      "readme_preview": "# 🌸 스마트 스쿨포유 (Smart School For You)\n> **환아들의 꿈과 학교를 잇는 지능형 교육 행정 포털**\n\n본 프로젝트는 만성질환 환아들이 치료 중에도 학습을 지속하고, 성공적으로 학교에 복귀할 수 있도록 지원하는 **AI 기반 교육 지원 플랫폼**입니다. '2026년 에듀테크 공모전'을 위해 최첨단 프론트엔드 기술과 AI 인사이트를 결합하여 개발되었습니다.\n\n## ✨ 핵심 기능 (Advanced AI Features)\n\n### 1. AI 학습 결손 정밀 진단 (Radar Analysis)\n- **단원별 성취도 분석**: 단순 성적을 넘어 교과목 내 세부 단원의 학습 수준을 AI가 정밀 진단합니다.\n- **맞춤형 보충 전략**: 진단 결과를 바탕으로 환아의 상황(치료 중, 재택 등)에 맞는 최적의 학습 로드맵을 생성합니다.\n\n### 2. 학교 복귀 로드맵 (Road to School)\n- **5단계 단계별 여정 시각화**: 치료 집중부터 사후 관리까지, 환아와 보"
+    }
+  ],
+  "devpost": []
+}

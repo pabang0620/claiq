@@ -214,131 +214,131 @@ SUPER_ADMIN_PASSWORD=
 
 ## 4. 구현 단계 Phase 1~10 (파일 단위 체크리스트)
 
-### Phase 1 — 프로젝트 기반 설정
+### Phase 1 - 프로젝트 기반 설정
 
-- [ ] `package.json` — 의존성 정의 (express, pg, jsonwebtoken, bcryptjs, multer, openai, node-cron, zod, cors, dotenv)
-- [ ] `.env.example` — 환경변수 템플릿
-- [ ] `src/config/env.js` — 환경변수 로드 및 필수 항목 검증
-- [ ] `src/config/db.js` — pg Pool 설정, pgvector 확장 활성화 확인
-- [ ] `src/config/openai.js` — OpenAI 클라이언트 초기화
-- [ ] `src/utils/logger.js` — 로거 설정
-- [ ] `src/app.js` — Express 앱, CORS, JSON 파싱, 미들웨어 등록
-- [ ] `src/server.js` — HTTP 서버 시작
-- [ ] `migrations/001_init_extensions.sql` — pgvector 확장 활성화
-- [ ] `migrations/002_create_base_tables.sql` — users, academies, academy_members
+- [ ] `package.json` - 의존성 정의 (express, pg, jsonwebtoken, bcryptjs, multer, openai, node-cron, zod, cors, dotenv)
+- [ ] `.env.example` - 환경변수 템플릿
+- [ ] `src/config/env.js` - 환경변수 로드 및 필수 항목 검증
+- [ ] `src/config/db.js` - pg Pool 설정, pgvector 확장 활성화 확인
+- [ ] `src/config/openai.js` - OpenAI 클라이언트 초기화
+- [ ] `src/utils/logger.js` - 로거 설정
+- [ ] `src/app.js` - Express 앱, CORS, JSON 파싱, 미들웨어 등록
+- [ ] `src/server.js` - HTTP 서버 시작
+- [ ] `migrations/001_init_extensions.sql` - pgvector 확장 활성화
+- [ ] `migrations/002_create_base_tables.sql` - users, academies, academy_members
 
-### Phase 2 — 인증 시스템
+### Phase 2 - 인증 시스템
 
-- [ ] `migrations/003_create_auth_tables.sql` — refresh_tokens 테이블
-- [ ] `src/utils/jwt.js` — JWT 생성/검증 유틸
-- [ ] `src/utils/bcrypt.js` — 비밀번호 해싱 유틸
-- [ ] `src/repositories/user.repository.js` — 사용자 CRUD
-- [ ] `src/services/auth.service.js` — 회원가입, 로그인, 토큰 갱신, 학원 코드 가입 로직
-- [ ] `src/controllers/auth.controller.js` — 요청/응답 처리
-- [ ] `src/middleware/auth.middleware.js` — JWT 검증 미들웨어
-- [ ] `src/middleware/role.middleware.js` — 역할 기반 접근 제어
-- [ ] `src/routes/auth.routes.js` — POST /auth/signup, /auth/login, /auth/refresh, /auth/logout
-- [ ] `tests/integration/auth.test.js` — 인증 통합 테스트
+- [ ] `migrations/003_create_auth_tables.sql` - refresh_tokens 테이블
+- [ ] `src/utils/jwt.js` - JWT 생성/검증 유틸
+- [ ] `src/utils/bcrypt.js` - 비밀번호 해싱 유틸
+- [ ] `src/repositories/user.repository.js` - 사용자 CRUD
+- [ ] `src/services/auth.service.js` - 회원가입, 로그인, 토큰 갱신, 학원 코드 가입 로직
+- [ ] `src/controllers/auth.controller.js` - 요청/응답 처리
+- [ ] `src/middleware/auth.middleware.js` - JWT 검증 미들웨어
+- [ ] `src/middleware/role.middleware.js` - 역할 기반 접근 제어
+- [ ] `src/routes/auth.routes.js` - POST /auth/signup, /auth/login, /auth/refresh, /auth/logout
+- [ ] `tests/integration/auth.test.js` - 인증 통합 테스트
 
-### Phase 3 — 학원 관리
+### Phase 3 - 학원 관리
 
-- [ ] `src/utils/academyCode.js` — 고유 코드 생성 유틸 (6자리 영숫자)
-- [ ] `src/repositories/academy.repository.js` — 학원 CRUD, 멤버 관리
-- [ ] `src/services/academy.service.js` — 학원 생성, 코드 발급, 강사/수강생 초대, 학원 코드 가입
+- [ ] `src/utils/academyCode.js` - 고유 코드 생성 유틸 (6자리 영숫자)
+- [ ] `src/repositories/academy.repository.js` - 학원 CRUD, 멤버 관리
+- [ ] `src/services/academy.service.js` - 학원 생성, 코드 발급, 강사/수강생 초대, 학원 코드 가입
 - [ ] `src/controllers/academy.controller.js`
-- [ ] `src/routes/academy.routes.js` — POST /academies, GET /academies/:id, POST /academies/join, POST /academies/:id/invite
+- [ ] `src/routes/academy.routes.js` - POST /academies, GET /academies/:id, POST /academies/join, POST /academies/:id/invite
 - [ ] `tests/integration/academy.test.js`
 
-### Phase 4 — 강의 업로드 및 AI 파이프라인 (STT + 임베딩)
+### Phase 4 - 강의 업로드 및 AI 파이프라인 (STT + 임베딩)
 
-- [ ] `migrations/004_create_lecture_tables.sql` — lectures, lecture_chunks (vector 컬럼 포함)
-- [ ] `src/middleware/upload.middleware.js` — multer memoryStorage 설정 (파일 → Supabase Storage 업로드)
-- [ ] `src/utils/textChunker.js` — 강의 텍스트 청킹 (chunk_size, overlap 환경변수 적용)
-- [ ] `src/ai/whisper.js` — Whisper API STT 변환 래퍼
-- [ ] `src/ai/embedding.js` — text-embedding-3-small 임베딩 래퍼
-- [ ] `src/repositories/vector.repository.js` — pgvector 저장/유사도 검색
-- [ ] `src/services/lecture.service.js` — 업로드 처리, STT → 청킹 → 임베딩 → DB 저장 오케스트레이션
+- [ ] `migrations/004_create_lecture_tables.sql` - lectures, lecture_chunks (vector 컬럼 포함)
+- [ ] `src/middleware/upload.middleware.js` - multer memoryStorage 설정 (파일 → Supabase Storage 업로드)
+- [ ] `src/utils/textChunker.js` - 강의 텍스트 청킹 (chunk_size, overlap 환경변수 적용)
+- [ ] `src/ai/whisper.js` - Whisper API STT 변환 래퍼
+- [ ] `src/ai/embedding.js` - text-embedding-3-small 임베딩 래퍼
+- [ ] `src/repositories/vector.repository.js` - pgvector 저장/유사도 검색
+- [ ] `src/services/lecture.service.js` - 업로드 처리, STT → 청킹 → 임베딩 → DB 저장 오케스트레이션
 - [ ] `src/controllers/lecture.controller.js`
-- [ ] `src/routes/lecture.routes.js` — POST /lectures (multipart), GET /lectures/:id, GET /lectures
+- [ ] `src/routes/lecture.routes.js` - POST /lectures (multipart), GET /lectures/:id, GET /lectures
 - [ ] `tests/unit/textChunker.test.js`
 
-### Phase 5 — 수능 유형 매핑 + 문제 자동 생성
+### Phase 5 - 수능 유형 매핑 + 문제 자동 생성
 
-- [ ] `migrations/005_create_question_tables.sql` — subjects, question_types, questions, question_options
-- [ ] `seeds/001_subjects.sql` — 수능 전 과목 시드
-- [ ] `seeds/002_question_types.sql` — 과목별 수능 유형 코드 시드
-- [ ] `src/data/suneung_types.json` — 유형 분류 체계 JSON (과목코드, 유형코드, 유형명, 출제패턴 설명)
-- [ ] `src/prompts/typeMapping/system.txt` — 수능 유형 매핑 시스템 프롬프트
-- [ ] `src/prompts/questionGeneration/system.txt` — 문제 생성 기본 시스템 프롬프트
-- [ ] `src/prompts/questionGeneration/korean.txt` — 국어 전용 (문학/독서 유형)
-- [ ] `src/prompts/questionGeneration/math.txt` — 수학 전용 (수열/함수/통계 유형)
-- [ ] `src/prompts/questionGeneration/english.txt` — 영어 전용 (듣기/독해 유형)
-- [ ] `src/ai/typeMapper.js` — GPT-4 수능 유형 매핑 파이프라인
-- [ ] `src/ai/questionGenerator.js` — GPT-4 문제 생성 파이프라인 (난이도 A/B/C, 스트리밍)
-- [ ] `src/repositories/question.repository.js` — 문제 CRUD, 상태(pending/approved/rejected) 관리
-- [ ] `src/services/question.service.js` — 생성 오케스트레이션, Human-in-the-Loop 검증 흐름
+- [ ] `migrations/005_create_question_tables.sql` - subjects, question_types, questions, question_options
+- [ ] `seeds/001_subjects.sql` - 수능 전 과목 시드
+- [ ] `seeds/002_question_types.sql` - 과목별 수능 유형 코드 시드
+- [ ] `src/data/suneung_types.json` - 유형 분류 체계 JSON (과목코드, 유형코드, 유형명, 출제패턴 설명)
+- [ ] `src/prompts/typeMapping/system.txt` - 수능 유형 매핑 시스템 프롬프트
+- [ ] `src/prompts/questionGeneration/system.txt` - 문제 생성 기본 시스템 프롬프트
+- [ ] `src/prompts/questionGeneration/korean.txt` - 국어 전용 (문학/독서 유형)
+- [ ] `src/prompts/questionGeneration/math.txt` - 수학 전용 (수열/함수/통계 유형)
+- [ ] `src/prompts/questionGeneration/english.txt` - 영어 전용 (듣기/독해 유형)
+- [ ] `src/ai/typeMapper.js` - GPT-4 수능 유형 매핑 파이프라인
+- [ ] `src/ai/questionGenerator.js` - GPT-4 문제 생성 파이프라인 (난이도 A/B/C, 스트리밍)
+- [ ] `src/repositories/question.repository.js` - 문제 CRUD, 상태(pending/approved/rejected) 관리
+- [ ] `src/services/question.service.js` - 생성 오케스트레이션, Human-in-the-Loop 검증 흐름
 - [ ] `src/controllers/question.controller.js`
-- [ ] `src/routes/question.routes.js` — POST /questions/generate, GET /questions (검증 대기 목록), PATCH /questions/:id/review
+- [ ] `src/routes/question.routes.js` - POST /questions/generate, GET /questions (검증 대기 목록), PATCH /questions/:id/review
 - [ ] `tests/unit/questionGenerator.test.js`
 
-### Phase 6 — RAG 기반 Q&A
+### Phase 6 - RAG 기반 Q&A
 
-- [ ] `migrations/006_create_qa_tables.sql` — qa_sessions, qa_messages
-- [ ] `src/prompts/ragQA/system.txt` — RAG Q&A 시스템 프롬프트
-- [ ] `src/ai/ragQA.js` — 질문 임베딩 → pgvector 검색 → GPT-4 응답 생성 (SSE 스트리밍)
-- [ ] `src/services/qa.service.js` — Q&A 세션 관리, 에스컬레이션 처리
+- [ ] `migrations/006_create_qa_tables.sql` - qa_sessions, qa_messages
+- [ ] `src/prompts/ragQA/system.txt` - RAG Q&A 시스템 프롬프트
+- [ ] `src/ai/ragQA.js` - 질문 임베딩 → pgvector 검색 → GPT-4 응답 생성 (SSE 스트리밍)
+- [ ] `src/services/qa.service.js` - Q&A 세션 관리, 에스컬레이션 처리
 - [ ] `src/controllers/qa.controller.js`
-- [ ] `src/routes/qa.routes.js` — POST /qa/ask (SSE), GET /qa/sessions, GET /qa/sessions/:id/messages
+- [ ] `src/routes/qa.routes.js` - POST /qa/ask (SSE), GET /qa/sessions, GET /qa/sessions/:id/messages
 - [ ] `tests/unit/ragQA.test.js`
 
-### Phase 7 — 문제 풀이 및 약점 분석
+### Phase 7 - 문제 풀이 및 약점 분석
 
-- [ ] `migrations/007_create_submission_tables.sql` — answer_submissions, student_type_stats
-- [ ] `src/repositories/question.repository.js` — 제출 저장, 유형별 통계 집계 (upsert)
-- [ ] `src/services/question.service.js` — 제출 처리, 포인트 지급, 유형별 정답률 갱신
-- [ ] `src/routes/question.routes.js` — POST /questions/:id/submit, GET /students/:id/type-stats
+- [ ] `migrations/007_create_submission_tables.sql` - answer_submissions, student_type_stats
+- [ ] `src/repositories/question.repository.js` - 제출 저장, 유형별 통계 집계 (upsert)
+- [ ] `src/services/question.service.js` - 제출 처리, 포인트 지급, 유형별 정답률 갱신
+- [ ] `src/routes/question.routes.js` - POST /questions/:id/submit, GET /students/:id/type-stats
 
-### Phase 8 — 수능 D-day 로드맵 생성
+### Phase 8 - 수능 D-day 로드맵 생성
 
-- [ ] `migrations/008_create_roadmap_tables.sql` — learning_roadmaps, roadmap_items
-- [ ] `src/prompts/roadmap/system.txt` — 로드맵 생성 시스템 프롬프트
-- [ ] `src/ai/roadmapGenerator.js` — GPT-4 로드맵 생성 파이프라인
-- [ ] `src/services/roadmap.service.js` — D-day 계산, 취약 유형 우선순위 산출, 로드맵 생성/갱신
+- [ ] `migrations/008_create_roadmap_tables.sql` - learning_roadmaps, roadmap_items
+- [ ] `src/prompts/roadmap/system.txt` - 로드맵 생성 시스템 프롬프트
+- [ ] `src/ai/roadmapGenerator.js` - GPT-4 로드맵 생성 파이프라인
+- [ ] `src/services/roadmap.service.js` - D-day 계산, 취약 유형 우선순위 산출, 로드맵 생성/갱신
 - [ ] `src/controllers/roadmap.controller.js`
-- [ ] `src/routes/roadmap.routes.js` — GET /roadmap/me, POST /roadmap/regenerate
-- [ ] `src/jobs/weeklyRoadmapUpdate.job.js` — 매주 월요일 02:00 로드맵 재계산 크론
+- [ ] `src/routes/roadmap.routes.js` - GET /roadmap/me, POST /roadmap/regenerate
+- [ ] `src/jobs/weeklyRoadmapUpdate.job.js` - 매주 월요일 02:00 로드맵 재계산 크론
 - [ ] `tests/unit/roadmapGenerator.test.js`
 
-### Phase 9 — 개인별 미니 모의고사
+### Phase 9 - 개인별 미니 모의고사
 
-- [ ] `migrations/009_create_exam_tables.sql` — mini_exams, mini_exam_questions, mini_exam_submissions
-- [ ] `src/prompts/exam/system.txt` — 미니 모의고사 생성 시스템 프롬프트
-- [ ] `src/ai/examGenerator.js` — 취약 유형 집중 편성 (70%+), 15문항, 수능 형식 적용
-- [ ] `src/services/exam.service.js` — 모의고사 생성, 풀이 처리, 유형별 분석 리포트 생성
+- [ ] `migrations/009_create_exam_tables.sql` - mini_exams, mini_exam_questions, mini_exam_submissions
+- [ ] `src/prompts/exam/system.txt` - 미니 모의고사 생성 시스템 프롬프트
+- [ ] `src/ai/examGenerator.js` - 취약 유형 집중 편성 (70%+), 15문항, 수능 형식 적용
+- [ ] `src/services/exam.service.js` - 모의고사 생성, 풀이 처리, 유형별 분석 리포트 생성
 - [ ] `src/controllers/exam.controller.js`
-- [ ] `src/routes/exam.routes.js` — POST /exams/generate, POST /exams/:id/submit, GET /exams/:id/report
+- [ ] `src/routes/exam.routes.js` - POST /exams/generate, POST /exams/:id/submit, GET /exams/:id/report
 
-### Phase 10 — 운영자 대시보드 및 포인트/뱃지/리포트
+### Phase 10 - 운영자 대시보드 및 포인트/뱃지/리포트
 
-- [ ] `migrations/010_create_engagement_tables.sql` — attendances, points, point_transactions, badge_definitions, user_badges, achievement_reports
-- [ ] `seeds/003_badge_definitions.sql` — 뱃지 7종 시드 (하단 시드 데이터 섹션 참조)
-- [ ] `seeds/004_demo_data.sql` — 데모용 학원/교강사/수강생 시드 (정상수능학원)
-- [ ] `src/services/attendance.service.js` — 출결 등록, 미출석 자동 식별
-- [ ] `src/services/point.service.js` — 포인트 적립/차감, 교환 처리
-- [ ] `src/services/report.service.js` — 성취 리포트 자동 생성, 문자 발송
-- [ ] `src/services/dashboard.service.js` — 이탈 위험도 산출, 강의별 이해도 집계
-- [ ] `src/jobs/atRiskDetection.job.js` — 매일 09:00 이탈 위험 수강생 감지 크론
-- [ ] `src/routes/attendance.routes.js` — POST /attendance, GET /attendance/:lectureId
-- [ ] `src/routes/point.routes.js` — GET /points/me, POST /points/redeem
-- [ ] `src/routes/report.routes.js` — POST /reports/generate, POST /reports/:id/send
-- [ ] `src/routes/dashboard.routes.js` — GET /dashboard/churn-risk, GET /dashboard/lecture-stats
+- [ ] `migrations/010_create_engagement_tables.sql` - attendances, points, point_transactions, badge_definitions, user_badges, achievement_reports
+- [ ] `seeds/003_badge_definitions.sql` - 뱃지 7종 시드 (하단 시드 데이터 섹션 참조)
+- [ ] `seeds/004_demo_data.sql` - 데모용 학원/교강사/수강생 시드 (정상수능학원)
+- [ ] `src/services/attendance.service.js` - 출결 등록, 미출석 자동 식별
+- [ ] `src/services/point.service.js` - 포인트 적립/차감, 교환 처리
+- [ ] `src/services/report.service.js` - 성취 리포트 자동 생성, 문자 발송
+- [ ] `src/services/dashboard.service.js` - 이탈 위험도 산출, 강의별 이해도 집계
+- [ ] `src/jobs/atRiskDetection.job.js` - 매일 09:00 이탈 위험 수강생 감지 크론
+- [ ] `src/routes/attendance.routes.js` - POST /attendance, GET /attendance/:lectureId
+- [ ] `src/routes/point.routes.js` - GET /points/me, POST /points/redeem
+- [ ] `src/routes/report.routes.js` - POST /reports/generate, POST /reports/:id/send
+- [ ] `src/routes/dashboard.routes.js` - GET /dashboard/churn-risk, GET /dashboard/lecture-stats
 - [ ] `tests/integration/dashboard.test.js`
 
 ---
 
 ## 5. AI 파이프라인 구현 순서
 
-### Pipeline 1 — STT + 임베딩 (강의 업로드 시)
+### Pipeline 1 - STT + 임베딩 (강의 업로드 시)
 
 ```
 1. multer → 음성 파일 수신 (최대 100MB)
@@ -353,7 +353,7 @@ SUPER_ADMIN_PASSWORD=
 10. 교강사에게 문제 생성 완료 SSE 이벤트 Push
 ```
 
-### Pipeline 2 — RAG Q&A (수강생 질문 시)
+### Pipeline 2 - RAG Q&A (수강생 질문 시)
 
 ```
 1. 수강생 질문 텍스트 수신
@@ -368,7 +368,7 @@ SUPER_ADMIN_PASSWORD=
 8. 에스컬레이션 시 교강사 알림 트리거
 ```
 
-### Pipeline 3 — 수능 유형 매핑 (강의 업로드 시)
+### Pipeline 3 - 수능 유형 매핑 (강의 업로드 시)
 
 ```
 1. transcript 텍스트 입력
@@ -381,7 +381,7 @@ SUPER_ADMIN_PASSWORD=
 6. questions 테이블 생성 시 type_code 메타데이터 포함 저장
 ```
 
-### Pipeline 4 — 로드맵 생성 (주간 크론 + 수동 요청)
+### Pipeline 4 - 로드맵 생성 (주간 크론 + 수동 요청)
 
 ```
 1. 학생 ID 기준 student_type_stats 조회 (수능 유형별 정답률)
@@ -395,7 +395,7 @@ SUPER_ADMIN_PASSWORD=
 6. 수강생 대시보드에 로드맵 노출
 ```
 
-### Pipeline 5 — 미니 모의고사 생성 (수강생 요청 시)
+### Pipeline 5 - 미니 모의고사 생성 (수강생 요청 시)
 
 ```
 1. 학생 취약 수능 유형 상위 5개 조회

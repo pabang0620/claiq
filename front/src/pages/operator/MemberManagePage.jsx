@@ -34,6 +34,7 @@ export default function MemberManagePage() {
   const [inviteForm, setInviteForm] = useState({ email: '', role: ROLES.STUDENT })
   const [isInviting, setIsInviting] = useState(false)
   const addToast = useUIStore((s) => s.addToast)
+  const showConfirm = useUIStore((s) => s.showConfirm)
 
   useEffect(() => {
     const role = activeTab === 'all' ? undefined : activeTab
@@ -65,7 +66,8 @@ export default function MemberManagePage() {
   }
 
   async function handleRemove(userId, name) {
-    if (!confirm(`${name}님을 학원에서 제거하시겠습니까?`)) return
+    const ok = await showConfirm(`${name}님을 학원에서 제거하시겠습니까?`, { confirmLabel: '제거', danger: true })
+    if (!ok) return
     try {
       await academyApi.removeMember(userId)
       setMembers((prev) => prev.filter((m) => m.id !== userId))

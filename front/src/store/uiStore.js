@@ -2,7 +2,25 @@ import { create } from 'zustand'
 
 export const useUIStore = create((set) => ({
   toasts: [],
-  sidebarOpen: true,
+  sidebarOpen: typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : true,
+  dialog: null,
+
+  showConfirm: (message, options = {}) =>
+    new Promise((resolve) =>
+      set({ dialog: { type: 'confirm', message, resolve, ...options } })
+    ),
+
+  showAlert: (message, options = {}) =>
+    new Promise((resolve) =>
+      set({ dialog: { type: 'alert', message, resolve, ...options } })
+    ),
+
+  closeDialog: (result) =>
+    set((state) => {
+      state.dialog?.resolve(result)
+      return { dialog: null }
+    }),
+
 
   addToast: (toast) =>
     set((state) => ({

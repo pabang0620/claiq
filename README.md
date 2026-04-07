@@ -395,8 +395,8 @@ claiq/
 | 환경 | URL |
 |------|-----|
 | **프론트엔드 (Vercel)** | https://claiq.vercel.app |
-| **백엔드 API (Render)** | https://claiq-api.onrender.com |
-| **API 헬스체크** | https://claiq-api.onrender.com/api/health |
+| **백엔드 API (Render)** | https://claiq.onrender.com |
+| **API 헬스체크** | https://claiq.onrender.com/api/health |
 
 ---
 

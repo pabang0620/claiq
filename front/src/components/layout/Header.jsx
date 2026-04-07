@@ -8,7 +8,7 @@ export function Header() {
   const { user, logout } = useAuth()
 
   return (
-    <header className="h-16 bg-white border-b border-zinc-200 flex items-center justify-between px-5 flex-shrink-0">
+    <header className="h-16 bg-white border-b border-zinc-200 flex items-center justify-between px-3 sm:px-5 flex-shrink-0">
       <div className="flex items-center gap-3">
         <button
           onClick={toggleSidebar}

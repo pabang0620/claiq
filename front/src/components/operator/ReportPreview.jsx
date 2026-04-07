@@ -1,5 +1,12 @@
-import { FileText, TrendingUp, Award, Calendar } from 'lucide-react'
+import { FileText, TrendingUp, Award, Calendar, User } from 'lucide-react'
 import { formatDate } from '../../utils/formatDate.js'
+
+function formatPeriod(period) {
+  if (!period) return ''
+  const [year, month] = period.split('-')
+  if (!year || !month) return period
+  return `${year}년 ${parseInt(month, 10)}월`
+}
 
 export function ReportPreview({ report, onSendSMS, isSending = false }) {
   if (!report) return null
@@ -8,11 +15,26 @@ export function ReportPreview({ report, onSendSMS, isSending = false }) {
     <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary-600 to-primary-800 px-5 py-4 text-white">
-        <div className="flex items-center gap-2 mb-1">
-          <FileText size={18} />
-          <h3 className="font-semibold">학습 성취 리포트</h3>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <FileText size={16} className="text-primary-300" />
+            <span className="text-xs text-primary-200 font-medium">학습 성취 리포트</span>
+          </div>
+          <span className="text-xs bg-white/20 text-white px-2.5 py-1 rounded-full font-medium">
+            {formatPeriod(report.period)}
+          </span>
         </div>
-        <p className="text-primary-200 text-sm">{report.studentName} · {report.period}</p>
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+            <User size={18} className="text-white" />
+          </div>
+          <div>
+            <p className="text-lg font-bold text-white leading-tight">
+              {report.studentName || '이름 없음'}
+            </p>
+            <p className="text-xs text-primary-200">{report.studentEmail || ''}</p>
+          </div>
+        </div>
       </div>
 
       {/* Content */}
@@ -27,7 +49,7 @@ export function ReportPreview({ report, onSendSMS, isSending = false }) {
             <div key={label} className="text-center p-3 bg-zinc-50 rounded-xl">
               <Icon size={18} className={`mx-auto mb-1 ${color}`} />
               <p className="font-bold text-zinc-900">{value}</p>
-              <p className="text-xs text-zinc-500">{label}</p>
+              <p className="text-xs text-zinc-500 leading-tight">{label}</p>
             </div>
           ))}
         </div>

@@ -4,7 +4,7 @@
 
 ## 1. 전체 테이블 설계 (Phase 1~8)
 
-### Phase 1 — 확장 및 기반 테이블
+### Phase 1 - 확장 및 기반 테이블
 
 ```sql
 -- pgvector 확장 활성화
@@ -73,7 +73,7 @@ CREATE TABLE refresh_tokens (
 CREATE INDEX idx_refresh_tokens_user ON refresh_tokens(user_id);
 ```
 
-### Phase 2 — 과목 및 수능 유형 마스터 데이터
+### Phase 2 - 과목 및 수능 유형 마스터 데이터
 
 ```sql
 -- 수능 과목 마스터
@@ -103,7 +103,7 @@ CREATE TABLE question_types (
 CREATE INDEX idx_question_types_subject ON question_types(subject_id);
 ```
 
-### Phase 3 — 강의 및 벡터 청크
+### Phase 3 - 강의 및 벡터 청크
 
 ```sql
 -- 강의
@@ -152,7 +152,7 @@ CREATE INDEX idx_lecture_chunks_teacher   ON lecture_chunks(teacher_id);
 CREATE INDEX idx_lecture_chunks_academy   ON lecture_chunks(academy_id);
 ```
 
-### Phase 4 — 문제 및 선택지
+### Phase 4 - 문제 및 선택지
 
 ```sql
 -- 문제
@@ -234,7 +234,7 @@ CREATE INDEX idx_student_type_stats_student ON student_type_stats(student_id);
 CREATE INDEX idx_student_type_stats_rate    ON student_type_stats(student_id, correct_rate);
 ```
 
-### Phase 5 — Q&A (RAG 채팅)
+### Phase 5 - Q&A (RAG 채팅)
 
 ```sql
 -- Q&A 세션
@@ -271,7 +271,7 @@ CREATE INDEX idx_qa_messages_session    ON qa_messages(session_id);
 CREATE INDEX idx_qa_messages_escalated  ON qa_messages(is_escalated) WHERE is_escalated = true;
 ```
 
-### Phase 6 — 학습 로드맵
+### Phase 6 - 학습 로드맵
 
 ```sql
 -- 개인 학습 로드맵
@@ -311,7 +311,7 @@ CREATE INDEX idx_roadmap_items_roadmap ON roadmap_items(roadmap_id);
 CREATE INDEX idx_roadmap_items_week    ON roadmap_items(roadmap_id, week_number);
 ```
 
-### Phase 7 — 미니 모의고사
+### Phase 7 - 미니 모의고사
 
 ```sql
 -- 미니 모의고사
@@ -372,7 +372,7 @@ CREATE INDEX idx_mini_exam_submissions_exam    ON mini_exam_submissions(exam_id)
 CREATE INDEX idx_mini_exam_submissions_student ON mini_exam_submissions(student_id);
 ```
 
-### Phase 8 — 출결 / 포인트 / 뱃지 / 리포트
+### Phase 8 - 출결 / 포인트 / 뱃지 / 리포트
 
 ```sql
 -- 출결
@@ -514,7 +514,7 @@ SELECT
 FROM pg_indexes
 WHERE tablename = 'lecture_chunks';
 
--- HNSW 인덱스 (데이터 10만 건 이상 시 전환 권장 — 빌드 느리지만 검색 빠름)
+-- HNSW 인덱스 (데이터 10만 건 이상 시 전환 권장 - 빌드 느리지만 검색 빠름)
 -- CREATE INDEX idx_lecture_chunks_embedding_hnsw
 --   ON lecture_chunks
 --   USING hnsw (embedding vector_cosine_ops)
@@ -604,7 +604,7 @@ INSERT INTO subjects (code, name, area, display_order, is_active) VALUES
 ('SCI_PHYSICS1',   '물리학 I',      '과학탐구', 18, false);
 ```
 
-### question_types (수능 유형 예시 — 국어 독서 중심)
+### question_types (수능 유형 예시 - 국어 독서 중심)
 
 ```sql
 -- 국어 독서 유형
@@ -719,7 +719,7 @@ INSERT INTO learning_streaks (user_id, current_streak, longest_streak) VALUES
 
 ## 5. 핵심 쿼리 패턴 6개
 
-### 쿼리 1 — RAG 유사도 검색 (교강사 네임스페이스 필터)
+### 쿼리 1 - RAG 유사도 검색 (교강사 네임스페이스 필터)
 
 ```sql
 -- 수강생 질문에 대해 해당 교강사 강의 범위 내에서 상위 K개 청크 검색
@@ -739,7 +739,7 @@ ORDER BY lc.embedding <=> $1::vector
 LIMIT $4;
 ```
 
-### 쿼리 2 — 수강생 수능 유형별 약점 집계
+### 쿼리 2 - 수강생 수능 유형별 약점 집계
 
 ```sql
 -- 특정 수강생의 과목별 수능 유형 정답률 조회 (낮은 순 정렬)
@@ -763,7 +763,7 @@ WHERE sts.student_id = $1
 ORDER BY priority_score DESC;
 ```
 
-### 쿼리 3 — 이탈 위험 수강생 탐지
+### 쿼리 3 - 이탈 위험 수강생 탐지
 
 ```sql
 -- 최근 7일 내 특정 학원 수강생들의 이탈 위험 점수 계산
@@ -822,7 +822,7 @@ WHERE (1.0 - attendance_rate_7d) * 0.4 +
 ORDER BY churn_score DESC;
 ```
 
-### 쿼리 4 — 강의별 이해도 집계 (운영자 대시보드)
+### 쿼리 4 - 강의별 이해도 집계 (운영자 대시보드)
 
 ```sql
 -- 특정 학원의 강의별 정답률 및 질문 빈도 집계
@@ -856,7 +856,7 @@ GROUP BY l.id, l.title, u.name, s.name
 ORDER BY l.taught_at DESC;
 ```
 
-### 쿼리 5 — 포인트 트랜잭션 멱등성 보장 upsert
+### 쿼리 5 - 포인트 트랜잭션 멱등성 보장 upsert
 
 ```sql
 -- 포인트 지급 (중복 방지 포함)
@@ -882,7 +882,7 @@ WHERE user_id = $1
   AND EXISTS (SELECT 1 FROM inserted);
 ```
 
-### 쿼리 6 — 개인 D-day 로드맵 생성을 위한 데이터 수집
+### 쿼리 6 - 개인 D-day 로드맵 생성을 위한 데이터 수집
 
 ```sql
 -- 로드맵 생성에 필요한 종합 데이터 조회 (단일 쿼리)
@@ -1024,7 +1024,7 @@ CREATE POLICY point_transactions_policy ON point_transactions
 -- 애플리케이션에서 RLS 컨텍스트 설정 방법 (Node.js/pg)
 -- await client.query(`SET app.current_user_id = '${userId}'`)
 
--- 슈퍼유저 접근 정책 (관리용 — 모든 행 접근)
+-- 슈퍼유저 접근 정책 (관리용 - 모든 행 접근)
 CREATE POLICY admin_bypass ON users
   FOR ALL
   USING (current_setting('app.role', true) = 'admin');

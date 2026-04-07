@@ -7,16 +7,16 @@ import { ROLES, ROLE_LABELS } from '../../constants/roles.js'
 import { GraduationCap, BookOpen, Settings } from 'lucide-react'
 
 const ROLE_ITEMS = [
-  { role: ROLES.TEACHER, label: '교강사', desc: '강의 녹음을 업로드하고 AI 문제를 검증합니다', icon: GraduationCap },
-  { role: ROLES.STUDENT, label: '수강생', desc: 'AI와 함께 수능을 준비합니다', icon: BookOpen },
-  { role: ROLES.OPERATOR, label: '운영자', desc: '학원을 운영하고 데이터를 분석합니다', icon: Settings },
+  { role: ROLES.TEACHER, label: '교강사', icon: GraduationCap },
+  { role: ROLES.STUDENT, label: '수강생', icon: BookOpen },
+  { role: ROLES.OPERATOR, label: '운영자', icon: Settings },
 ]
 
 export default function SignupPage() {
   const { signup } = useAuth()
   const [step, setStep] = useState(1) // 1: role, 2: form
   const [selectedRole, setSelectedRole] = useState('')
-  const [form, setForm] = useState({ name: '', email: '', password: '', passwordConfirm: '' })
+  const [form, setForm] = useState({ name: '', academyName: '', email: '', password: '', passwordConfirm: '' })
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const [agree, setAgree] = useState({ terms: false, privacy: false })
@@ -24,6 +24,7 @@ export default function SignupPage() {
   function validateForm() {
     const errs = {}
     if (!form.name.trim()) errs.name = '이름을 입력하세요.'
+    if (selectedRole === ROLES.OPERATOR && !form.academyName.trim()) errs.academyName = '학원 이름을 입력하세요.'
     if (!form.email) errs.email = '이메일을 입력하세요.'
     else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = '올바른 이메일 형식이 아닙니다.'
     if (!form.password) errs.password = '비밀번호를 입력하세요.'
@@ -50,26 +51,23 @@ export default function SignupPage() {
       <>
         <h2 className="text-xl font-bold text-zinc-900 mb-2">역할을 선택하세요</h2>
         <p className="text-sm text-zinc-500 mb-6">학원에서 어떤 역할을 맡고 있나요?</p>
-        <div className="space-y-3">
-          {ROLE_ITEMS.map(({ role, label, desc, icon: Icon }) => (
+        <div className="grid grid-cols-3 gap-3">
+          {ROLE_ITEMS.map(({ role, label, icon: Icon }) => (
             <button
               key={role}
               type="button"
               onClick={() => { setSelectedRole(role); setStep(2) }}
               className={[
-                'w-full flex items-start gap-4 p-4 rounded-xl border-2 transition-all text-left',
+                'flex flex-col items-center gap-3 py-5 rounded-xl border-2 transition-all',
                 selectedRole === role
                   ? 'border-primary-600 bg-primary-50'
                   : 'border-zinc-200 hover:border-primary-300 hover:bg-primary-50/50',
               ].join(' ')}
             >
-              <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Icon size={20} className="text-primary-700" />
+              <div className="w-11 h-11 bg-primary-100 rounded-lg flex items-center justify-center">
+                <Icon size={22} className="text-primary-700" />
               </div>
-              <div>
-                <p className="font-semibold text-zinc-800">{label}</p>
-                <p className="text-xs text-zinc-500 mt-0.5">{desc}</p>
-              </div>
+              <p className="text-sm font-semibold text-zinc-800">{label}</p>
             </button>
           ))}
         </div>
@@ -85,18 +83,16 @@ export default function SignupPage() {
 
   return (
     <>
-      <div className="flex items-center gap-3 mb-6">
-        <button
-          type="button"
-          onClick={() => setStep(1)}
-          className="text-sm text-zinc-500 hover:text-zinc-700"
-        >
-          ← 뒤로
-        </button>
-        <div>
-          <h2 className="text-xl font-bold text-zinc-900">회원가입</h2>
-          <p className="text-xs text-zinc-500">{roleMeta?.label || ''} 계정</p>
-        </div>
+      <button
+        type="button"
+        onClick={() => setStep(1)}
+        className="mb-4 text-zinc-400 hover:text-zinc-700 transition-colors"
+      >
+        ←
+      </button>
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-zinc-900">회원가입</h2>
+        <p className="text-xs text-zinc-500">{roleMeta?.label || ''} 계정</p>
       </div>
 
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
@@ -110,6 +106,18 @@ export default function SignupPage() {
           required
           disabled={isLoading}
         />
+        {selectedRole === ROLES.OPERATOR && (
+          <Input
+            id="academyName"
+            label="학원 이름"
+            placeholder="학원 이름을 입력하세요"
+            value={form.academyName}
+            onChange={(e) => setForm((p) => ({ ...p, academyName: e.target.value }))}
+            error={errors.academyName}
+            required
+            disabled={isLoading}
+          />
+        )}
         <Input
           id="email"
           label="이메일"

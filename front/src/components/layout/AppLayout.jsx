@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar.jsx'
 import { Header } from './Header.jsx'
 import { ToastContainer } from '../ui/Toast.jsx'
+import { Dialog } from '../ui/Dialog.jsx'
 import { useUIStore } from '../../store/uiStore.js'
 
 function useIsDesktop() {
@@ -51,6 +52,7 @@ export function AppLayout() {
       </div>
 
       <ToastContainer />
+      <Dialog />
     </div>
   )
 }
