@@ -113,18 +113,15 @@ Fine-tuning 대비 비용 비교:
 - PostgreSQL의 트랜잭션, 백업, 보안 정책 그대로 적용
 
 ```sql
--- 관계형 데이터와 벡터 검색을 단일 쿼리로 처리
-SELECT
-  le.chunk_text,
-  1 - (le.embedding <=> $1) AS similarity,
-  l.title AS lecture_title,
-  l.instructor_id
-FROM lecture_embeddings le
-JOIN lectures l ON le.lecture_id = l.id
-WHERE l.course_id = $2
-  AND l.is_published = true
-ORDER BY le.embedding <=> $1
-LIMIT 5;
+-- 벡터 유사도 검색 (실제 구현 기준)
+SELECT lc.id, lc.lecture_id, lc.content,
+       1 - (lc.embedding <=> $1) AS similarity
+FROM lecture_chunks lc
+WHERE lc.teacher_id = $2
+  AND lc.academy_id = $3
+  AND lc.embedding IS NOT NULL
+ORDER BY lc.embedding <=> $1
+LIMIT $4;
 ```
 
 ---
