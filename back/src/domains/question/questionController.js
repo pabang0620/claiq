@@ -3,12 +3,13 @@ import { successResponse } from '../../utils/response.js'
 
 export const getPendingQuestions = async (req, res, next) => {
   try {
-    const { academy_id, page = 1, limit = 20 } = req.query
+    const { academy_id, page = 1, limit = 20, status } = req.query
     const questions = await questionService.getPendingQuestions({
       academy_id,
       teacher_id: req.user.role === 'teacher' ? req.user.id : undefined,
       page: Number(page),
       limit: Number(limit),
+      status: status || 'pending',
     })
     return successResponse(res, questions)
   } catch (err) {

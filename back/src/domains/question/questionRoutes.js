@@ -23,7 +23,8 @@ const submitSchema = z.object({
   academy_id: data.academy_id,
 }))
 
-// 교사용
+// 교사용 - status query param 지원 (프론트엔드 호환)
+router.get('/', authMiddleware, requireRole('teacher', 'operator'), questionController.getPendingQuestions)
 router.get('/pending', authMiddleware, requireRole('teacher', 'operator'), questionController.getPendingQuestions)
 router.patch('/:id/review', authMiddleware, requireRole('teacher', 'operator'), validate(reviewSchema), questionController.reviewQuestion)
 

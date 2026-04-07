@@ -2,9 +2,9 @@ import * as questionRepository from './questionRepository.js'
 import * as pointService from '../point/pointService.js'
 import { env } from '../../config/env.js'
 
-export const getPendingQuestions = async ({ academy_id, teacher_id, page = 1, limit = 20 }) => {
+export const getPendingQuestions = async ({ academy_id, teacher_id, page = 1, limit = 20, status = 'pending' }) => {
   const offset = (page - 1) * limit
-  return questionRepository.findPendingQuestions({ academy_id, teacher_id, limit, offset })
+  return questionRepository.findPendingQuestions({ academy_id, teacher_id, limit, offset, status })
 }
 
 export const reviewQuestion = async ({ id, status, content, correct_answer, explanation, reviewedBy }) => {

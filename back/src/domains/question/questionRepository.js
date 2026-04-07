@@ -22,10 +22,10 @@ export const createQuestion = async ({ lecture_id, academy_id, teacher_id, subje
   })
 }
 
-export const findPendingQuestions = async ({ academy_id, teacher_id, limit = 20, offset = 0 }) => {
-  const conditions = [`q.status = 'pending'`, 'q.deleted_at IS NULL']
-  const params = []
-  let idx = 1
+export const findPendingQuestions = async ({ academy_id, teacher_id, limit = 20, offset = 0, status = 'pending' }) => {
+  const params = [status]
+  let idx = 2
+  const conditions = [`q.status = $1`, 'q.deleted_at IS NULL']
 
   if (academy_id) { conditions.push(`q.academy_id = $${idx++}`); params.push(academy_id) }
   if (teacher_id) { conditions.push(`q.teacher_id = $${idx++}`); params.push(teacher_id) }

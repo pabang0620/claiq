@@ -36,7 +36,17 @@ export const useRoadmapStore = create((set) => ({
       const data = await api.get('/students/me/type-stats', {
         params: subject ? { subject } : {},
       })
-      set({ weakTypes: data.data || [], isLoading: false })
+      const mapped = (data.data || []).map((d) => ({
+        ...d,
+        typeCode: d.type_code ?? d.typeCode,
+        typeName: d.type_name ?? d.typeName ?? d.type_code ?? '',
+        correctRate: parseFloat(d.correct_rate ?? d.correctRate ?? 0),
+        totalAttempts: d.total_attempts ?? d.totalAttempts ?? 0,
+        correctCount: d.correct_count ?? d.correctCount ?? 0,
+        subjectName: d.subject_name ?? d.subjectName ?? '',
+        subjectArea: d.subject_area ?? d.subjectArea ?? '',
+      }))
+      set({ weakTypes: mapped, isLoading: false })
     } catch (err) {
       set({ error: err.message, isLoading: false })
     }
