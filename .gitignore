@@ -4,8 +4,9 @@ node_modules/
 # Environment variables (NEVER commit)
 .env
 .env.local
-.env.production
 .env.*.local
+# .env.production은 시크릿 없는 경우 커밋 허용
+!front/.env.production
 
 # Build outputs
 dist/
