@@ -66,7 +66,7 @@ export default function MiniExamResultPage() {
   }))
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-zinc-900">모의고사 결과</h1>
         <p className="text-zinc-500 text-sm mt-1">유형별 분석 리포트</p>

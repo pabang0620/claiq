@@ -61,7 +61,7 @@ export default function MiniExamPage() {
   const progress = (answeredCount / questions.length) * 100
 
   return (
-    <div className="max-w-2xl space-y-5">
+    <div className="max-w-2xl mx-auto space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>

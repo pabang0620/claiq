@@ -14,7 +14,7 @@ export default function WeakPointPage() {
   const sorted = [...weakTypes].sort((a, b) => a.correctRate - b.correctRate)
 
   return (
-    <div className="space-y-5 max-w-2xl">
+    <div className="max-w-2xl mx-auto space-y-5">
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900">약점 분석</h1>

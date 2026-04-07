@@ -25,7 +25,7 @@ export default function QuizResultPage() {
   const correctRate = submitted > 0 ? Math.round((correct / submitted) * 100) : 0
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6">
       {/* Score */}
       <Card>
         <div className="text-center py-4">

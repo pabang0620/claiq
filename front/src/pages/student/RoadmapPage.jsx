@@ -20,7 +20,7 @@ export default function RoadmapPage() {
   }
 
   return (
-    <div className="space-y-5 max-w-2xl">
+    <div className="max-w-2xl mx-auto space-y-5">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900">D-day 로드맵</h1>

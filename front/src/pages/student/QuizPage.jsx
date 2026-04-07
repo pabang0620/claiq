@@ -74,7 +74,7 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-5">
+    <div className="max-w-2xl mx-auto space-y-5">
       {/* Progress */}
       <div>
         <div className="flex items-center justify-between mb-2">
