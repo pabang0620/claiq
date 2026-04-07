@@ -79,8 +79,8 @@ ${context}
     logger.info(`문제 생성 완료: 난이도 ${difficulty} ${questions.length}개`)
     return questions
   } catch (err) {
-    logger.error('문제 생성 오류:', err.message)
-    return []
+    logger.error('문제 생성 실패:', err.message)
+    throw err
   }
 }
 

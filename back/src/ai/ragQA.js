@@ -25,6 +25,15 @@ const systemPrompt = readFileSync(
  * @returns {Promise<{answer: string, sourceChunkIds: string[], isEscalated: boolean}>}
  */
 export const streamQA = async ({ question, teacherId, academyId, history = [], res }) => {
+  // 클라이언트 disconnect 감지
+  let aborted = false
+  const controller = new AbortController()
+
+  res.on('close', () => {
+    aborted = true
+    controller.abort()
+  })
+
   // 1. 질문 임베딩
   const questionEmbedding = await embedText(question)
 
@@ -65,25 +74,39 @@ export const streamQA = async ({ question, teacherId, academyId, history = [], r
       messages,
       stream: true,
       temperature: 0.5,
+      signal: controller.signal,
     })
 
     for await (const chunk of stream) {
+      if (aborted) break
       const delta = chunk.choices[0]?.delta?.content || ''
       if (delta) {
         fullAnswer += delta
-        res.write(`data: ${JSON.stringify({ type: 'chunk', content: delta })}\n\n`)
+        if (!res.writableEnded) {
+          res.write(`data: ${JSON.stringify({ type: 'chunk', content: delta })}\n\n`)
+        }
       }
     }
 
-    // 에스컬레이션 감지: 강의 범위 외 질문
-    if (!hasRelevantChunks || fullAnswer.includes('교강사에게 문의') || fullAnswer.includes('강의 범위를 벗어')) {
-      isEscalated = true
-    }
+    if (!aborted) {
+      // 에스컬레이션 감지: 강의 범위 외 질문
+      if (!hasRelevantChunks || fullAnswer.includes('교강사에게 문의') || fullAnswer.includes('강의 범위를 벗어')) {
+        isEscalated = true
+      }
 
-    res.write(`data: ${JSON.stringify({ type: 'done', sourceChunkIds, isEscalated })}\n\n`)
+      if (!res.writableEnded) {
+        res.write(`data: ${JSON.stringify({ type: 'done', sourceChunkIds, isEscalated })}\n\n`)
+      }
+    }
   } catch (err) {
+    if (aborted) {
+      logger.warn('RAG Q&A 스트리밍 중단: 클라이언트 disconnect')
+      return { answer: fullAnswer, sourceChunkIds, isEscalated }
+    }
     logger.error('RAG Q&A 스트리밍 오류:', err.message)
-    res.write(`data: ${JSON.stringify({ type: 'error', message: 'AI 응답 생성 중 오류가 발생했습니다' })}\n\n`)
+    if (!res.writableEnded) {
+      res.write(`data: ${JSON.stringify({ type: 'error', message: 'AI 응답 생성 중 오류가 발생했습니다' })}\n\n`)
+    }
     throw err
   }
 

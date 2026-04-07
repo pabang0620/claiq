@@ -23,6 +23,9 @@ export const saveChunks = async (chunks) => {
 export const searchSimilarChunks = async ({ embedding, teacherId, academyId, topK = 5 }) => {
   const embeddingStr = `'[${embedding.join(',')}]'::vector`
 
+  // pgvector: <=> 연산자는 코사인 거리(cosine distance)를 계산
+  // cosine_similarity = 1 - cosine_distance
+  // ORDER BY <=> ASC: 코사인 거리가 작을수록(= 유사도가 높을수록) 먼저 정렬됨
   const { rows } = await pool.query(
     `SELECT lc.id, lc.lecture_id, lc.content,
             1 - (lc.embedding <=> ${embeddingStr}) AS similarity

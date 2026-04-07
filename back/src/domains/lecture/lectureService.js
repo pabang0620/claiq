@@ -16,6 +16,11 @@ const sseClients = new Map()
 export const addSseClient = (lectureId, res) => {
   if (!sseClients.has(lectureId)) sseClients.set(lectureId, new Set())
   sseClients.get(lectureId).add(res)
+
+  // 클라이언트 disconnect 시 자동 제거
+  res.on('close', () => {
+    removeSseClient(lectureId, res)
+  })
 }
 
 export const removeSseClient = (lectureId, res) => {
@@ -54,8 +59,16 @@ export const uploadLecture = async ({ file, materialFiles, body, user }) => {
   })
 
   // 3. 백그라운드 처리 (비동기 - 응답을 기다리지 않음)
-  processLecture(lecture, file).catch((err) => {
+  processLecture(lecture, file).catch(async (err) => {
     logger.error(`강의 처리 실패 [${lecture.id}]:`, err.message)
+    try {
+      await lectureRepository.updateLectureStatus(lecture.id, 'error', {
+        processing_error: err.message,
+      })
+      broadcastStatus(lecture.id, 'error', { error: err.message })
+    } catch (updateErr) {
+      logger.error('상태 업데이트 실패:', updateErr.message)
+    }
   })
 
   return lecture
