@@ -8,4 +8,6 @@ export const reportApi = {
   }),
   sendSms: (reportId) => api.post(`/reports/${reportId}/send-sms`),
   getList: (params) => api.get('/reports', { params }),
+  issuePublicToken: (reportId) => api.post(`/reports/${reportId}/public-token`),
+  getPublic: (token) => api.get(`/reports/public/${token}`),
 }

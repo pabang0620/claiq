@@ -51,3 +51,22 @@ export const sendReport = async (req, res, next) => {
     next(err)
   }
 }
+
+export const getPublicReport = async (req, res, next) => {
+  try {
+    const { token } = req.params
+    const report = await reportService.getPublicReport({ token })
+    return successResponse(res, report)
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const issuePublicToken = async (req, res, next) => {
+  try {
+    const result = await reportService.issuePublicToken({ reportId: req.params.id })
+    return successResponse(res, result, '공개 링크가 생성되었습니다')
+  } catch (err) {
+    next(err)
+  }
+}

@@ -70,3 +70,15 @@ export const getAttendanceStats = async (req, res, next) => {
     next(err)
   }
 }
+
+export const generateRiskComments = async (req, res, next) => {
+  try {
+    const { academy_id } = req.body
+    const academyId = await resolveAcademyId(academy_id, req.user.id)
+    const students = await dashboardService.getChurnRisk(academyId)
+    const withComments = await dashboardService.generateRiskComments(students)
+    return successResponse(res, withComments, 'AI 코멘트 생성 완료')
+  } catch (err) {
+    next(err)
+  }
+}

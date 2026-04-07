@@ -11,5 +11,6 @@ router.get('/teacher', authMiddleware, requireRole('teacher'), dashboardControll
 router.get('/student', authMiddleware, requireRole('student'), dashboardController.getStudentDashboard)
 router.get('/operator', authMiddleware, requireRole('operator'), dashboardController.getOperatorDashboard)
 router.get('/attendance-stats', authMiddleware, dashboardController.getAttendanceStats)
+router.post('/risk-comments', authMiddleware, requireRole('operator'), dashboardController.generateRiskComments)
 
 export default router

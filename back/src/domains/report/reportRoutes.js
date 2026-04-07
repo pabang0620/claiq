@@ -23,5 +23,9 @@ router.get('/', authMiddleware, requireRole('operator'), reportController.getRep
 router.post('/generate', authMiddleware, requireRole('operator'), validate(generateSchema), reportController.generateReport)
 router.post('/:id/send', authMiddleware, requireRole('operator'), reportController.sendReport)
 router.post('/:id/send-sms', authMiddleware, requireRole('operator'), reportController.sendReport)
+router.post('/:id/public-token', authMiddleware, requireRole('operator'), reportController.issuePublicToken)
+
+// 인증 불필요 — 학부모 공개 리포트 조회
+router.get('/public/:token', reportController.getPublicReport)
 
 export default router

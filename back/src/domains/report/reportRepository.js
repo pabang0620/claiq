@@ -55,6 +55,37 @@ export const findReports = async ({ academy_id, student_id, page = 1, limit = 20
   return rows
 }
 
+export const issuePublicToken = async (id) => {
+  const { rows } = await pool.query(
+    `UPDATE achievement_reports
+     SET public_token = uuid_generate_v4()
+     WHERE id = $1 AND public_token IS NULL
+     RETURNING public_token`,
+    [id]
+  )
+  // 이미 토큰이 있으면 기존 토큰 반환
+  if (rows[0]) return rows[0].public_token
+  const existing = await pool.query(
+    `SELECT public_token FROM achievement_reports WHERE id = $1`,
+    [id]
+  )
+  return existing.rows[0]?.public_token || null
+}
+
+export const findReportByPublicToken = async (token) => {
+  const { rows } = await pool.query(
+    `SELECT ar.id, ar.report_period, ar.content_json, ar.created_at,
+            u.name AS student_name,
+            a.name AS academy_name
+     FROM achievement_reports ar
+     JOIN users u ON u.id = ar.student_id
+     JOIN academies a ON a.id = ar.academy_id
+     WHERE ar.public_token = $1`,
+    [token]
+  )
+  return rows[0] || null
+}
+
 export const findStudentStatsForReport = async (student_id, academy_id, period) => {
   const [attendResult, submitResult, typeResult, pointResult] = await Promise.all([
     pool.query(

@@ -57,6 +57,26 @@ export const generateReport = async ({ studentId, academyId, period, operatorId 
   })
 }
 
+export const getPublicReport = async ({ token }) => {
+  const report = await reportRepository.findReportByPublicToken(token)
+  if (!report) {
+    const err = new Error('리포트를 찾을 수 없거나 공개 링크가 유효하지 않습니다')
+    err.status = 404
+    throw err
+  }
+  return report
+}
+
+export const issuePublicToken = async ({ reportId }) => {
+  const token = await reportRepository.issuePublicToken(reportId)
+  if (!token) {
+    const err = new Error('리포트를 찾을 수 없습니다')
+    err.status = 404
+    throw err
+  }
+  return { public_token: token }
+}
+
 export const sendReport = async ({ reportId }) => {
   const report = await reportRepository.findReportById(reportId)
   if (!report) {

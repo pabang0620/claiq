@@ -40,6 +40,7 @@ export function ChurnRiskTable({ students = [], onContact, isLoading = false }) 
               <th className="px-4 py-3 text-center font-medium text-zinc-600 hidden sm:table-cell">출석률</th>
               <th className="px-4 py-3 text-center font-medium text-zinc-600 hidden md:table-cell">문제 참여율</th>
               <th className="px-4 py-3 text-left font-medium text-zinc-600 hidden lg:table-cell">마지막 접속</th>
+              <th className="px-4 py-3 text-left font-medium text-zinc-600 hidden xl:table-cell">AI 코멘트</th>
               <th className="px-4 py-3 text-center font-medium text-zinc-600">연락</th>
             </tr>
           </thead>
@@ -83,6 +84,13 @@ export function ChurnRiskTable({ students = [], onContact, isLoading = false }) 
                 </td>
                 <td className="px-4 py-3 text-sm text-zinc-500 hidden lg:table-cell">
                   {formatRelative(student.lastActiveAt)}
+                </td>
+                <td className="px-4 py-3 hidden xl:table-cell">
+                  {student.aiComment ? (
+                    <p className="text-xs text-zinc-600 leading-relaxed max-w-xs">{student.aiComment}</p>
+                  ) : (
+                    <span className="text-xs text-zinc-300">-</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-center">
                   <button

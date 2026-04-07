@@ -42,6 +42,9 @@ const ReportPage = lazy(() => import('../pages/operator/ReportPage.jsx'))
 const AcademySettingPage = lazy(() => import('../pages/operator/AcademySettingPage.jsx'))
 const MemberManagePage = lazy(() => import('../pages/operator/MemberManagePage.jsx'))
 
+// Report public page (no auth)
+const PublicReportPage = lazy(() => import('../pages/report/PublicReportPage.jsx'))
+
 // Legal pages
 const PrivacyPage = lazy(() => import('../pages/legal/PrivacyPage.jsx'))
 const TermsPage = lazy(() => import('../pages/legal/TermsPage.jsx'))
@@ -127,6 +130,9 @@ export default function AppRoutes() {
         <Route path="members" element={<Wrap><MemberManagePage /></Wrap>} />
         <Route path="settings" element={<Wrap><AcademySettingPage /></Wrap>} />
       </Route>
+
+      {/* Public report — 인증 불필요, 학부모 링크 공유용 */}
+      <Route path="/report/public/:token" element={<Wrap><PublicReportPage /></Wrap>} />
 
       {/* Legal */}
       <Route path="/privacy" element={<Wrap><PrivacyPage /></Wrap>} />
