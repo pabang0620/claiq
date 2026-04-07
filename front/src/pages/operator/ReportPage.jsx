@@ -50,7 +50,7 @@ export default function ReportPage() {
       await reportApi.sendSms(reportId)
       setReports((prev) =>
         prev.map((r) =>
-          r.id === reportId ? { ...r, smsSentAt: new Date().toISOString() } : r
+          r.id === reportId ? { ...r, sent_at: new Date().toISOString() } : r
         )
       )
       addToast({ type: 'success', message: 'SMS가 발송됐습니다.' })
@@ -70,7 +70,7 @@ export default function ReportPage() {
     try {
       await Promise.all(unsentIds.map((id) => reportApi.sendSms(id)))
       setReports((prev) =>
-        prev.map((r) => ({ ...r, smsSentAt: r.smsSentAt || new Date().toISOString() }))
+        prev.map((r) => ({ ...r, sent_at: r.sent_at || new Date().toISOString() }))
       )
       addToast({ type: 'success', message: `${unsentIds.length}개 리포트가 일괄 발송됐습니다.` })
     } catch (err) {
@@ -80,7 +80,7 @@ export default function ReportPage() {
 
   if (isLoading) return <PageSpinner />
 
-  const unsentCount = reports.filter((r) => !r.smsSentAt).length
+  const unsentCount = reports.filter((r) => !r.sent_at).length
 
   return (
     <div className="space-y-5">

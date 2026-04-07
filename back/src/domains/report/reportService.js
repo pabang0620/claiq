@@ -44,7 +44,7 @@ export const generateReport = async ({ studentId, academyId, period, operatorId 
         ? Math.round((stats.submissions.correct_count / stats.submissions.total) * 100)
         : 0,
     },
-    weakTypes: stats.weakTypes,
+    weakTypes: stats.weakTypes.map((t) => ({ type_code: t.type_code, type_name: t.type_name || t.type_code })),
     pointsEarned: parseInt(stats.pointsEarned) || 0,
     generatedAt: new Date().toISOString(),
   }

@@ -72,10 +72,11 @@ export const findStudentStatsForReport = async (student_id, academy_id, period) 
       [student_id, academy_id, period]
     ),
     pool.query(
-      `SELECT type_code, correct_rate
-       FROM student_type_stats
-       WHERE student_id = $1 AND academy_id = $2
-       ORDER BY correct_rate ASC LIMIT 5`,
+      `SELECT s.type_code, s.correct_rate, qt.name AS type_name
+       FROM student_type_stats s
+       LEFT JOIN question_types qt ON qt.code = s.type_code
+       WHERE s.student_id = $1 AND s.academy_id = $2
+       ORDER BY s.correct_rate ASC LIMIT 5`,
       [student_id, academy_id]
     ),
     pool.query(
