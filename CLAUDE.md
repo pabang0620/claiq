@@ -1,8 +1,8 @@
-# CLAIQ — Claude 협업 지침서
+# CLAIQ - Claude 협업 지침서
 
 ## 프로젝트 개요
 수능 준비 중소 학원을 위한 AI 통합 교육 플랫폼.
-강의 녹음 → Whisper STT → GPT-4 문제 자동 생성 → 학생 맞춤 학습 로드맵까지 제공.
+강의 녹음 → Whisper STT → GPT-4o-mini 문제 자동 생성 → 학생 맞춤 학습 로드맵까지 제공.
 
 **팀 구성**: 2인 (기획·개발)
 **공모전**: 2026 KIT 바이브코딩 공모전
@@ -60,7 +60,7 @@ award/
 - 들여쓰기: 2 spaces
 - 네이밍: 컴포넌트 PascalCase / 함수·변수 camelCase / 상수 UPPER_SNAKE_CASE
 - DB 쿼리: parameterized query 필수 (SQL injection 방지)
-- 환경변수: `.env` 사용, 커밋 금지 (`.env.production` 예외 — 시크릿 없음)
+- 환경변수: `.env` 사용, 커밋 금지 (`.env.production` 예외 - 시크릿 없음)
 - 타임존: 서버·DB 모두 `Asia/Seoul` (KST)
 
 ---
@@ -70,7 +70,7 @@ award/
 규모 있는 작업이 완료될 때마다 `AI_협업_기록.md`에 아래 형식으로 기록을 추가한다.
 
 ```markdown
-## [작업명] — YYYY-MM-DD
+## [작업명] - YYYY-MM-DD
 
 ### 작업 배경
 왜 이 작업이 필요했는가.
