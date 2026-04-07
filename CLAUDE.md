@@ -1,0 +1,99 @@
+# CLAIQ — Claude 협업 지침서
+
+## 프로젝트 개요
+수능 준비 중소 학원을 위한 AI 통합 교육 플랫폼.
+강의 녹음 → Whisper STT → GPT-4 문제 자동 생성 → 학생 맞춤 학습 로드맵까지 제공.
+
+**팀 구성**: 2인 (기획·개발)
+**공모전**: 2026 KIT 바이브코딩 공모전
+
+---
+
+## 기술 스택
+
+| 영역 | 기술 |
+|------|------|
+| Frontend | React 19, Vite 7, Tailwind v4, Zustand v5, React Router DOM v7 |
+| Backend | Node.js, Express (ESM), Zod, JWT |
+| Database | PostgreSQL + pgvector (Supabase, `claiq` schema) |
+| AI | OpenAI GPT-4o-mini, Whisper-1, text-embedding-3-small |
+| 배포 | Vercel (프론트) / Render (백엔드) |
+
+---
+
+## 프로젝트 구조
+
+```
+award/
+├── front/          # React 19 + Vite 7
+│   └── src/
+│       ├── pages/  # operator / teacher / student / auth / legal
+│       ├── api/    # axios 기반 API 클라이언트
+│       ├── store/  # Zustand 스토어
+│       └── components/
+├── back/           # Node.js + Express
+│   └── src/
+│       ├── domains/    # auth, lecture, question, qa, roadmap, exam, ...
+│       ├── ai/         # whisper, questionGenerator, ragQA, embedding, ...
+│       ├── config/     # db, env, supabase
+│       └── middleware/
+├── CLAUDE.md
+├── AI_협업_기록.md
+└── CLAIQ_테스트_체크리스트.md
+```
+
+---
+
+## 주요 설계 결정
+
+- **DB 스키마**: `claiq` 스키마 분리 (public과 충돌 방지)
+- **인증**: JWT Access Token (1h) + Refresh Token Rotation (30d, httpOnly cookie)
+- **AI 처리**: 강의 업로드 → 비동기 파이프라인 → SSE로 실시간 진행상황 전달
+- **RAG Q&A**: pgvector 유사도 검색 → GPT 컨텍스트 주입 → 스트리밍 응답
+- **이탈 예측**: 출석 데이터 기반 at_risk / inactive 분류
+- **포인트 시스템**: 출석·문제풀이·스트릭·주간목표 달성 시 자동 지급
+
+---
+
+## 개발 규칙
+
+- 들여쓰기: 2 spaces
+- 네이밍: 컴포넌트 PascalCase / 함수·변수 camelCase / 상수 UPPER_SNAKE_CASE
+- DB 쿼리: parameterized query 필수 (SQL injection 방지)
+- 환경변수: `.env` 사용, 커밋 금지 (`.env.production` 예외 — 시크릿 없음)
+- 타임존: 서버·DB 모두 `Asia/Seoul` (KST)
+
+---
+
+## AI 협업 로깅 규칙 (필수)
+
+규모 있는 작업이 완료될 때마다 `AI_협업_기록.md`에 아래 형식으로 기록을 추가한다.
+
+```markdown
+## [작업명] — YYYY-MM-DD
+
+### 작업 배경
+왜 이 작업이 필요했는가.
+
+### AI와 함께 한 것
+- 어떤 결정을 AI와 함께 내렸는가
+- 어떤 코드/설계를 AI가 생성했는가
+
+### 핵심 결정 및 근거
+주요 기술적 결정과 그 이유.
+
+### 결과
+무엇이 만들어졌는가.
+```
+
+**규모 있는 작업 기준**: 새 기능 추가, 아키텍처 변경, 버그 수정 (영향 범위 > 3파일), 배포 설정
+
+---
+
+## 테스트 계정 (demo1234)
+
+| 역할 | 이메일 |
+|------|--------|
+| 운영자 | operator@demo.claiq.kr |
+| 교강사 | teacher1@demo.claiq.kr |
+| 수강생 | s1@demo.claiq.kr ~ s5@demo.claiq.kr |
