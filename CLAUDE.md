@@ -26,17 +26,30 @@
 ```
 award/
 ├── front/          # React 19 + Vite 7
-│   └── src/
-│       ├── pages/  # operator / teacher / student / auth / legal
-│       ├── api/    # axios 기반 API 클라이언트
-│       ├── store/  # Zustand 스토어
-│       └── components/
-├── back/           # Node.js + Express
-│   └── src/
-│       ├── domains/    # auth, lecture, question, qa, roadmap, exam, ...
-│       ├── ai/         # whisper, questionGenerator, ragQA, embedding, ...
-│       ├── config/     # db, env, supabase
-│       └── middleware/
+│   ├── src/
+│   │   ├── pages/           # operator / teacher / student / auth / legal
+│   │   ├── api/             # axios 기반 API 클라이언트
+│   │   ├── store/           # Zustand v5 스토어 (uiStore, authStore, academyStore, ...)
+│   │   ├── components/      # 공통(ui, layout) 및 역할별 컴포넌트
+│   │   │   ├── ui/          # Dialog, Input, Button, Avatar, Card, Spinner, ...
+│   │   │   ├── layout/      # AppLayout, Header, Sidebar, ...
+│   │   │   ├── operator/    # ReportPreview, ...
+│   │   │   └── ...
+│   │   ├── hooks/           # useAuth, useSSE, useDebounce, ...
+│   │   ├── constants/       # roles, 상수 정의
+│   │   ├── styles/          # index.css (Tailwind v4 + 커스텀 애니메이션)
+│   │   ├── utils/           # formatDate, 유틸리티 함수
+│   │   └── main.jsx
+│   └── index.html
+├── back/           # Node.js + Express (ESM)
+│   ├── src/
+│   │   ├── domains/         # auth, academy, lecture, question, qa, roadmap, exam, attendance, point, report, ...
+│   │   │   └── [domain]/    # controller.js, service.js, repository.js
+│   │   ├── ai/              # whisper.js, questionGenerator.js, ragQA.js, embedding.js, typeMapper.js, ...
+│   │   ├── config/          # db.js, env.js, supabase.js
+│   │   ├── middleware/      # auth, validation, errorHandler, ...
+│   │   └── server.js
+│   └── migrations/          # SQL 마이그레이션 파일 (001-011)
 ├── CLAUDE.md
 ├── AI_협업_기록.md
 └── CLAIQ_테스트_체크리스트.md

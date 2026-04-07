@@ -153,3 +153,97 @@ https://claiq.vercel.app (프론트), https://claiq.onrender.com (백엔드) 배
 
 ### 결과
 법적 페이지 2개, 약관 동의 UI, SEO/보안 메타태그 전체 적용 완료.
+
+---
+
+## UI/UX 개선 및 리포트 버그 수정 - 2026-04-07
+
+### 작업 배경
+회원가입 플로우의 사용성을 개선하고, 성취 리포트 기능의 API 응답 데이터 필드를 실제 스키마에 맞게 수정해야 했다. 또한 native confirm/alert 모달을 일관된 커스텀 Dialog로 교체하여 UX를 통일하고, 모바일 반응형 UI를 강화해야 했다.
+
+### AI와 함께 한 것
+
+**프론트엔드:**
+- SignupPage: 역할 선택 UI 개선
+  - 세로 리스트 → 3열 그리드 레이아웃으로 변경
+  - 역할별 설명(desc) 텍스트 제거, 아이콘 + 레이블만 표시
+  - 운영자 선택 시 학원 이름(academyName) 입력 필드 조건부 표시
+  - 뒤로 가기 버튼(←) 좌측 상단 단독 배치 (icon only, 우측 정렬 제거)
+  - 운영자 가입 후 대시보드 이동 / 교강사·학생은 /join-academy로 이동
+
+- uiStore: 동적 초기값 설정
+  - sidebarOpen: 화면 너비 768px 기준 동적 설정 (모바일 기본 닫힘)
+  - dialog 상태 추가: showAlert, showConfirm, closeDialog 액션으로 Promise 기반 모달 지원
+
+- Dialog 컴포넌트 (신규, /src/components/ui/Dialog.jsx)
+  - 모바일: 하단 시트 (slide-up 애니메이션, 드래그 핸들 표시)
+  - 데스크탑: 중앙 모달 (fade-scale 애니메이션)
+  - Alert / Confirm 두 가지 타입 지원
+  - danger 옵션으로 빨간색 확인 버튼 표시 (삭제 작업용)
+  - Escape 키로 닫기, 배경 클릭으로 취소
+
+- Header: 모바일 좌우 패딩 최적화 (px-5 → px-3 sm:px-5)
+
+- AppLayout: Dialog 컴포넌트 마운트
+
+- ReportPreview: API 응답 필드 수정
+  - student_name, report_period, content_json 구조에 맞게 재작성
+  - weakTypes: { type_code, type_name } 형태로 처리
+  - 학생 이름을 큰 폰트 + 아바타로 강조
+  - 기간 포맷: "2026-04" → "2026년 4월" 변환
+  - sent_at 필드명 수정 및 SMS 발송 완료 상태 표시
+
+- native confirm() → showConfirm() 교체 (3개 파일)
+  - AcademySettingPage: 쿠폰 삭제 확인
+  - LectureMaterialPage: 자료 삭제 확인
+  - MemberManagePage: 멤버 제거 확인
+
+**백엔드:**
+- authService: 운영자 가입 시 자동으로 학원 생성 및 멤버 등록
+  - generateAcademyCode() 호출 → 유니크 코드 생성
+  - createAcademy() → 운영자 소유 학원 생성
+  - addMember() → 운영자를 학원 멤버로 등록 (role: operator)
+
+- reportRepository: findStudentStatsForReport에 question_types LEFT JOIN 추가
+  - type_name 필드를 포함해서 약점 유형 정보 완성
+
+- reportService: generateReport에서 weakTypes 구조 통일
+  - stats.weakTypes 배열의 각 항목을 { type_code, type_name } 형태로 매핑
+  - type_name이 없으면 type_code로 대체
+
+**DB 마이그레이션:**
+- 011_fix_report_weak_type_names.sql (신규)
+  - DO 블록으로 기존 achievement_reports 데이터 일괄 업데이트
+  - content_json.weakTypes 배열의 각 항목에 question_types 테이블의 name 추가
+  - ENG_READ_MAIN → "주제·제목·요지" 등으로 정상 변환 확인
+
+**스타일:**
+- index.css: slide-up, fade-scale 애니메이션 추가
+  - slide-up: 하단에서 위로 슬라이드 (0.22s ease-out)
+  - fade-scale: 중앙 확대 (0.18s ease-out)
+- 전체 em dash(—) → 하이픈(-) 일괄 변경 (index.html 메타태그)
+
+### 핵심 결정 및 근거
+
+1. **3열 그리드 역할 선택**: 좁은 높이에 다 맞추면서 시각적 구분 명확. 아이콘 + 레이블로 직관적.
+
+2. **동적 sidebarOpen 초기값**: 모바일 사용자가 기본적으로 사이드바 비활성 상태로 진입하면 충분한 화면 공간 확보. `window.matchMedia`는 SSR 회피.
+
+3. **Promise 기반 Dialog**: native confirm() 대비 스타일 통제 + 모바일 반응형 가능. resolve() 콜백으로 async/await 호환.
+
+4. **slide-up vs fade-scale**: 모바일은 물리적인 "끌어올림" 감각 (sheet), 데스크탑은 중앙 "나타남" 느낌 (modal) → 기기별 직관성 향상.
+
+5. **학원 자동 생성**: 운영자가 중복 학원 등록을 걱정 없이 회원가입. 더 나은 UX + 데이터 정합성 (1명 = 1개 학원 초기화).
+
+6. **weakTypes에 type_name 포함**: 프론트에서 type_code만으로는 사용자 표시 불가. 마이그레이션으로 기존 데이터도 보강 (데이터 정합성 확보).
+
+7. **em dash → 하이픈**: 모바일 브라우저·SNS 공유 시 em dash 렌더링 불안정. 하이픈이 범용적.
+
+### 결과
+
+- 역할 선택 → 회원가입 플로우 완성 (모바일 우선, 데스크톱 지원)
+- Dialog 시스템 완성: native modal ↔ Promise 기반 커스텀 모달로 전환
+- 성취 리포트 데이터 구조 완성: 백엔드 쿼리 + 프론트 렌더링 통일
+- 운영자 가입 → 자동 학원 생성 자동화
+- 기존 리포트 데이터 일괄 업그레이드 (type_name 추가)
+- 모바일·데스크톱 반응형 UI 강화 (Header 패딩, Dialog 애니메이션)
