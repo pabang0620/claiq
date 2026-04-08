@@ -122,7 +122,7 @@ export default function SignupPage() {
           id="email"
           label="이메일"
           type="email"
-          placeholder="example@claiq.io"
+          placeholder="이메일 주소를 입력하세요"
           value={form.email}
           onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
           error={errors.email}

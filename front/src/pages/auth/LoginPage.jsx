@@ -91,7 +91,7 @@ export default function LoginPage() {
           id="email"
           label="이메일"
           type="email"
-          placeholder="example@claiq.io"
+          placeholder="이메일 주소를 입력하세요"
           value={form.email}
           onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
           error={errors.email}

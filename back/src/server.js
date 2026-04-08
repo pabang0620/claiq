@@ -30,7 +30,7 @@ const startServer = async () => {
   process.on('SIGINT', () => shutdown('SIGINT'))
 
   process.on('unhandledRejection', (reason) => {
-    logger.error('Unhandled Rejection:', reason)
+    logger.error('처리되지 않은 예외:', reason)
   })
 }
 
