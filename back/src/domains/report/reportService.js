@@ -25,15 +25,15 @@ export const generateReport = async ({ studentId, academyId, period, operatorId 
     attendance: {
       total: parseInt(stats.attendance.total) || 0,
       present: parseInt(stats.attendance.present_count) || 0,
-      rate: stats.attendance.total > 0
-        ? Math.round((stats.attendance.present_count / stats.attendance.total) * 100)
+      rate: parseInt(stats.attendance.total) > 0
+        ? Math.round((parseInt(stats.attendance.present_count) / parseInt(stats.attendance.total)) * 100)
         : 0,
     },
     quiz: {
       total: parseInt(stats.submissions.total) || 0,
       correct: parseInt(stats.submissions.correct_count) || 0,
-      rate: stats.submissions.total > 0
-        ? Math.round((stats.submissions.correct_count / stats.submissions.total) * 100)
+      rate: parseInt(stats.submissions.total) > 0
+        ? Math.round((parseInt(stats.submissions.correct_count) / parseInt(stats.submissions.total)) * 100)
         : 0,
     },
     weakTypes: stats.weakTypes.map((t) => ({ type_code: t.type_code, type_name: t.type_name || t.type_code })),

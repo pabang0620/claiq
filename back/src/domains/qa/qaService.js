@@ -68,11 +68,11 @@ export const askQuestion = async ({ question, studentId, academyId, lectureId, t
   res.setHeader('X-Accel-Buffering', 'no')
   res.flushHeaders()
 
-  // RAG Q&A 스트리밍
+  // RAG Q&A 스트리밍 — session.academy_id 사용 (resolveAcademyAndTeacher로 해결된 값이 세션에 저장됨)
   const { answer, sourceChunkIds, isEscalated } = await streamQA({
     question,
     teacherId: session.teacher_id,
-    academyId,
+    academyId: session.academy_id,
     history,
     res,
   })
@@ -86,12 +86,12 @@ export const askQuestion = async ({ question, studentId, academyId, lectureId, t
     source_chunks: sourceChunkIds,
   })
 
-  // Q&A 사용 포인트 지급
+  // Q&A 사용 포인트 지급 — session.academy_id 사용 (원본 academyId는 undefined일 수 있음)
   const today = new Date().toISOString().split('T')[0]
   const idempotencyKey = `qa_use:${studentId}:${today}:${session.id}`
   await pointService.addPoints({
     userId: studentId,
-    academyId,
+    academyId: session.academy_id,
     type: 'qa_use',
     amount: env.points.qaPerUse,
     referenceId: session.id,

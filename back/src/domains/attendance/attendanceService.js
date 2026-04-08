@@ -1,5 +1,6 @@
 import * as attendanceRepository from './attendanceRepository.js'
 import * as pointService from '../point/pointService.js'
+import { withTransaction } from '../../config/db.js'
 import { env } from '../../config/env.js'
 
 export const markAttendance = async ({ lectureId, studentId, academyId, status, markedBy }) => {
@@ -41,18 +42,21 @@ export const updateAttendance = async ({ id, status, markedBy }) => {
 }
 
 export const bulkMarkAttendance = async ({ academyId, lectureId, records, markedBy }) => {
-  const results = []
-  for (const record of records) {
-    const attendance = await attendanceRepository.markAttendance({
-      lecture_id: lectureId,
-      student_id: record.student_id,
-      academy_id: academyId,
-      status: record.status || 'present',
-      marked_by: markedBy,
-    })
-    results.push(attendance)
-  }
-  return results
+  return withTransaction(async (client) => {
+    const results = []
+    for (const record of records) {
+      const { rows } = await client.query(
+        `INSERT INTO attendances (lecture_id, student_id, academy_id, status, marked_by)
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (lecture_id, student_id) DO UPDATE
+           SET status = EXCLUDED.status, marked_by = EXCLUDED.marked_by, marked_at = NOW()
+         RETURNING *`,
+        [lectureId, record.student_id, academyId, record.status || 'present', markedBy]
+      )
+      results.push(rows[0])
+    }
+    return results
+  })
 }
 
 export const getMyAttendance = async ({ studentId, academyId }) => {

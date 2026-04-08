@@ -71,7 +71,9 @@ export const generateStudentRoadmap = async ({ studentId, academyId, studentName
   })
 
   const nextMonday = new Date()
-  nextMonday.setDate(nextMonday.getDate() + (7 - nextMonday.getDay() + 1) % 7 + 1)
+  // getDay(): 0=일, 1=월 ... 6=토. 오늘이 월요일(1)이면 7일 후 다음 월요일.
+  const daysUntilMonday = nextMonday.getDay() === 1 ? 7 : (8 - nextMonday.getDay()) % 7
+  nextMonday.setDate(nextMonday.getDate() + daysUntilMonday)
 
   const roadmap = await roadmapRepository.createRoadmap({
     student_id: studentId,
