@@ -31,16 +31,16 @@ export const useRoadmapStore = create((set) => ({
   },
 
   fetchWeakTypes: async (subject) => {
-    set({ isLoading: true, error: null })
+    set({ isLoading: true, error: null, weakTypes: [] })
     try {
       const data = await api.get('/students/me/type-stats', {
         params: subject ? { subject } : {},
       })
-      const mapped = (data.data || []).map((d) => ({
+      const mapped = (data?.data ?? []).map((d) => ({
         ...d,
-        typeCode: d.type_code ?? d.typeCode,
+        typeCode: d.type_code ?? d.typeCode ?? '',
         typeName: d.type_name ?? d.typeName ?? d.type_code ?? '',
-        correctRate: parseFloat(d.correct_rate ?? d.correctRate ?? 0),
+        correctRate: parseFloat(d.correct_rate ?? d.correctRate ?? 0) || 0,
         totalAttempts: d.total_attempts ?? d.totalAttempts ?? 0,
         correctCount: d.correct_count ?? d.correctCount ?? 0,
         subjectName: d.subject_name ?? d.subjectName ?? '',
@@ -48,7 +48,7 @@ export const useRoadmapStore = create((set) => ({
       }))
       set({ weakTypes: mapped, isLoading: false })
     } catch (err) {
-      set({ error: err.message, isLoading: false })
+      set({ error: err?.message ?? '데이터를 불러오는 데 실패했습니다.', isLoading: false, weakTypes: [] })
     }
   },
 }))

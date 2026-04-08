@@ -9,8 +9,8 @@ import * as qaController from './qaController.js'
 const router = Router()
 
 const createSessionSchema = z.object({
-  academy_id: z.string().uuid(),
-  teacher_id: z.string().uuid(),
+  academy_id: z.string().uuid().optional(),
+  teacher_id: z.string().uuid().optional(),
   lecture_id: z.string().uuid().optional(),
 })
 

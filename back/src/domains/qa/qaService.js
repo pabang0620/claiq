@@ -4,6 +4,28 @@ import { streamQA } from '../../ai/ragQA.js'
 import { env } from '../../config/env.js'
 import * as pointService from '../point/pointService.js'
 
+// academy_id, teacher_id가 없을 때 학생 소속 학원 및 첫 번째 교사를 자동 조회
+async function resolveAcademyAndTeacher({ studentId, academyId, teacherId }) {
+  let resolvedAcademyId = academyId
+  let resolvedTeacherId = teacherId
+
+  if (!resolvedAcademyId) {
+    const academies = await academyRepository.findUserAcademies(studentId)
+    if (academies.length > 0) {
+      resolvedAcademyId = academies[0].id
+    }
+  }
+
+  if (!resolvedTeacherId && resolvedAcademyId) {
+    const teachers = await academyRepository.findMembers(resolvedAcademyId, 'teacher')
+    if (teachers.length > 0) {
+      resolvedTeacherId = teachers[0].id
+    }
+  }
+
+  return { resolvedAcademyId, resolvedTeacherId }
+}
+
 export const askQuestion = async ({ question, studentId, academyId, lectureId, teacherId, sessionId, res }) => {
   // 세션 처리
   let session
@@ -15,10 +37,15 @@ export const askQuestion = async ({ question, studentId, academyId, lectureId, t
       throw err
     }
   } else {
+    const { resolvedAcademyId, resolvedTeacherId } = await resolveAcademyAndTeacher({
+      studentId,
+      academyId,
+      teacherId,
+    })
     session = await qaRepository.createSession({
       student_id: studentId,
-      teacher_id: teacherId,
-      academy_id: academyId,
+      teacher_id: resolvedTeacherId,
+      academy_id: resolvedAcademyId,
       lecture_id: lectureId,
       title: question.slice(0, 100),
     })
@@ -76,10 +103,27 @@ export const askQuestion = async ({ question, studentId, academyId, lectureId, t
 }
 
 export const createSession = async ({ studentId, teacherId, academyId, lectureId }) => {
+  const { resolvedAcademyId, resolvedTeacherId } = await resolveAcademyAndTeacher({
+    studentId,
+    academyId,
+    teacherId,
+  })
+
+  if (!resolvedAcademyId) {
+    const err = new Error('소속 학원을 찾을 수 없습니다. 학원에 먼저 가입해주세요.')
+    err.status = 400
+    throw err
+  }
+  if (!resolvedTeacherId) {
+    const err = new Error('학원에 등록된 교강사가 없습니다.')
+    err.status = 400
+    throw err
+  }
+
   return qaRepository.createSession({
     student_id: studentId,
-    teacher_id: teacherId,
-    academy_id: academyId,
+    teacher_id: resolvedTeacherId,
+    academy_id: resolvedAcademyId,
     lecture_id: lectureId || null,
     title: null,
   })

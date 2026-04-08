@@ -92,6 +92,6 @@ export const submitAnswer = async ({ questionId, studentId, academyId, submitted
   }
 }
 
-export const getTypeStats = async (studentId, academyId) => {
-  return questionRepository.findTypeStats(studentId, academyId)
+export const getTypeStats = async (studentId, academyId, subject) => {
+  return questionRepository.findTypeStats(studentId, academyId, subject)
 }

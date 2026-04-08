@@ -77,8 +77,8 @@ export const getTodayQuiz = async (req, res, next) => {
 export const getTypeStats = async (req, res, next) => {
   try {
     const studentId = req.params.studentId || req.user.id
-    const { academy_id } = req.query
-    const stats = await questionService.getTypeStats(studentId, academy_id)
+    const { academy_id, subject } = req.query
+    const stats = await questionService.getTypeStats(studentId, academy_id, subject)
     return successResponse(res, stats)
   } catch (err) {
     next(err)

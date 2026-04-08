@@ -121,16 +121,22 @@ export const upsertTypeStats = async ({ student_id, academy_id, type_code, subje
   )
 }
 
-export const findTypeStats = async (student_id, academy_id = null) => {
+export const findTypeStats = async (student_id, academy_id = null, subject = null) => {
   const conditions = ['sts.student_id = $1']
   const params = [student_id]
+  let idx = 2
+
   if (academy_id) {
-    conditions.push(`sts.academy_id = $2`)
+    conditions.push(`sts.academy_id = $${idx++}`)
     params.push(academy_id)
+  }
+  if (subject) {
+    conditions.push(`s.code = $${idx++}`)
+    params.push(subject)
   }
 
   const { rows } = await pool.query(
-    `SELECT sts.*, s.name AS subject_name, s.area AS subject_area
+    `SELECT sts.*, s.name AS subject_name, s.area AS subject_area, s.code AS subject_code
      FROM student_type_stats sts
      JOIN subjects s ON s.id = sts.subject_id
      WHERE ${conditions.join(' AND ')}

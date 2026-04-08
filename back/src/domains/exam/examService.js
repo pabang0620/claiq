@@ -1,5 +1,6 @@
 import * as examRepository from './examRepository.js'
 import * as questionRepository from '../question/questionRepository.js'
+import { findUserAcademies } from '../academy/academyRepository.js'
 import { generateExam } from '../../ai/examGenerator.js'
 import { getChunksByLectureId } from '../lecture/vectorRepository.js'
 import { readFileSync } from 'fs'
@@ -13,8 +14,37 @@ const suneungTypes = JSON.parse(
 )
 
 export const generateStudentExam = async ({ studentId, academyId, subjectId, area }) => {
+  // academy_id가 없으면 학생 소속 학원 자동 조회
+  let resolvedAcademyId = academyId
+  if (!resolvedAcademyId) {
+    const academies = await findUserAcademies(studentId)
+    if (academies.length > 0) {
+      resolvedAcademyId = academies[0].id
+    }
+  }
+
+  // subject_id가 없으면 학원에서 사용 중인 첫 번째 과목을 자동 조회
+  let resolvedSubjectId = subjectId
+  if (!resolvedSubjectId && resolvedAcademyId) {
+    const { rows: subjectRows } = await pool.query(
+      `SELECT DISTINCT q.subject_id FROM questions q
+       WHERE q.academy_id = $1 AND q.deleted_at IS NULL
+       LIMIT 1`,
+      [resolvedAcademyId]
+    )
+    if (subjectRows.length > 0) {
+      resolvedSubjectId = subjectRows[0].subject_id
+    } else {
+      // questions가 없으면 subjects 마스터에서 첫 번째 활성 과목 선택
+      const { rows: masterRows } = await pool.query(
+        `SELECT id FROM subjects WHERE is_active = true ORDER BY display_order ASC LIMIT 1`
+      )
+      if (masterRows.length > 0) resolvedSubjectId = masterRows[0].id
+    }
+  }
+
   // 취약 유형 조회
-  const typeStats = await questionRepository.findTypeStats(studentId, academyId)
+  const typeStats = await questionRepository.findTypeStats(studentId, resolvedAcademyId)
   const weakTypes = typeStats.filter((s) => s.subject_area === area || !area)
     .sort((a, b) => a.correct_rate - b.correct_rate)
 
@@ -25,13 +55,27 @@ export const generateStudentExam = async ({ studentId, academyId, subjectId, are
     type_name: info.name,
   }))
 
-  // 최근 강의 청크 가져오기
-  const { rows: recentLectures } = await pool.query(
-    `SELECT id FROM lectures
-     WHERE academy_id = $1 AND subject_id = $2 AND processing_status = 'done' AND deleted_at IS NULL
-     ORDER BY created_at DESC LIMIT 3`,
-    [academyId, subjectId]
-  )
+  // 최근 강의 청크 가져오기 (resolvedSubjectId가 있으면 과목 필터 적용)
+  let recentLectures
+  if (resolvedAcademyId && resolvedSubjectId) {
+    const result = await pool.query(
+      `SELECT id FROM lectures
+       WHERE academy_id = $1 AND subject_id = $2 AND processing_status = 'done' AND deleted_at IS NULL
+       ORDER BY created_at DESC LIMIT 3`,
+      [resolvedAcademyId, resolvedSubjectId]
+    )
+    recentLectures = result.rows
+  } else if (resolvedAcademyId) {
+    const result = await pool.query(
+      `SELECT id FROM lectures
+       WHERE academy_id = $1 AND processing_status = 'done' AND deleted_at IS NULL
+       ORDER BY created_at DESC LIMIT 3`,
+      [resolvedAcademyId]
+    )
+    recentLectures = result.rows
+  } else {
+    recentLectures = []
+  }
 
   let availableChunks = []
   for (const lecture of recentLectures) {
@@ -46,10 +90,16 @@ export const generateStudentExam = async ({ studentId, academyId, subjectId, are
     availableChunks,
   })
 
+  if (!resolvedSubjectId) {
+    const err = new Error('과목 정보를 찾을 수 없습니다. 학원에 등록된 강의가 있는지 확인해주세요.')
+    err.status = 400
+    throw err
+  }
+
   return examRepository.createExam({
     student_id: studentId,
-    academy_id: academyId,
-    subject_id: subjectId,
+    academy_id: resolvedAcademyId,
+    subject_id: resolvedSubjectId,
     questions,
   })
 }

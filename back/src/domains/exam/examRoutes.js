@@ -9,8 +9,8 @@ import * as examController from './examController.js'
 const router = Router()
 
 const generateSchema = z.object({
-  academy_id: z.string().uuid(),
-  subject_id: z.string().uuid(),
+  academy_id: z.string().uuid().optional(),
+  subject_id: z.string().uuid().optional(),
   area: z.enum(['국어', '수학', '영어']).optional(),
 })
 

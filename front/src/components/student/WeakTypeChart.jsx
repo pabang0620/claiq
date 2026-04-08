@@ -59,8 +59,8 @@ export function WeakTypeChart({ data = [], subject }) {
 
       {/* Legend */}
       <div className="mt-2 space-y-1">
-        {[...data]
-          .sort((a, b) => a.correctRate - b.correctRate)
+        {[...(data ?? [])]
+          .sort((a, b) => (a.correctRate ?? 0) - (b.correctRate ?? 0))
           .slice(0, 3)
           .map((d) => (
             <div key={d.typeCode} className="flex items-center justify-between text-sm">
