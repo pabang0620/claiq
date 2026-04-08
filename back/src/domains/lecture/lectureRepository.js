@@ -65,7 +65,7 @@ export const findMaterials = async (lecture_id) => {
      WHERE lecture_id = $1 AND deleted_at IS NULL
      ORDER BY created_at DESC`,
     [lecture_id]
-  ).catch(() => ({ rows: [] }))
+  )
   return rows
 }
 
@@ -98,7 +98,7 @@ export const findMaterialsByStudent = async (student_id) => {
      WHERE lm.deleted_at IS NULL AND l.deleted_at IS NULL
      ORDER BY lm.created_at DESC`,
     [student_id]
-  ).catch(() => ({ rows: [] }))
+  )
   return rows
 }
 
