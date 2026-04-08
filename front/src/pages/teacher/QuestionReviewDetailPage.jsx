@@ -42,20 +42,25 @@ export default function QuestionReviewDetailPage() {
 
   async function handleAction(action) {
     setIsSaving(true)
-    const result = await reviewQuestion(id, action, {
-      content,
-      options,
-      correctAnswer,
-      explanation,
-      difficulty,
-    })
-    setIsSaving(false)
-    if (result.success) {
-      const labels = { approve: '승인', reject: '반려' }
-      addToast({ type: 'success', message: `문제가 ${labels[action]}됐습니다.` })
-      navigate('/teacher/review')
-    } else {
-      addToast({ type: 'error', message: result.error || '처리에 실패했습니다.' })
+    try {
+      const result = await reviewQuestion(id, action, {
+        content,
+        options,
+        correctAnswer,
+        explanation,
+        difficulty,
+      })
+      if (result.success) {
+        const labels = { approve: '승인', reject: '반려' }
+        addToast({ type: 'success', message: `문제가 ${labels[action]}됐습니다.` })
+        navigate('/teacher/review')
+      } else {
+        addToast({ type: 'error', message: result.error || '처리에 실패했습니다.' })
+      }
+    } catch (err) {
+      addToast({ type: 'error', message: err.message || '처리 중 오류가 발생했습니다.' })
+    } finally {
+      setIsSaving(false)
     }
   }
 

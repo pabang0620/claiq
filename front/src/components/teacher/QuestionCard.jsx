@@ -77,8 +77,8 @@ export function QuestionCard({ question, onReview, isLoading = false }) {
                 <p className="text-xs font-medium text-zinc-600">선택지</p>
                 {editOptions.map((opt, i) => (
                   <Input
-                    key={i}
-                    id={`opt-${i}`}
+                    key={opt.label ?? i}
+                    id={`opt-${opt.label ?? i}`}
                     placeholder={`${opt.label}번 선택지`}
                     value={opt.text}
                     onChange={(e) => updateOption(i, e.target.value)}

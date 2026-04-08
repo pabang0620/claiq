@@ -134,7 +134,7 @@ export default function LectureMaterialPage() {
                     {m.size ? `${(m.size / 1024).toFixed(0)} KB` : '-'}
                   </td>
                   <td className="px-4 py-3 text-zinc-500 hidden md:table-cell">
-                    {formatDate(m.createdAt)}
+                    {formatDate(m.createdAt ?? m.created_at)}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <div className="flex items-center justify-center gap-2">

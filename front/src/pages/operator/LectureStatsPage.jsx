@@ -32,8 +32,15 @@ export default function LectureStatsPage() {
       .finally(() => setIsLoading(false))
   }, [subject, period])
 
-  const avgRate = stats.length
-    ? Math.round(stats.reduce((s, d) => s + (d.correctRate || 0), 0) / stats.length)
+  const normalizedStats = stats.map((s) => ({
+    ...s,
+    correctRate: s.correctRate ?? s.avg_correct_rate ?? 0,
+    participantCount: s.participantCount ?? s.attendance_count ?? 0,
+    questionCount: s.questionCount ?? s.question_count ?? 0,
+  }))
+
+  const avgRate = normalizedStats.length
+    ? Math.round(normalizedStats.reduce((s, d) => s + (d.correctRate || 0), 0) / normalizedStats.length)
     : 0
 
   return (
@@ -62,9 +69,9 @@ export default function LectureStatsPage() {
       {/* Summary */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: '분석 강의 수', value: stats.length },
+          { label: '분석 강의 수', value: normalizedStats.length },
           { label: '평균 정답률', value: `${avgRate}%` },
-          { label: '70% 이상 강의', value: stats.filter((s) => (s.correctRate || 0) >= 70).length },
+          { label: '70% 이상 강의', value: normalizedStats.filter((s) => (s.correctRate || 0) >= 70).length },
         ].map(({ label, value }) => (
           <div key={label} className="bg-white rounded-xl border border-zinc-200 p-4 text-center">
             <p className="text-2xl font-bold text-zinc-900">{value}</p>
@@ -77,12 +84,12 @@ export default function LectureStatsPage() {
         <PageSpinner />
       ) : (
         <Card title="강의별 정답률">
-          <LectureStatChart data={stats} />
+          <LectureStatChart data={normalizedStats} />
         </Card>
       )}
 
       {/* Detailed table */}
-      {!isLoading && stats.length > 0 && (
+      {!isLoading && normalizedStats.length > 0 && (
         <Card title="상세 목록">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -95,7 +102,7 @@ export default function LectureStatsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-50">
-                {stats.map((s) => (
+                {normalizedStats.map((s) => (
                   <tr key={s.id || s.title} className="hover:bg-zinc-50/50">
                     <td className="py-2.5 text-zinc-800 truncate max-w-[200px]">{s.title}</td>
                     <td className="py-2.5 text-center">

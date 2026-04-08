@@ -129,7 +129,7 @@ export default function MemberManagePage() {
                   </td>
                   <td className="px-4 py-3 text-zinc-500 hidden md:table-cell">{member.email}</td>
                   <td className="px-4 py-3 text-zinc-500 hidden lg:table-cell">
-                    {formatDate(member.joinedAt || member.createdAt)}
+                    {formatDate(member.joinedAt ?? member.joined_at ?? member.createdAt)}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button

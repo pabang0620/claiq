@@ -12,9 +12,13 @@ export function EscalationItem({ item, onAnswer, isLoading = false }) {
 
   async function handleSubmit() {
     if (!answer.trim()) return
-    await onAnswer(item.id, answer)
-    setAnswer('')
-    setIsReplying(false)
+    try {
+      await onAnswer(item.id, answer)
+      setAnswer('')
+      setIsReplying(false)
+    } catch (err) {
+      // onAnswer (QAEscalationPage.handleAnswer) already shows error toast
+    }
   }
 
   return (

@@ -54,9 +54,9 @@ export function LectureStatChart({ data = [], className = '' }) {
           <Tooltip content={<CustomTooltip />} />
           <ReferenceLine y={70} stroke={CHART_COLORS.success} strokeDasharray="4 4" label={{ value: '70%', fill: CHART_COLORS.success, fontSize: 11 }} />
           <Bar dataKey="correctRate" radius={[4, 4, 0, 0]}>
-            {chartData.map((entry, index) => (
+            {chartData.map((entry) => (
               <Cell
-                key={index}
+                key={entry.id || entry.fullTitle}
                 fill={getScoreColor(entry.correctRate)}
               />
             ))}
