@@ -110,11 +110,11 @@ export const submitAnswer = async ({ student_id, question_id, academy_id, submit
 export const upsertTypeStats = async ({ student_id, academy_id, type_code, subject_id, is_correct }) => {
   await pool.query(
     `INSERT INTO student_type_stats (student_id, academy_id, type_code, subject_id, total_attempts, correct_count, correct_rate, last_attempted_at)
-     VALUES ($1, $2, $3, $4, 1, $5, $5, NOW())
+     VALUES ($1, $2, $3, $4, 1, $5::integer, $5::decimal, NOW())
      ON CONFLICT (student_id, type_code) DO UPDATE SET
        total_attempts = student_type_stats.total_attempts + 1,
-       correct_count = student_type_stats.correct_count + $5,
-       correct_rate = (student_type_stats.correct_count + $5)::decimal / (student_type_stats.total_attempts + 1),
+       correct_count = student_type_stats.correct_count + $5::integer,
+       correct_rate = (student_type_stats.correct_count + $5::integer)::decimal / (student_type_stats.total_attempts + 1),
        last_attempted_at = NOW(),
        updated_at = NOW()`,
     [student_id, academy_id, type_code, subject_id, is_correct ? 1 : 0]

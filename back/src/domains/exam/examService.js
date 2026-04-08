@@ -83,12 +83,20 @@ export const generateStudentExam = async ({ studentId, academyId, subjectId, are
     availableChunks.push(...chunks.map((c) => c.content))
   }
 
-  const questions = await generateExam({
-    weakTypes,
-    allTypes,
-    area: area || '국어',
-    availableChunks,
-  })
+  let questions
+  try {
+    questions = await generateExam({
+      weakTypes,
+      allTypes,
+      area: area || '국어',
+      availableChunks,
+    })
+  } catch (aiErr) {
+    // OpenAI API 에러(401, 429 등)를 503으로 변환해 프론트 로그아웃 방지
+    const err = new Error(aiErr.message || 'AI 모의고사 생성에 실패했습니다')
+    err.status = 503
+    throw err
+  }
 
   if (!resolvedSubjectId) {
     const err = new Error('과목 정보를 찾을 수 없습니다. 학원에 등록된 강의가 있는지 확인해주세요.')

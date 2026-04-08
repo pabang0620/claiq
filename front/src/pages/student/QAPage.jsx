@@ -67,7 +67,7 @@ export default function QAPage() {
 
     setInputText('')
     addUserMessage(text)
-    await sendMessage(session.id, text, user?.academyId, user?.id)
+    await sendMessage(session.id, text, session.academy_id, session.teacher_id)
   }
 
   function handleKeyDown(e) {
