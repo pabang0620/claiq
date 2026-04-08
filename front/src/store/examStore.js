@@ -21,7 +21,7 @@ export const useExamStore = create((set, get) => ({
       const exam = data.data
       set({
         currentExam: exam,
-        remainingTime: exam.timeLimitSec || 1200,
+        remainingTime: exam.time_limit_sec ?? exam.timeLimitSec ?? 1200,
         isGenerating: false,
       })
       return exam

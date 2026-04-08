@@ -38,7 +38,7 @@ export const useQuestionStore = create((set) => ({
   },
 
   reviewQuestion: async (id, action, editedData = {}) => {
-    set({ isLoading: true })
+    set({ isLoading: true, error: null })
     try {
       const status = action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : action
       await api.patch(`/questions/${id}/review`, { status, ...editedData })

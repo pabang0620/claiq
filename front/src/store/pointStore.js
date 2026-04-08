@@ -60,11 +60,11 @@ export const usePointStore = create((set) => ({
     }
   },
 
-  redeem: async (rewardId, points) => {
-    set({ isLoading: true })
+  redeem: async () => {
+    set({ isLoading: true, error: null })
     try {
-      await api.post('/points/me/redeem', { rewardId, points })
-      set((state) => ({ balance: state.balance - points, isLoading: false }))
+      const data = await api.post('/points/me/redeem', {})
+      set({ balance: data.data?.remainingBalance ?? 0, isLoading: false })
       return { success: true }
     } catch (err) {
       set({ error: err.message, isLoading: false })

@@ -31,7 +31,7 @@ export default function PointPage() {
       return
     }
     setRedeemingId(reward.id)
-    const result = await redeem(reward.id, reward.points)
+    const result = await redeem()
     setRedeemingId(null)
     if (result.success) {
       addToast({ type: 'success', message: `${reward.name} 교환 완료!` })
