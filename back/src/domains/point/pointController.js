@@ -57,7 +57,7 @@ export const redeemPoints = async (req, res, next) => {
   try {
     const result = await pointService.redeemPoints({
       userId: req.user.id,
-      academyId: req.body.academy_id,
+      academyId: req.user.academyId,
     })
     return successResponse(res, result, '쿠폰으로 교환되었습니다')
   } catch (err) {
