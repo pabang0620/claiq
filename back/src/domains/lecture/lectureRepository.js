@@ -84,7 +84,7 @@ export const deleteMaterial = async (id, lecture_id, teacher_id) => {
     `UPDATE lecture_materials SET deleted_at = NOW()
      WHERE id = $1 AND lecture_id = $2 AND teacher_id = $3`,
     [id, lecture_id, teacher_id]
-  ).catch(() => {})
+  )
 }
 
 export const findMaterialsByStudent = async (student_id) => {
