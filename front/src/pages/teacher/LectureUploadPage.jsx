@@ -55,7 +55,7 @@ export default function LectureUploadPage() {
     if (!file || !title.trim() || !subject) return
 
     const formData = new FormData()
-    formData.append('file', file)
+    formData.append('audio', file)
     formData.append('title', title)
     formData.append('subject', subject)
 

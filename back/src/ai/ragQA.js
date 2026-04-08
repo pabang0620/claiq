@@ -69,13 +69,15 @@ export const streamQA = async ({ question, teacherId, academyId, history = [], r
   let isEscalated = false
 
   try {
-    const stream = await openai.chat.completions.create({
-      model: env.openai.modelChat,
-      messages,
-      stream: true,
-      temperature: 0.5,
-      signal: controller.signal,
-    })
+    const stream = await openai.chat.completions.create(
+      {
+        model: env.openai.modelChat,
+        messages,
+        stream: true,
+        temperature: 0.5,
+      },
+      { signal: controller.signal }
+    )
 
     for await (const chunk of stream) {
       if (aborted) break

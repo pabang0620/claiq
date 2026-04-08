@@ -17,7 +17,7 @@ export const useExamStore = create((set, get) => ({
     try {
       const academy = useAcademyStore.getState().academy
       const body = academy?.id ? { academy_id: academy.id } : {}
-      const data = await api.post('/exams/generate', body)
+      const data = await api.post('/exams/generate', body, { timeout: 120000 })
       const exam = data.data
       set({
         currentExam: exam,

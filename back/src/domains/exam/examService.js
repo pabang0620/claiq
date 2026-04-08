@@ -104,12 +104,13 @@ export const generateStudentExam = async ({ studentId, academyId, subjectId, are
     throw err
   }
 
-  return examRepository.createExam({
+  const exam = await examRepository.createExam({
     student_id: studentId,
     academy_id: resolvedAcademyId,
     subject_id: resolvedSubjectId,
     questions,
   })
+  return examRepository.findExamById(exam.id)
 }
 
 export const submitExam = async ({ examId, studentId, answers }) => {
