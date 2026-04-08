@@ -77,7 +77,7 @@ export const findTeacherDashboard = async ({ teacherId, academyId }) => {
        WHERE qs.teacher_id = $1 AND qm.is_escalated = true AND qm.escalation_response IS NULL
        ${academyId ? `AND qs.academy_id = $2` : ''}`,
       academyId ? [teacherId, academyId] : [teacherId]
-    ).catch(() => ({ rows: [{ count: '0' }] })),
+    ),
   ])
 
   return {
@@ -159,7 +159,7 @@ export const findOperatorDashboard = async (academy_id) => {
       `SELECT COUNT(*) FROM achievement_reports
        WHERE academy_id = $1 AND sent_at IS NULL`,
       [academy_id]
-    ).catch(() => ({ rows: [{ count: '0' }] })),
+    ),
   ])
 
   return {

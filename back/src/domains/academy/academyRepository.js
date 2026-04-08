@@ -106,7 +106,7 @@ export const findCoupons = async (academy_id) => {
      WHERE academy_id = $1 AND deleted_at IS NULL
      ORDER BY created_at DESC`,
     [academy_id]
-  ).catch(() => ({ rows: [] }))
+  )
   return rows
 }
 
@@ -116,10 +116,7 @@ export const createCoupon = async ({ academy_id, name, description, discount_typ
      VALUES ($1, $2, $3, $4, $5, $6)
      RETURNING *`,
     [academy_id, name, description || null, discount_type || 'percent', discount_amount || 0, expires_at || null]
-  ).catch(() => {
-    // 테이블이 없는 경우 mock 반환
-    return { rows: [{ id: 'mock', academy_id, name, description, discount_type, discount_amount, expires_at, created_at: new Date() }] }
-  })
+  )
   return rows[0]
 }
 
@@ -127,7 +124,7 @@ export const deleteCoupon = async (id, academy_id) => {
   await pool.query(
     `UPDATE academy_coupons SET deleted_at = NOW() WHERE id = $1 AND academy_id = $2`,
     [id, academy_id]
-  ).catch(() => {})
+  )
 }
 
 export const updateMemberRole = async (academy_id, user_id, role) => {

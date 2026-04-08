@@ -75,9 +75,7 @@ export const createMaterial = async ({ lecture_id, teacher_id, title, file_url, 
      VALUES ($1, $2, $3, $4, $5)
      RETURNING *`,
     [lecture_id, teacher_id, title, file_url, file_type]
-  ).catch(() => ({
-    rows: [{ id: 'mock', lecture_id, teacher_id, title, file_url, file_type, created_at: new Date() }],
-  }))
+  )
   return rows[0]
 }
 
