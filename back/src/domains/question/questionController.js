@@ -51,7 +51,7 @@ export const submitAnswer = async (req, res, next) => {
     const result = await questionService.submitAnswer({
       questionId: req.params.id,
       studentId: req.user.id,
-      academyId: req.body.academy_id,
+      academyId: req.body.academy_id || req.user.academy_id,
       submitted: req.body.submitted,
     })
     return successResponse(res, result, result.is_correct ? '정답입니다!' : '오답입니다')

@@ -1,5 +1,6 @@
 import * as questionRepository from './questionRepository.js'
 import * as pointService from '../point/pointService.js'
+import { findUserAcademies } from '../academy/academyRepository.js'
 import { env } from '../../config/env.js'
 
 export const getPendingQuestions = async ({ academy_id, teacher_id, page = 1, limit = 20, status = 'pending' }) => {
@@ -23,6 +24,15 @@ export const getStudentQuestions = async ({ academy_id, type_code, difficulty, p
 }
 
 export const submitAnswer = async ({ questionId, studentId, academyId, submitted }) => {
+  // academy_id가 없으면 DB에서 수강생의 소속 학원 자동 조회
+  let resolvedAcademyId = academyId
+  if (!resolvedAcademyId) {
+    const academies = await findUserAcademies(studentId)
+    if (academies.length > 0) {
+      resolvedAcademyId = academies[0].id
+    }
+  }
+
   const question = await questionRepository.findQuestionById(questionId)
   if (!question) {
     const err = new Error('문제를 찾을 수 없습니다')
@@ -43,7 +53,7 @@ export const submitAnswer = async ({ questionId, studentId, academyId, submitted
   const submission = await questionRepository.submitAnswer({
     student_id: studentId,
     question_id: questionId,
-    academy_id: academyId,
+    academy_id: resolvedAcademyId,
     submitted,
     is_correct,
     points_earned,
@@ -53,7 +63,7 @@ export const submitAnswer = async ({ questionId, studentId, academyId, submitted
   if (question.type_code) {
     await questionRepository.upsertTypeStats({
       student_id: studentId,
-      academy_id: academyId,
+      academy_id: resolvedAcademyId,
       type_code: question.type_code,
       subject_id: question.subject_id,
       is_correct,
@@ -65,7 +75,7 @@ export const submitAnswer = async ({ questionId, studentId, academyId, submitted
     const idempotencyKey = `correct:${studentId}:${questionId}`
     await pointService.addPoints({
       userId: studentId,
-      academyId,
+      academyId: resolvedAcademyId,
       type: `correct_${question.difficulty.toLowerCase()}`,
       amount: points_earned,
       referenceId: submission.id,

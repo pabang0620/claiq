@@ -8,16 +8,19 @@ import * as questionController from './questionController.js'
 const router = Router()
 
 const reviewSchema = z.object({
-  status: z.enum(['approved', 'rejected']),
+  status: z.enum(['approved', 'rejected', 'approve', 'reject']),
   content: z.string().optional(),
   correct_answer: z.string().optional(),
   explanation: z.string().optional(),
-})
+}).transform((data) => ({
+  ...data,
+  status: data.status === 'approve' ? 'approved' : data.status === 'reject' ? 'rejected' : data.status,
+}))
 
 const submitSchema = z.object({
   submitted: z.string().min(1).optional(),
   answer: z.string().min(1).optional(),
-  academy_id: z.string().uuid('유효하지 않은 학원 ID'),
+  academy_id: z.string().uuid('유효하지 않은 학원 ID').optional(),
 }).transform((data) => ({
   submitted: data.submitted || data.answer,
   academy_id: data.academy_id,
