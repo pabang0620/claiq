@@ -23,8 +23,10 @@ export const useRoadmapStore = create((set) => ({
     set({ isRegenerating: true, error: null })
     try {
       const academy = useAcademyStore.getState().academy
-      const data = await api.post('/roadmap/regenerate', { academy_id: academy?.id })
-      set({ roadmap: data.data, isRegenerating: false })
+      await api.post('/roadmap/regenerate', { academy_id: academy?.id })
+      // 재생성 후 items를 포함한 최신 로드맵을 다시 조회
+      const latest = await api.get('/roadmap/me')
+      set({ roadmap: latest.data, isRegenerating: false })
       return { success: true }
     } catch (err) {
       set({ error: err.message, isRegenerating: false })

@@ -26,7 +26,7 @@ export default function PointPage() {
   }, [fetchBalance, fetchTransactions])
 
   async function handleRedeem(reward) {
-    if (balance < reward.points) {
+    if (balance < reward.required_points) {
       addToast({ type: 'error', message: '포인트가 부족합니다.' })
       return
     }
@@ -60,7 +60,7 @@ export default function PointPage() {
         balance={balance}
         todayEarned={transactions.filter((t) => {
           const today = new Date().toDateString()
-          return new Date(t.createdAt).toDateString() === today && t.amount > 0
+          return new Date(t.created_at).toDateString() === today && t.amount > 0
         }).reduce((sum, t) => sum + t.amount, 0)}
         totalEarned={transactions.filter((t) => t.amount > 0).reduce((sum, t) => sum + t.amount, 0)}
       />
@@ -88,9 +88,9 @@ export default function PointPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-zinc-800">
-                      {POINT_EVENT_LABELS[t.eventType] || t.eventType || '포인트 변동'}
+                      {POINT_EVENT_LABELS[t.type] || t.type || '포인트 변동'}
                     </p>
-                    <p className="text-xs text-zinc-400">{formatDate(t.createdAt)}</p>
+                    <p className="text-xs text-zinc-400">{formatDate(t.created_at)}</p>
                   </div>
                 </div>
                 <span
@@ -125,12 +125,12 @@ export default function PointPage() {
               <div key={reward.id} className="flex items-center justify-between p-3 bg-zinc-50 rounded-xl border border-zinc-100">
                 <div>
                   <p className="text-sm font-medium text-zinc-800">{reward.name}</p>
-                  <p className="text-xs text-zinc-500">{formatPointWithUnit(reward.points)} 필요</p>
+                  <p className="text-xs text-zinc-500">{formatPointWithUnit(reward.required_points)} 필요</p>
                 </div>
                 <Button
                   size="sm"
-                  variant={balance >= reward.points ? 'primary' : 'outline'}
-                  disabled={balance < reward.points}
+                  variant={balance >= reward.required_points ? 'primary' : 'outline'}
+                  disabled={balance < reward.required_points}
                   loading={redeemingId === reward.id}
                   onClick={() => handleRedeem(reward)}
                 >

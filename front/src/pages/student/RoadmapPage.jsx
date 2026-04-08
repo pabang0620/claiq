@@ -54,13 +54,13 @@ export default function RoadmapPage() {
             <p className="text-sm text-zinc-600">
               총 <span className="font-semibold text-zinc-900">{roadmap.items?.length || 0}</span>주 학습 계획
             </p>
-            {roadmap.updatedAt && (
+            {(roadmap.updated_at || roadmap.updatedAt) && (
               <p className="text-xs text-zinc-400">
-                마지막 업데이트: {new Date(roadmap.updatedAt).toLocaleDateString('ko-KR')}
+                마지막 업데이트: {new Date(roadmap.updated_at || roadmap.updatedAt).toLocaleDateString('ko-KR')}
               </p>
             )}
           </div>
-          <RoadmapTimeline items={roadmap.items || []} ddayCount={roadmap.ddayCount || 0} />
+          <RoadmapTimeline items={roadmap.items || []} ddayCount={roadmap.dday_count ?? roadmap.ddayCount ?? 0} />
         </div>
       )}
     </div>
