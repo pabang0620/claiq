@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import api from '../api/axios.js'
+import { useAcademyStore } from './academyStore.js'
 
 export const useQuestionStore = create((set) => ({
   pendingQuestions: [],
@@ -39,7 +40,8 @@ export const useQuestionStore = create((set) => ({
   reviewQuestion: async (id, action, editedData = {}) => {
     set({ isLoading: true })
     try {
-      await api.patch(`/questions/${id}/review`, { action, ...editedData })
+      const status = action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : action
+      await api.patch(`/questions/${id}/review`, { status, ...editedData })
       set((state) => ({
         pendingQuestions: state.pendingQuestions.filter((q) => q.id !== id),
         isLoading: false,
@@ -63,7 +65,9 @@ export const useQuestionStore = create((set) => ({
 
   submitAnswer: async (questionId, answer) => {
     try {
-      const data = await api.post(`/questions/${questionId}/submit`, { answer })
+      const academy = useAcademyStore.getState().academy
+      const academy_id = academy?.id
+      const data = await api.post(`/questions/${questionId}/submit`, { submitted: answer, academy_id })
       set({ submissionResult: data.data })
       return data.data
     } catch (err) {
