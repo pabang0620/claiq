@@ -1,17 +1,9 @@
 import * as reportRepository from './reportRepository.js'
 import { logger } from '../../utils/logger.js'
-import { env } from '../../config/env.js'
 
 const sendSms = async (to, message) => {
-  // Solapi SMS 발송 (실제 구현)
-  if (!env.solapi.apiKey || env.solapi.apiKey === 'placeholder') {
-    logger.warn(`SMS 발송 스킵 (개발 환경): ${to} - ${message.slice(0, 50)}`)
-    return { success: true, mock: true }
-  }
-
-  // TODO: @solapi/message-sdk 설치 후 실제 발송
-  logger.info(`SMS 발송 시도: ${to}`)
-  return { success: true }
+  logger.info(`[SMS 시뮬레이션] 수신: ${to}\n${message}`)
+  return { success: true, mock: true, message }
 }
 
 export const getReports = async ({ academyId, studentId, page, limit }) => {
@@ -99,6 +91,7 @@ export const sendReport = async ({ reportId }) => {
     `획득 포인트: ${content.pointsEarned || 0}P`,
   ].join('\n')
 
-  await sendSms(report.student_phone, message)
-  return reportRepository.markReportSent(reportId, report.student_phone)
+  const smsResult = await sendSms(report.student_phone, message)
+  const updated = await reportRepository.markReportSent(reportId, report.student_phone)
+  return { ...updated, simulatedMessage: smsResult.message }
 }
