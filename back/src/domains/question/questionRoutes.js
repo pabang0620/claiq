@@ -29,14 +29,17 @@ const submitSchema = z.object({
 // 교사용 - status query param 지원 (프론트엔드 호환)
 router.get('/', authMiddleware, requireRole('teacher', 'operator'), questionController.getPendingQuestions)
 router.get('/pending', authMiddleware, requireRole('teacher', 'operator'), questionController.getPendingQuestions)
-router.patch('/:id/review', authMiddleware, requireRole('teacher', 'operator'), validate(reviewSchema), questionController.reviewQuestion)
 
-// 학생용
+// 학생용 — 정적 경로는 동적(:id) 경로보다 먼저 선언
 router.get('/today', authMiddleware, requireRole('student'), questionController.getTodayQuiz)
 router.get('/student', authMiddleware, requireRole('student'), questionController.getStudentQuestions)
-router.post('/:id/submit', authMiddleware, requireRole('student'), validate(submitSchema), questionController.submitAnswer)
 
 // 통계
 router.get('/type-stats/me', authMiddleware, questionController.getTypeStats)
+
+// 단건 조회 — 동적 경로는 정적 경로 이후에 선언
+router.get('/:id', authMiddleware, questionController.getQuestionById)
+router.patch('/:id/review', authMiddleware, requireRole('teacher', 'operator'), validate(reviewSchema), questionController.reviewQuestion)
+router.post('/:id/submit', authMiddleware, requireRole('student'), validate(submitSchema), questionController.submitAnswer)
 
 export default router

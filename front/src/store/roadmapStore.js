@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import api from '../api/axios.js'
+import { useAcademyStore } from './academyStore.js'
 
 export const useRoadmapStore = create((set) => ({
   roadmap: null,
@@ -21,7 +22,8 @@ export const useRoadmapStore = create((set) => ({
   regenerateRoadmap: async () => {
     set({ isRegenerating: true, error: null })
     try {
-      const data = await api.post('/roadmap/regenerate')
+      const academy = useAcademyStore.getState().academy
+      const data = await api.post('/roadmap/regenerate', { academy_id: academy?.id })
       set({ roadmap: data.data, isRegenerating: false })
       return { success: true }
     } catch (err) {

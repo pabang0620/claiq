@@ -74,6 +74,20 @@ export const getTodayQuiz = async (req, res, next) => {
   }
 }
 
+export const getQuestionById = async (req, res, next) => {
+  try {
+    const question = await questionService.getQuestionById(req.params.id)
+    if (!question) {
+      const err = new Error('문제를 찾을 수 없습니다')
+      err.status = 404
+      return next(err)
+    }
+    return successResponse(res, question)
+  } catch (err) {
+    next(err)
+  }
+}
+
 export const getTypeStats = async (req, res, next) => {
   try {
     const studentId = req.params.studentId || req.user.id
