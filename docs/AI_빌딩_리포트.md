@@ -110,16 +110,32 @@ Claude Code는 단순 코드 자동완성 도구가 아닌 **에이전트 오케
 
 **MCP 통합**: Context7 MCP를 통해 `@google/genai`, `pg`, `bullmq` 등 외부 라이브러리의 최신 API 문서를 세션 중 즉시 조회, 잘못된 API 호출 오류를 사전에 방지했다.
 
-### OpenAI 모델 선택
+### AI Tool Stack (확인된 구현)
 
-**gpt-4o-mini (문제 생성 / Q&A / 로드맵)**
-ADR-001에 기록된 의사결정: 수능 5지선다 문제 생성 시 gpt-4o와 품질 비교 실험 결과, gpt-4o-mini가 구조화된 JSON 출력(문제·선택지·해설)에서 충분한 품질을 보임. 비용은 gpt-4o 대비 약 15분의 1 수준. `OPENAI_MODEL_CHAT` 환경변수로 언제든 모델 교체 가능하도록 설계.
+**Claude (Anthropic)**
+전체 설계·코딩·문서화 파트너로 활용. 플랫폼 아키텍처 설계, 백엔드 API 개발, 프론트엔드 컴포넌트 구현, 데이터베이스 스키마 설계, 테스트 자동화(Playwright)를 담당했다.
 
-**Whisper-1 (STT)**
-한국어 수능 교육 특화 강의 음성의 전사 정확도 검증. "독서", "EBS 연계", "미적분" 등 교육 도메인 전문 용어에서 높은 인식률 확인. 25MB 파일 크기 제한은 업로드 단에서 검증.
+**GPT-4o-mini** (비용 최적화 모델)
+- 문제 생성: `questionGenerator.js`에서 `generateQuestions()` 호출 시 사용. temperature=0.7로 다양한 문제 유형 확보.
+- Q&A 응답: `ragQA.js`에서 스트리밍 응답 시 temperature=0.5로 정확성과 자연스러움 균형.
+- 로드맵 생성: `roadmapGenerator.js`에서 D-day 역산 계획 생성 시 temperature=0.6.
+- 미니 모의고사: `examGenerator.js`에서 약점 70% + 기타 30% 비율 구성.
+- 유형 분류: `typeMapper.js`에서 강의 내용 기반 수능 유형 코드 자동 분류, temperature=0.3 (일관된 분류 강제).
+환경변수 `OPENAI_MODEL_CHAT`으로 gpt-4o 등으로 즉시 교체 가능.
 
-**text-embedding-3-small (임베딩)**
-1536차원 벡터, pgvector의 `vector(1536)` 타입과 직접 호환. OpenAI 권장 소형 임베딩 모델로 ada-002 대비 성능 향상, 비용 절감. 배치 처리(20개씩)로 rate limit 대응.
+**Whisper-1** (STT, `back/src/ai/whisper.js`)
+강의 음성 파일(MP3/MP4)을 텍스트로 변환. 한국어 설정(`language: 'ko'`), 25MB 파일 크기 제한. 임시 파일로 처리 후 즉시 삭제.
+
+**text-embedding-3-small** (임베딩, `back/src/ai/embedding.js`)
+강의 청크를 1536차원 벡터로 변환하여 pgvector에 저장.
+배치 처리: 20개씩 묶어서 처리(BATCH_SIZE=20), 배치 간 50ms 딜레이(BATCH_DELAY_MS=50).
+rate limit 대응: 429/503 오류 시 exponential backoff 재시도 (1s → 2s → 4s, 최대 3회).
+
+| 모델 | 용도 | 환경변수 | 기본값 |
+|------|------|---------|--------|
+| gpt-4o-mini | Chat (문제/QA/로드맵/모의고사) | `OPENAI_MODEL_CHAT` | gpt-4o-mini |
+| Whisper-1 | STT | `OPENAI_MODEL_STT` | whisper-1 |
+| text-embedding-3-small | 임베딩 | `OPENAI_MODEL_EMBEDDING` | text-embedding-3-small |
 
 ---
 
