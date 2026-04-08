@@ -46,10 +46,10 @@ export default function MiniExamResultPage() {
     return () => resetExam()
   }, [id, state?.report, fetchReport, resetExam])
 
-  const data = state?.report || report
+  const raw = state?.report || report
 
-  if (isLoading && !data) return <PageSpinner />
-  if (!data) return (
+  if (isLoading && !raw) return <PageSpinner />
+  if (!raw) return (
     <div className="text-center py-12 text-zinc-400">
       <p>리포트를 불러올 수 없습니다.</p>
       <Button variant="outline" size="sm" onClick={() => navigate('/student/exam')} className="mt-3">
@@ -58,12 +58,49 @@ export default function MiniExamResultPage() {
     </div>
   )
 
-  const typeData = (data.typeStats || []).map((t) => ({
-    typeName: t.typeName?.length > 6 ? t.typeName.slice(0, 6) + '…' : t.typeName,
-    fullName: t.typeName,
-    correctRate: Math.round(t.correctRate * 100),
-    count: t.totalCount,
-  }))
+  // Normalize: backend can return { exam, submissions, totalScore } (submit) or { exam, questions, typeAnalysis } (report endpoint)
+  const examRow = raw.exam || raw
+  const submissions = raw.submissions || raw.questions || []
+  const typeAnalysisMap = raw.typeAnalysis || {}
+
+  const correctCount = raw.correctCount
+    ?? raw.correct_count
+    ?? submissions.filter((s) => s.is_correct).length
+
+  const totalCount = raw.totalCount
+    ?? raw.total_count
+    ?? examRow?.total_questions
+    ?? (submissions.length || 15)
+
+  const score = raw.score ?? raw.totalScore ?? examRow?.score ?? 0
+
+  // Build typeStats from typeAnalysis map or typeStats array
+  const rawTypeStats = raw.typeStats || raw.type_stats
+    || Object.entries(typeAnalysisMap).map(([code, v]) => ({
+        typeCode: code,
+        typeName: v.type_name ?? code,
+        correctRate: v.total > 0 ? v.correct / v.total : 0,
+        totalCount: v.total,
+      }))
+
+  const data = {
+    correctCount,
+    totalCount,
+    score,
+    typeStats: rawTypeStats,
+    weakTypes: raw.weakTypes || raw.weak_types || [],
+    aiFeedback: raw.aiFeedback || raw.ai_feedback,
+  }
+
+  const typeData = data.typeStats.map((t) => {
+    const name = t.typeName ?? t.type_name ?? ''
+    return {
+      typeName: name.length > 6 ? name.slice(0, 6) + '…' : name,
+      fullName: name,
+      correctRate: Math.round((t.correctRate ?? t.correct_rate ?? 0) * 100),
+      count: t.totalCount ?? t.total_count ?? 0,
+    }
+  })
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -121,9 +158,9 @@ export default function MiniExamResultPage() {
         <Card title="집중 학습 필요 유형" subtitle="정답률이 낮은 순">
           <div className="space-y-3">
             {data.weakTypes.slice(0, 3).map((t) => (
-              <div key={t.typeCode} className="flex items-center justify-between p-3 bg-red-50 rounded-xl border border-red-100">
-                <span className="text-sm font-medium text-red-800">{t.typeName}</span>
-                <span className="text-sm font-bold text-red-600">{Math.round(t.correctRate * 100)}%</span>
+              <div key={t.typeCode ?? t.type_code} className="flex items-center justify-between p-3 bg-red-50 rounded-xl border border-red-100">
+                <span className="text-sm font-medium text-red-800">{t.typeName ?? t.type_name}</span>
+                <span className="text-sm font-bold text-red-600">{Math.round((t.correctRate ?? t.correct_rate ?? 0) * 100)}%</span>
               </div>
             ))}
           </div>

@@ -97,7 +97,7 @@ export default function QuizPage() {
           setAnswers((prev) => ({ ...prev, [currentQuestion.id]: answer }))
         }
         isSubmitted={isCurrentSubmitted}
-        correctAnswer={currentResult?.correctAnswer}
+        correctAnswer={currentResult?.correctAnswer ?? currentResult?.correct_answer}
         explanation={currentResult?.explanation}
       />
 

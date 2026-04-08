@@ -62,7 +62,7 @@ export default function ReportPage() {
   }
 
   async function handleBulkSend() {
-    const unsentIds = reports.filter((r) => !r.smsSentAt).map((r) => r.id)
+    const unsentIds = reports.filter((r) => !r.sent_at).map((r) => r.id)
     if (!unsentIds.length) {
       addToast({ type: 'info', message: '발송할 리포트가 없습니다.' })
       return

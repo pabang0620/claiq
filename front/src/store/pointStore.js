@@ -39,7 +39,7 @@ export const usePointStore = create((set) => ({
     set({ isLoading: true, error: null })
     try {
       const data = await api.get('/points/me/badges')
-      set({ badges: data.data || [], streak: data.data?.streak || { current: 0, longest: 0 }, isLoading: false })
+      set({ badges: data.data || [], isLoading: false })
     } catch (err) {
       set({ error: err.message, isLoading: false })
     }
@@ -48,7 +48,13 @@ export const usePointStore = create((set) => ({
   fetchStreak: async () => {
     try {
       const data = await api.get('/points/me/streak')
-      set({ streak: data.data || { current: 0, longest: 0 } })
+      const raw = data.data || {}
+      set({
+        streak: {
+          current: raw.current_streak ?? raw.current ?? 0,
+          longest: raw.longest_streak ?? raw.longest ?? 0,
+        },
+      })
     } catch (err) {
       set({ error: err.message })
     }

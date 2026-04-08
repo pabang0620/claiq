@@ -155,7 +155,7 @@ export default function QAPage() {
             >
               <p className="truncate font-medium">{session.title || '새 대화'}</p>
               <p className="text-xs text-zinc-400 mt-0.5">
-                {formatDate(session.updatedAt || session.createdAt)}
+                {formatDate(session.updatedAt || session.updated_at || session.createdAt || session.created_at)}
               </p>
             </button>
           ))}

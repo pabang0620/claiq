@@ -75,7 +75,7 @@ export default function MiniExamPage() {
   const questions = currentExam.questions || []
   const currentQuestion = questions[currentIndex]
   const answeredCount = Object.keys(answers).length
-  const progress = (answeredCount / questions.length) * 100
+  const progress = questions.length > 0 ? (answeredCount / questions.length) * 100 : 0
 
   return (
     <div className="max-w-2xl mx-auto space-y-5">

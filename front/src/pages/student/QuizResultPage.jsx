@@ -21,7 +21,7 @@ export default function QuizResultPage() {
 
   const { questions, answers, results } = state
   const submitted = Object.keys(results).length
-  const correct = Object.values(results).filter((r) => r.isCorrect).length
+  const correct = Object.values(results).filter((r) => r.isCorrect ?? r.is_correct).length
   const correctRate = submitted > 0 ? Math.round((correct / submitted) * 100) : 0
 
   return (
@@ -68,19 +68,20 @@ export default function QuizResultPage() {
         {questions.map((q, i) => {
           const result = results[q.id]
           const answered = answers[q.id]
+          const isCorrect = result?.isCorrect ?? result?.is_correct
           return (
             <div
               key={q.id}
               className={[
                 'flex items-start gap-3 p-4 rounded-xl border',
-                result?.isCorrect
+                isCorrect
                   ? 'bg-emerald-50 border-emerald-200'
-                  : result && !result.isCorrect
+                  : result && !isCorrect
                   ? 'bg-red-50 border-red-200'
                   : 'bg-zinc-50 border-zinc-200',
               ].join(' ')}
             >
-              {result?.isCorrect ? (
+              {isCorrect ? (
                 <CheckCircle size={20} className="text-emerald-500 flex-shrink-0 mt-0.5" />
               ) : (
                 <XCircle size={20} className="text-red-500 flex-shrink-0 mt-0.5" />
@@ -91,9 +92,9 @@ export default function QuizResultPage() {
                   <Badge label={q.typeName || q.typeCode} variant="primary" size="sm" />
                 </div>
                 <p className="text-sm text-zinc-700 truncate">{q.content}</p>
-                {result && !result.isCorrect && result.correctAnswer && (
+                {result && !isCorrect && (result.correctAnswer || result.correct_answer) && (
                   <p className="text-xs text-red-600 mt-1">
-                    정답: {result.correctAnswer}
+                    정답: {result.correctAnswer ?? result.correct_answer}
                   </p>
                 )}
               </div>
