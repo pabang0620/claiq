@@ -31,9 +31,9 @@ export function WeakTypeChart({ data = [], subject }) {
 
   const chartData = data.map((d) => ({
     ...d,
-    fullName: d.typeName,
-    typeName: d.typeName.length > 5 ? d.typeName.slice(0, 5) + '…' : d.typeName,
-    value: Math.round(d.correctRate * 100),
+    fullName: d.typeName ?? '',
+    typeName: (d.typeName?.length ?? 0) > 5 ? d.typeName.slice(0, 5) + '…' : (d.typeName ?? ''),
+    value: Math.round((d.correctRate ?? 0) * 100),
   }))
 
   return (

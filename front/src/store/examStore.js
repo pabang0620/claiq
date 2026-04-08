@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import api from '../api/axios.js'
+import { useAcademyStore } from './academyStore.js'
 
 export const useExamStore = create((set, get) => ({
   currentExam: null,
@@ -14,7 +15,9 @@ export const useExamStore = create((set, get) => ({
   generateExam: async () => {
     set({ isGenerating: true, error: null, answers: {}, isSubmitted: false, report: null })
     try {
-      const data = await api.post('/exams/generate')
+      const academy = useAcademyStore.getState().academy
+      const body = academy?.id ? { academy_id: academy.id } : {}
+      const data = await api.post('/exams/generate', body)
       const exam = data.data
       set({
         currentExam: exam,

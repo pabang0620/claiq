@@ -15,14 +15,16 @@ export default function MiniExamPage() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [confirmLeave, setConfirmLeave] = useState(false)
+  const [hasError, setHasError] = useState(false)
 
   useEffect(() => {
-    if (!currentExam && !isGenerating) {
+    if (!currentExam && !isGenerating && !hasError) {
       generateExam().catch(() => {
+        setHasError(true)
         addToast({ type: 'error', message: '모의고사 생성에 실패했습니다.' })
       })
     }
-  }, [currentExam, isGenerating, generateExam, addToast])
+  }, [currentExam, isGenerating, hasError, generateExam, addToast])
 
   useEffect(() => {
     return () => {
@@ -49,6 +51,21 @@ export default function MiniExamPage() {
       <div className="flex flex-col items-center justify-center min-h-64 gap-4">
         <PageSpinner />
         <p className="text-zinc-500">AI가 맞춤형 모의고사를 생성 중입니다...</p>
+      </div>
+    )
+  }
+
+  if (hasError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-64 gap-4">
+        <p className="text-red-500">모의고사 생성에 실패했습니다.</p>
+        <Button
+          onClick={() => {
+            setHasError(false)
+          }}
+        >
+          다시 시도
+        </Button>
       </div>
     )
   }

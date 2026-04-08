@@ -11,7 +11,7 @@ const SUBJECT_OPTIONS = ACTIVE_SUBJECTS.map((s) => ({ value: s.code, label: s.la
 export default function WeakPointPage() {
   const { weakTypes, isLoading, error, selectedSubject, setSelectedSubject, refresh } = useWeakPoint()
 
-  const sorted = [...weakTypes].sort((a, b) => a.correctRate - b.correctRate)
+  const sorted = [...(weakTypes ?? [])].sort((a, b) => a.correctRate - b.correctRate)
 
   return (
     <div className="max-w-2xl mx-auto space-y-5">
