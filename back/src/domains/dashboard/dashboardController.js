@@ -13,8 +13,8 @@ async function resolveAcademyId(queryAcademyId, userId) {
 
 export const getChurnRisk = async (req, res, next) => {
   try {
-    const { academy_id } = req.query
-    const students = await dashboardService.getChurnRisk(academy_id)
+    const academyId = await resolveAcademyId(req.query.academy_id, req.user.id)
+    const students = await dashboardService.getChurnRisk(academyId)
     return successResponse(res, students)
   } catch (err) {
     next(err)

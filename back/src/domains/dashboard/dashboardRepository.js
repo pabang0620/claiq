@@ -16,7 +16,20 @@ export const findChurnRiskStudents = async (academy_id) => {
               WHEN EXTRACT(DAYS FROM NOW() - MAX(a.marked_at)) >= $3 THEN 'inactive'
               WHEN EXTRACT(DAYS FROM NOW() - MAX(a.marked_at)) >= $2 THEN 'at_risk'
               ELSE 'active'
-            END AS churn_status
+            END AS churn_status,
+            ROUND(
+              LEAST(
+                COALESCE(EXTRACT(DAYS FROM NOW() - MAX(a.marked_at)), 999) / 30.0,
+                1.0
+              )::numeric,
+              2
+            ) AS churn_score,
+            ROUND(
+              COUNT(CASE WHEN a.status = 'present' THEN 1 END) * 1.0
+                / NULLIF(COUNT(a.id), 0),
+              2
+            ) AS attendance_rate,
+            MAX(a.marked_at) AS last_active_at
      FROM academy_members am
      JOIN users u ON u.id = am.user_id
      LEFT JOIN attendances a ON a.student_id = u.id AND a.academy_id = $1
@@ -30,7 +43,14 @@ export const findChurnRiskStudents = async (academy_id) => {
      ORDER BY inactive_days DESC`,
     [academy_id, riskDays, inactiveDays]
   )
-  return rows
+
+  return rows.map((r) => ({
+    ...r,
+    churnScore: parseFloat(r.churn_score ?? 1),
+    attendanceRate: parseFloat(r.attendance_rate ?? 0),
+    quizParticipationRate: 0,
+    lastActiveAt: r.last_active_at,
+  }))
 }
 
 export const findTeacherDashboard = async ({ teacherId, academyId }) => {

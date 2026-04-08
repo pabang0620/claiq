@@ -24,6 +24,21 @@ export const ask = async (req, res, next) => {
   }
 }
 
+export const createSession = async (req, res, next) => {
+  try {
+    const { academy_id, teacher_id, lecture_id } = req.body
+    const session = await qaService.createSession({
+      studentId: req.user.id,
+      teacherId: teacher_id,
+      academyId: academy_id,
+      lectureId: lecture_id,
+    })
+    return successResponse(res, session, '세션이 생성되었습니다')
+  } catch (err) {
+    next(err)
+  }
+}
+
 export const getSessions = async (req, res, next) => {
   try {
     const { page = 1, limit = 20 } = req.query

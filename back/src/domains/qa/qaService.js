@@ -75,6 +75,16 @@ export const askQuestion = async ({ question, studentId, academyId, lectureId, t
   return { sessionId: session.id }
 }
 
+export const createSession = async ({ studentId, teacherId, academyId, lectureId }) => {
+  return qaRepository.createSession({
+    student_id: studentId,
+    teacher_id: teacherId,
+    academy_id: academyId,
+    lecture_id: lectureId || null,
+    title: null,
+  })
+}
+
 export const getSessions = async (studentId, page = 1, limit = 20) => {
   const offset = (page - 1) * limit
   return qaRepository.findSessionsByStudent(studentId, limit, offset)
