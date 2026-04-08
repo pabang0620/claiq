@@ -8,6 +8,14 @@ import { useUIStore } from '../../store/uiStore.js'
 import { Settings, Plus, Trash2, Gift } from 'lucide-react'
 import { POINT_EVENT_LABELS } from '../../constants/points.js'
 
+function formatDate(iso) {
+  const d = new Date(iso)
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}.${m}.${day}`
+}
+
 export default function AcademySettingPage() {
   const [academy, setAcademy] = useState(null)
   const [coupons, setCoupons] = useState([])
@@ -123,14 +131,35 @@ export default function AcademySettingPage() {
               onChange={(e) => setCouponForm((p) => ({ ...p, name: e.target.value }))}
               required
             />
+            <div>
+              <p className="text-sm font-medium text-zinc-700 mb-1">할인 유형</p>
+              <select
+                value={couponForm.discountType}
+                onChange={(e) => setCouponForm((p) => ({ ...p, discountType: e.target.value }))}
+                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm bg-white text-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="percent">퍼센트 (%)</option>
+                <option value="fixed">고정 금액 (원)</option>
+              </select>
+            </div>
             <Input
               id="coupon-value"
               label="할인값"
               type="number"
-              placeholder="10"
+              placeholder={couponForm.discountType === 'percent' ? '10' : '5000'}
               value={couponForm.discountValue}
               onChange={(e) => setCouponForm((p) => ({ ...p, discountValue: e.target.value }))}
-              hint="% 또는 고정 금액"
+              hint={couponForm.discountType === 'percent' ? '% 입력 (예: 30)' : '원 입력 (예: 5000)'}
+              required
+            />
+            <Input
+              id="coupon-valid-days"
+              label="유효 기간 (일)"
+              type="number"
+              placeholder="30"
+              value={couponForm.validDays}
+              onChange={(e) => setCouponForm((p) => ({ ...p, validDays: Number(e.target.value) }))}
+              hint="발급일 기준 만료일수"
               required
             />
           </div>
@@ -153,8 +182,15 @@ export default function AcademySettingPage() {
                 <div>
                   <p className="text-sm font-medium text-zinc-800">{c.name}</p>
                   <p className="text-xs text-zinc-500">
-                    {c.discountValue}{c.discountType === 'percent' ? '%' : '원'} 할인
+                    {c.discount_type === 'percent'
+                      ? `${c.discount_amount}% 할인`
+                      : `${Number(c.discount_amount).toLocaleString()}원 할인`}
                   </p>
+                  {c.expires_at && (
+                    <p className="text-xs text-zinc-400">
+                      만료: {formatDate(c.expires_at)}
+                    </p>
+                  )}
                 </div>
                 <button
                   type="button"

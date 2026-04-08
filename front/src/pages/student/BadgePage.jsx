@@ -16,7 +16,7 @@ export default function BadgePage() {
 
   if (isLoading && !badges.length) return <PageSpinner />
 
-  const earnedIds = new Set(badges.map((b) => b.badgeId || b.id))
+  const earnedIds = new Set(badges.map((b) => b.code || b.badgeId || b.id))
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -33,7 +33,7 @@ export default function BadgePage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {BADGE_DEFINITIONS.map((def) => {
             const isEarned = earnedIds.has(def.id)
-            const earned = badges.find((b) => (b.badgeId || b.id) === def.id)
+            const earned = badges.find((b) => (b.code || b.badgeId || b.id) === def.id)
             return (
               <div
                 key={def.id}

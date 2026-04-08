@@ -35,8 +35,9 @@ const updateMemberRoleSchema = z.object({
 const couponSchema = z.object({
   name: z.string().min(1, '쿠폰 이름을 입력하세요'),
   description: z.string().optional(),
-  discount_amount: z.number().int().min(0).optional(),
-  expires_at: z.string().optional(),
+  discountType: z.enum(['percent', 'fixed']).default('percent'),
+  discountValue: z.number().int().min(0).max(100),
+  validDays: z.number().int().min(1).default(30),
 })
 
 // /me 라우트는 /:id 보다 먼저 선언

@@ -20,11 +20,11 @@ export const POINT_EVENT_LABELS = {
 }
 
 export const BADGE_DEFINITIONS = [
-  { id: 'first_quiz', name: '첫 문제 풀이', description: '처음으로 문제를 풀었어요', icon: '🎯' },
-  { id: 'streak_7', name: '7일 연속', description: '7일 연속 학습했어요', icon: '🔥' },
-  { id: 'streak_30', name: '30일 연속', description: '30일 연속 학습했어요', icon: '💎' },
-  { id: 'perfect_quiz', name: '완벽한 풀이', description: '오늘의 문제를 모두 맞혔어요', icon: '⭐' },
-  { id: 'exam_ace', name: '모의고사 에이스', description: '모의고사 90점 이상 달성', icon: '🏆' },
-  { id: 'qa_explorer', name: 'Q&A 탐험가', description: '질문을 10회 이상 했어요', icon: '💬' },
-  { id: 'roadmap_complete', name: '로드맵 완성', description: '학습 로드맵을 완주했어요', icon: '🗺️' },
+  { id: 'QUIZ_FIRST', name: '첫 문제 도전', description: '처음으로 문제를 풀었어요', icon: '🎯' },
+  { id: 'STREAK_7', name: '7일 연속 학습', description: '7일 연속으로 학습했어요', icon: '🔥' },
+  { id: 'STREAK_30', name: '30일 연속 학습', description: '30일 연속으로 학습했어요', icon: '💎' },
+  { id: 'QUIZ_50', name: '문제 50개 돌파', description: '문제를 50개 이상 풀었어요', icon: '⭐' },
+  { id: 'QUIZ_100', name: '문제 100개 돌파', description: '문제를 100개 이상 풀었어요', icon: '🏆' },
+  { id: 'CORRECT_90', name: '정답률 90% 달성', description: '정답률 90% 이상을 달성했어요', icon: '💡' },
+  { id: 'QA_EXPLORER', name: 'Q&A 탐험가', description: '질문을 10회 이상 했어요', icon: '💬' },
 ]

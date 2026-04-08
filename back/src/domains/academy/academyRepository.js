@@ -110,15 +110,15 @@ export const findCoupons = async (academy_id) => {
   return rows
 }
 
-export const createCoupon = async ({ academy_id, name, description, discount_amount, expires_at }) => {
+export const createCoupon = async ({ academy_id, name, description, discount_type, discount_amount, expires_at }) => {
   const { rows } = await pool.query(
-    `INSERT INTO academy_coupons (academy_id, name, description, discount_amount, expires_at)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO academy_coupons (academy_id, name, description, discount_type, discount_amount, expires_at)
+     VALUES ($1, $2, $3, $4, $5, $6)
      RETURNING *`,
-    [academy_id, name, description || null, discount_amount || 0, expires_at || null]
+    [academy_id, name, description || null, discount_type || 'percent', discount_amount || 0, expires_at || null]
   ).catch(() => {
     // 테이블이 없는 경우 mock 반환
-    return { rows: [{ id: 'mock', academy_id, name, description, discount_amount, expires_at, created_at: new Date() }] }
+    return { rows: [{ id: 'mock', academy_id, name, description, discount_type, discount_amount, expires_at, created_at: new Date() }] }
   })
   return rows[0]
 }

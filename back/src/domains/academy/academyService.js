@@ -151,7 +151,18 @@ export const createCoupon = async ({ userId, couponData }) => {
     err.status = 404
     throw err
   }
-  return academyRepository.createCoupon({ academy_id: academies[0].id, ...couponData })
+
+  const { name, description, discountType, discountValue, validDays } = couponData
+  const expires_at = new Date(Date.now() + validDays * 86400000).toISOString()
+
+  return academyRepository.createCoupon({
+    academy_id: academies[0].id,
+    name,
+    description,
+    discount_type: discountType,
+    discount_amount: discountValue,
+    expires_at,
+  })
 }
 
 export const updateMemberRole = async ({ operatorId, targetUserId, role }) => {
