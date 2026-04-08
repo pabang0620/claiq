@@ -7,6 +7,7 @@ import { readFileSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { pool } from '../../config/db.js'
+import { checkAndAwardBadges } from '../badge/badgeService.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const suneungTypes = JSON.parse(
@@ -130,7 +131,12 @@ export const submitExam = async ({ examId, studentId, answers }) => {
     err.status = 400
     throw err
   }
-  return examRepository.submitExam({ exam_id: examId, student_id: studentId, answers })
+  const result = await examRepository.submitExam({ exam_id: examId, student_id: studentId, answers })
+
+  // 뱃지 조건 확인 (fire-and-forget — 실패해도 제출 결과는 영향 없음)
+  checkAndAwardBadges({ userId: studentId, academyId: exam.academy_id }).catch(() => {})
+
+  return result
 }
 
 export const getExamStatus = async (examId) => {

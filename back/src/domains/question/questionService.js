@@ -2,6 +2,7 @@ import * as questionRepository from './questionRepository.js'
 import * as pointService from '../point/pointService.js'
 import { findUserAcademies } from '../academy/academyRepository.js'
 import { env } from '../../config/env.js'
+import { checkAndAwardBadges } from '../badge/badgeService.js'
 
 export const getPendingQuestions = async ({ academy_id, teacher_id, page = 1, limit = 20, status = 'pending' }) => {
   const offset = (page - 1) * limit
@@ -82,6 +83,9 @@ export const submitAnswer = async ({ questionId, studentId, academyId, submitted
       idempotencyKey,
     })
   }
+
+  // 뱃지 조건 확인 (fire-and-forget — 실패해도 답안 제출은 영향 없음)
+  checkAndAwardBadges({ userId: studentId, academyId: resolvedAcademyId }).catch(() => {})
 
   return {
     submission,
