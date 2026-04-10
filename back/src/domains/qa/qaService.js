@@ -3,6 +3,7 @@ import * as academyRepository from '../academy/academyRepository.js'
 import { streamQA } from '../../ai/ragQA.js'
 import { env } from '../../config/env.js'
 import * as pointService from '../point/pointService.js'
+import { pool } from '../../config/db.js'
 
 // academy_id, teacher_id가 없을 때 학생 소속 학원 및 첫 번째 교사를 자동 조회
 async function resolveAcademyAndTeacher({ studentId, academyId, teacherId }) {
@@ -155,5 +156,17 @@ export const getEscalations = async ({ teacherId, academyId, page = 1, limit = 2
 }
 
 export const replyEscalation = async ({ messageId, response, teacherId }) => {
+  // 에스컬레이션이 해당 교강사 세션인지 확인 (권한 검증)
+  const { rows } = await pool.query(
+    `SELECT qm.id FROM qa_messages qm
+     JOIN qa_sessions qs ON qs.id = qm.session_id
+     WHERE qm.id = $1 AND qs.teacher_id = $2`,
+    [messageId, teacherId]
+  )
+  if (!rows.length) {
+    const err = new Error('접근 권한이 없거나 에스컬레이션을 찾을 수 없습니다')
+    err.status = 403
+    throw err
+  }
   return qaRepository.replyEscalation(messageId, response)
 }

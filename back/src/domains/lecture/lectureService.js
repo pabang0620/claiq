@@ -1,3 +1,4 @@
+import path from 'path'
 import * as lectureRepository from './lectureRepository.js'
 import * as vectorRepository from './vectorRepository.js'
 import * as questionRepository from '../question/questionRepository.js'
@@ -9,6 +10,16 @@ import { generateAllQuestions } from '../../ai/questionGenerator.js'
 import { chunkText } from '../../utils/textChunker.js'
 import { env } from '../../config/env.js'
 import { logger } from '../../utils/logger.js'
+
+/**
+ * 업로드 파일명에서 경로 트래버설 및 특수문자를 제거해 안전한 파일명을 반환한다.
+ * - ../ 경로 이동 차단
+ * - 영문·숫자·한글·밑줄·하이픈·점만 허용
+ */
+const sanitizeFilename = (filename) => {
+  const base = path.basename(filename) // ../ 같은 경로 구분자 제거
+  return base.replace(/[^a-zA-Z0-9가-힣._-]/g, '_').slice(0, 200)
+}
 
 // SSE 클라이언트 관리
 const sseClients = new Map()
@@ -43,8 +54,9 @@ export const uploadLecture = async ({ file, materialFiles, body, user }) => {
   // 1. 오디오 Supabase 업로드
   let audio_url = null
   if (file) {
-    const path = `lectures/${user.id}/${Date.now()}_${file.originalname}`
-    audio_url = await uploadToStorage(env.supabase.bucketAudio, path, file.buffer, file.mimetype)
+    const safeFilename = sanitizeFilename(file.originalname)
+    const storagePath = `lectures/${user.id}/${Date.now()}_${safeFilename}`
+    audio_url = await uploadToStorage(env.supabase.bucketAudio, storagePath, file.buffer, file.mimetype)
   }
 
   // 2. lectures 레코드 생성
@@ -192,16 +204,15 @@ export const uploadMaterial = async ({ lectureId, teacherId, file, title }) => {
 
   let file_url = null
   if (file) {
-    const path = `materials/${teacherId}/${Date.now()}_${file.originalname}`
-    const { uploadToStorage } = await import('../../config/supabase.js')
-    const { env } = await import('../../config/env.js')
-    file_url = await uploadToStorage(env.supabase.bucketMaterial || env.supabase.bucketAudio, path, file.buffer, file.mimetype)
+    const safeFilename = sanitizeFilename(file.originalname)
+    const storagePath = `materials/${teacherId}/${Date.now()}_${safeFilename}`
+    file_url = await uploadToStorage(env.supabase.bucketMaterial, storagePath, file.buffer, file.mimetype)
   }
 
   return lectureRepository.createMaterial({
     lecture_id: lectureId,
     teacher_id: teacherId,
-    title: title || file?.originalname || '자료',
+    title: title || (file ? sanitizeFilename(file.originalname) : '자료'),
     file_url,
     file_type: file?.mimetype || null,
   })

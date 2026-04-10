@@ -1,13 +1,24 @@
 import { pool } from '../../config/db.js'
 
+/**
+ * 부동소수점 숫자 배열을 pgvector 리터럴 문자열로 변환한다.
+ * 각 요소가 유한한 숫자인지 검증해 SQL injection을 방지한다.
+ */
+const toVectorLiteral = (embedding) => {
+  const validated = embedding.map((v) => {
+    const n = Number(v)
+    if (!isFinite(n)) throw new Error('임베딩 벡터에 유효하지 않은 값이 포함되어 있습니다')
+    return n
+  })
+  return `'[${validated.join(',')}]'::vector`
+}
+
 export const saveChunks = async (chunks) => {
   if (!chunks.length) return []
 
   const saved = []
   for (const chunk of chunks) {
-    const embeddingStr = chunk.embedding
-      ? `'[${chunk.embedding.join(',')}]'::vector`
-      : 'NULL'
+    const embeddingStr = chunk.embedding ? toVectorLiteral(chunk.embedding) : 'NULL'
 
     const { rows } = await pool.query(
       `INSERT INTO lecture_chunks (lecture_id, teacher_id, academy_id, chunk_index, content, token_count, embedding)
@@ -21,7 +32,7 @@ export const saveChunks = async (chunks) => {
 }
 
 export const searchSimilarChunks = async ({ embedding, teacherId, academyId, topK = 5 }) => {
-  const embeddingStr = `'[${embedding.join(',')}]'::vector`
+  const embeddingStr = toVectorLiteral(embedding)
 
   // pgvector: <=> 연산자는 코사인 거리(cosine distance)를 계산
   // cosine_similarity = 1 - cosine_distance

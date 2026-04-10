@@ -8,11 +8,12 @@ import * as authController from './authController.js'
 const router = Router()
 
 const signupSchema = z.object({
-  email: z.string().email('올바른 이메일을 입력하세요'),
-  password: z.string().min(8, '비밀번호는 8자 이상이어야 합니다'),
+  email: z.string().email('올바른 이메일을 입력하세요').max(254),
+  // max(128): bcrypt 72바이트 한계를 고려, 지나치게 긴 입력의 처리 비용 방지
+  password: z.string().min(8, '비밀번호는 8자 이상이어야 합니다').max(128, '비밀번호는 128자 이하이어야 합니다'),
   name: z.string().min(1, '이름을 입력하세요').max(100),
   role: z.enum(['teacher', 'student', 'operator'], { message: '유효하지 않은 역할입니다' }),
-  phone: z.string().optional(),
+  phone: z.string().max(20).optional(),
 })
 
 const loginSchema = z.object({
@@ -21,8 +22,8 @@ const loginSchema = z.object({
 })
 
 const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, '현재 비밀번호를 입력하세요'),
-  newPassword: z.string().min(8, '새 비밀번호는 8자 이상이어야 합니다'),
+  currentPassword: z.string().min(1, '현재 비밀번호를 입력하세요').max(128),
+  newPassword: z.string().min(8, '새 비밀번호는 8자 이상이어야 합니다').max(128, '비밀번호는 128자 이하이어야 합니다'),
 })
 
 router.post('/signup', authLimiter, validate(signupSchema), authController.signup)

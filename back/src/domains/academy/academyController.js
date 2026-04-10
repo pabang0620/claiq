@@ -15,7 +15,7 @@ export const createAcademy = async (req, res, next) => {
 
 export const getAcademy = async (req, res, next) => {
   try {
-    const academy = await academyService.getAcademy(req.params.id)
+    const academy = await academyService.getAcademy(req.params.id, req.user.id)
     return successResponse(res, academy)
   } catch (err) {
     next(err)
@@ -38,7 +38,7 @@ export const joinAcademy = async (req, res, next) => {
 export const getMembers = async (req, res, next) => {
   try {
     const { role } = req.query
-    const members = await academyService.getMembers(req.params.id, role)
+    const members = await academyService.getMembers(req.params.id, role, req.user.id)
     return successResponse(res, members)
   } catch (err) {
     next(err)

@@ -21,11 +21,10 @@ const generateSchema = z.object({
 
 router.get('/', authMiddleware, requireRole('operator'), reportController.getReports)
 router.post('/generate', authMiddleware, requireRole('operator'), validate(generateSchema), reportController.generateReport)
+// 정적 경로(/public/:token)는 동적 경로(/:id/...)보다 먼저 선언
+router.get('/public/:token', reportController.getPublicReport)
 router.post('/:id/send', authMiddleware, requireRole('operator'), reportController.sendReport)
 router.post('/:id/send-sms', authMiddleware, requireRole('operator'), reportController.sendReport)
 router.post('/:id/public-token', authMiddleware, requireRole('operator'), reportController.issuePublicToken)
-
-// 인증 불필요 — 학부모 공개 리포트 조회
-router.get('/public/:token', reportController.getPublicReport)
 
 export default router

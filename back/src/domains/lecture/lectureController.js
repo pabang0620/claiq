@@ -97,15 +97,13 @@ export const getLectureStatus = (req, res) => {
 
   lectureService.addSseClient(id, res)
 
-  // 연결 종료 시 클라이언트 제거
-  req.on('close', () => {
-    lectureService.removeSseClient(id, res)
-  })
-
   // 주기적 heartbeat (연결 유지)
   const heartbeat = setInterval(() => {
-    res.write(': heartbeat\n\n')
+    if (!res.writableEnded) {
+      res.write(': heartbeat\n\n')
+    }
   }, 30000)
 
+  // 연결 종료 시 heartbeat 정리 (SSE 클라이언트 제거는 addSseClient 내부에서 자동 처리)
   req.on('close', () => clearInterval(heartbeat))
 }

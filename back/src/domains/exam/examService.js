@@ -139,11 +139,17 @@ export const submitExam = async ({ examId, studentId, answers }) => {
   return result
 }
 
-export const getExamStatus = async (examId) => {
+export const getExamStatus = async (examId, userId) => {
   const exam = await examRepository.findExamById(examId)
   if (!exam) {
     const err = new Error('모의고사를 찾을 수 없습니다')
     err.status = 404
+    throw err
+  }
+  // IDOR 방지: 본인의 시험만 조회 가능
+  if (exam.student_id !== userId) {
+    const err = new Error('접근 권한이 없습니다')
+    err.status = 403
     throw err
   }
   // generating: 문항이 없거나 status가 pending, ready: 문항이 있고 graded가 아닌 경우

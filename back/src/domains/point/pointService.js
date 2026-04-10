@@ -70,15 +70,23 @@ export const getRewards = async () => {
 }
 
 export const redeemPoints = async ({ userId, academyId }) => {
-  const balance = await pointRepository.getPointBalance(userId)
-  if (!balance || balance.balance < env.points.toCoupon) {
-    const err = new Error(`포인트가 부족합니다. 쿠폰 교환에는 ${env.points.toCoupon}P가 필요합니다`)
-    err.status = 400
-    throw err
-  }
-
+  // 잔액 조회를 트랜잭션 밖에서 하면 경쟁 조건이 발생한다.
+  // 트랜잭션 내부에서 FOR UPDATE 락을 걸어 원자적으로 처리한다.
   return withTransaction(async (client) => {
-    const newBalance = balance.balance - env.points.toCoupon
+    // FOR UPDATE: 동일 user_id에 대한 동시 요청이 직렬화된다.
+    const { rows } = await client.query(
+      `SELECT balance FROM points WHERE user_id = $1 FOR UPDATE`,
+      [userId]
+    )
+    const currentBalance = rows[0]?.balance ?? 0
+
+    if (currentBalance < env.points.toCoupon) {
+      const err = new Error(`포인트가 부족합니다. 쿠폰 교환에는 ${env.points.toCoupon}P가 필요합니다`)
+      err.status = 400
+      throw err
+    }
+
+    const newBalance = currentBalance - env.points.toCoupon
     await pointRepository.updateBalance(userId, newBalance, 0, client)
 
     const transaction = await pointRepository.addPointTransaction({

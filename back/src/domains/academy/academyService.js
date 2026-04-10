@@ -31,12 +31,21 @@ export const createAcademy = async ({ name, address, suneung_date, userId }) => 
   return academy
 }
 
-export const getAcademy = async (id) => {
+export const getAcademy = async (id, requestUserId) => {
   const academy = await academyRepository.findAcademyById(id)
   if (!academy) {
     const err = new Error('학원을 찾을 수 없습니다')
     err.status = 404
     throw err
+  }
+  // IDOR 방지: 본인이 속한 학원만 조회 가능
+  if (requestUserId) {
+    const membership = await academyRepository.findMembership(id, requestUserId)
+    if (!membership || membership.status !== 'active') {
+      const err = new Error('접근 권한이 없습니다')
+      err.status = 403
+      throw err
+    }
   }
   return academy
 }
@@ -65,7 +74,16 @@ export const joinAcademy = async ({ code, userId, userRole }) => {
   return { academy, member }
 }
 
-export const getMembers = async (academyId, role = null) => {
+export const getMembers = async (academyId, role = null, requestUserId) => {
+  // IDOR 방지: 본인이 속한 학원의 멤버 목록만 조회 가능
+  if (requestUserId) {
+    const membership = await academyRepository.findMembership(academyId, requestUserId)
+    if (!membership || membership.status !== 'active') {
+      const err = new Error('접근 권한이 없습니다')
+      err.status = 403
+      throw err
+    }
+  }
   return academyRepository.findMembers(academyId, role)
 }
 

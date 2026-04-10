@@ -43,7 +43,7 @@ export const getExamReport = async (req, res, next) => {
 
 export const getExamStatus = async (req, res, next) => {
   try {
-    const status = await examService.getExamStatus(req.params.id)
+    const status = await examService.getExamStatus(req.params.id, req.user.id)
     return successResponse(res, status)
   } catch (err) {
     next(err)
