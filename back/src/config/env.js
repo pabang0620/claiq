@@ -88,7 +88,8 @@ export const env = {
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
 
   superAdmin: {
-    email: process.env.SUPER_ADMIN_EMAIL || 'admin@claiq.kr',
-    password: process.env.SUPER_ADMIN_PASSWORD || 'admin1234',
+    // 프로덕션에서는 required()가 throw하므로 기본값이 사용되지 않는다.
+    email: required('SUPER_ADMIN_EMAIL', 'admin@claiq.kr'),
+    password: required('SUPER_ADMIN_PASSWORD', 'admin1234'),
   },
 }

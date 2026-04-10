@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { validate } from '../../middleware/validate.js'
-import { authLimiter } from '../../middleware/rateLimiter.js'
+import { authLimiter, refreshLimiter } from '../../middleware/rateLimiter.js'
 import { authMiddleware } from '../../middleware/authMiddleware.js'
 import * as authController from './authController.js'
 
@@ -28,7 +28,7 @@ const changePasswordSchema = z.object({
 
 router.post('/signup', authLimiter, validate(signupSchema), authController.signup)
 router.post('/login', authLimiter, validate(loginSchema), authController.login)
-router.post('/refresh', authController.refresh)
+router.post('/refresh', refreshLimiter, authController.refresh)
 router.post('/logout', authController.logout)
 router.get('/me', authController.me)
 router.patch('/password', authMiddleware, validate(changePasswordSchema), authController.changePassword)

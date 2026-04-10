@@ -29,7 +29,7 @@ export default function QAEscalationPage() {
   async function handleAnswer(id, answer) {
     setAnsweringId(id)
     try {
-      await qaApi.answerEscalation(id, answer)
+      await qaApi.replyEscalation(id, answer)
       setItems((prev) =>
         prev.map((item) =>
           item.id === id ? { ...item, answered: true, teacherAnswer: answer } : item
