@@ -41,10 +41,11 @@ export default function MiniExamResultPage() {
   const navigate = useNavigate()
   const { report, isLoading, fetchReport, resetExam } = useExamStore()
 
+  const hasStateReport = !!state?.report
   useEffect(() => {
-    if (!state?.report) fetchReport(id)
+    if (!hasStateReport) fetchReport(id)
     return () => resetExam()
-  }, [id, state?.report, fetchReport, resetExam])
+  }, [id, hasStateReport, fetchReport, resetExam])
 
   const raw = state?.report || report
 

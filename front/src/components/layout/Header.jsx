@@ -1,4 +1,5 @@
 import { Menu, Bell, LogOut, ChevronRight } from 'lucide-react'
+import { useLocation } from 'react-router-dom'
 import { useUIStore } from '../../store/uiStore.js'
 import { useAuth } from '../../hooks/useAuth.js'
 import { Avatar } from '../ui/Avatar.jsx'
@@ -6,6 +7,7 @@ import { Avatar } from '../ui/Avatar.jsx'
 export function Header() {
   const toggleSidebar = useUIStore((s) => s.toggleSidebar)
   const { user, logout } = useAuth()
+  const { pathname } = useLocation()
 
   return (
     <header className="h-16 bg-white border-b border-zinc-200 flex items-center justify-between px-3 sm:px-5 flex-shrink-0">
@@ -24,7 +26,7 @@ export function Header() {
             <li className="hidden sm:flex items-center">
               <ChevronRight size={14} className="mx-1" />
             </li>
-            <li className="font-medium text-zinc-800">{getPageTitle()}</li>
+            <li className="font-medium text-zinc-800">{getPageTitle(pathname)}</li>
           </ol>
         </nav>
       </div>
@@ -57,8 +59,7 @@ export function Header() {
   )
 }
 
-function getPageTitle() {
-  const path = window.location.pathname
+function getPageTitle(path) {
   if (path.includes('/upload')) return '강의 업로드'
   if (path.includes('/review')) return '문제 검증'
   if (path.includes('/attendance')) return '출결 관리'

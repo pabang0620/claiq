@@ -15,11 +15,11 @@ export const useUIStore = create((set) => ({
       set({ dialog: { type: 'alert', message, resolve, ...options } })
     ),
 
-  closeDialog: (result) =>
-    set((state) => {
-      state.dialog?.resolve(result)
-      return { dialog: null }
-    }),
+  closeDialog: (result) => {
+    const { dialog } = useUIStore.getState()
+    dialog?.resolve(result)
+    set({ dialog: null })
+  },
 
 
   addToast: (toast) =>

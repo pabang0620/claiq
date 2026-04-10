@@ -22,12 +22,14 @@ export default function ChurnRiskPage() {
   const addToast = useUIStore((s) => s.addToast)
 
   useEffect(() => {
+    let cancelled = false
     setIsLoading(true)
     dashboardApi
       .getChurnRisk({ filter: riskFilter })
-      .then((res) => setStudents(res.data || []))
-      .catch(() => setStudents([]))
-      .finally(() => setIsLoading(false))
+      .then((res) => { if (!cancelled) setStudents(res.data || []) })
+      .catch(() => { if (!cancelled) setStudents([]) })
+      .finally(() => { if (!cancelled) setIsLoading(false) })
+    return () => { cancelled = true }
   }, [riskFilter])
 
   function handleContact(studentId) {

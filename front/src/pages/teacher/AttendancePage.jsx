@@ -13,12 +13,14 @@ export default function AttendancePage() {
   const addToast = useUIStore((s) => s.addToast)
 
   useEffect(() => {
+    let cancelled = false
     setIsLoading(true)
     attendanceApi
       .getList({ date: selectedDate })
-      .then((res) => setRecords(res.data || []))
-      .catch((err) => setError(err.message || '출결 데이터를 불러오지 못했습니다.'))
-      .finally(() => setIsLoading(false))
+      .then((res) => { if (!cancelled) setRecords(res.data || []) })
+      .catch((err) => { if (!cancelled) setError(err.message || '출결 데이터를 불러오지 못했습니다.') })
+      .finally(() => { if (!cancelled) setIsLoading(false) })
+    return () => { cancelled = true }
   }, [selectedDate])
 
   async function handleUpdate(recordId, studentId, status) {

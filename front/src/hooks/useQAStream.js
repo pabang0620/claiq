@@ -50,14 +50,16 @@ export function useQAStream() {
           const lines = chunk.split('\n').filter(Boolean)
           for (const line of lines) {
             if (line.startsWith('data: ')) {
+              let data
               try {
-                const data = JSON.parse(line.slice(6))
-                if (data.type === 'chunk') appendStreamChunk(data.content)
-                if (data.type === 'done') finalizeStream(data.messageId, data.isEscalated)
-                if (data.type === 'error') throw new Error(data.message)
-              } catch (parseErr) {
-                if (parseErr.message !== 'Unexpected token') throw parseErr
+                data = JSON.parse(line.slice(6))
+              } catch {
+                // JSON 파싱 실패 시 해당 라인 무시 (불완전 청크)
+                continue
               }
+              if (data.type === 'chunk') appendStreamChunk(data.content)
+              if (data.type === 'done') finalizeStream(data.messageId, data.isEscalated)
+              if (data.type === 'error') throw new Error(data.message)
             }
           }
         }

@@ -24,12 +24,14 @@ export default function LectureStatsPage() {
   const [period, setPeriod] = useState('30')
 
   useEffect(() => {
+    let cancelled = false
     setIsLoading(true)
     dashboardApi
       .getLectureStats({ subject, period })
-      .then((res) => setStats(res.data || []))
-      .catch(() => setStats([]))
-      .finally(() => setIsLoading(false))
+      .then((res) => { if (!cancelled) setStats(res.data || []) })
+      .catch(() => { if (!cancelled) setStats([]) })
+      .finally(() => { if (!cancelled) setIsLoading(false) })
+    return () => { cancelled = true }
   }, [subject, period])
 
   const normalizedStats = stats.map((s) => ({

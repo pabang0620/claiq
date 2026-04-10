@@ -13,11 +13,13 @@ export default function OperatorDashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
     dashboardApi
       .getOperator()
-      .then((res) => setSummary(res.data))
-      .catch(() => setSummary(null))
-      .finally(() => setIsLoading(false))
+      .then((res) => { if (!cancelled) setSummary(res.data) })
+      .catch(() => { if (!cancelled) setSummary(null) })
+      .finally(() => { if (!cancelled) setIsLoading(false) })
+    return () => { cancelled = true }
   }, [])
 
   if (isLoading) return <PageSpinner />

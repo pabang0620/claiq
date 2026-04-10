@@ -18,17 +18,20 @@ export default function ReportPage() {
   const academy = useAcademyStore((s) => s.academy)
 
   useEffect(() => {
+    let cancelled = false
     Promise.all([
       reportApi.getList(),
       academyApi.getMembers(),
     ])
       .then(([reportRes, memberRes]) => {
+        if (cancelled) return
         setReports(reportRes.data || [])
         const allMembers = memberRes.data || []
         setStudents(allMembers.filter((m) => m.role === 'student'))
       })
       .catch(() => {})
-      .finally(() => setIsLoading(false))
+      .finally(() => { if (!cancelled) setIsLoading(false) })
+    return () => { cancelled = true }
   }, [])
 
   async function handleGenerate(studentId) {

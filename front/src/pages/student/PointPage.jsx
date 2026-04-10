@@ -20,9 +20,13 @@ export default function PointPage() {
   const [redeemingId, setRedeemingId] = useState(null)
 
   useEffect(() => {
+    let cancelled = false
     fetchBalance()
     fetchTransactions()
-    pointApi.getRewards().then((res) => setRewards(res.data || [])).catch(() => {})
+    pointApi.getRewards()
+      .then((res) => { if (!cancelled) setRewards(res.data || []) })
+      .catch(() => {})
+    return () => { cancelled = true }
   }, [fetchBalance, fetchTransactions])
 
   async function handleRedeem(reward) {

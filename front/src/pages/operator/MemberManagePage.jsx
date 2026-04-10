@@ -37,16 +37,19 @@ export default function MemberManagePage() {
   const showConfirm = useUIStore((s) => s.showConfirm)
 
   useEffect(() => {
+    let cancelled = false
     const role = activeTab === 'all' ? undefined : activeTab
     setIsLoading(true)
     academyApi
       .getMembers()
       .then((res) => {
+        if (cancelled) return
         const allMembers = res.data || []
         setMembers(role ? allMembers.filter((m) => m.role === role) : allMembers)
       })
-      .catch(() => setMembers([]))
-      .finally(() => setIsLoading(false))
+      .catch(() => { if (!cancelled) setMembers([]) })
+      .finally(() => { if (!cancelled) setIsLoading(false) })
+    return () => { cancelled = true }
   }, [activeTab])
 
   async function handleInvite(e) {

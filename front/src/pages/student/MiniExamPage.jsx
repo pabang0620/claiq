@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { QuizCard } from '../../components/student/QuizCard.jsx'
 import { QuizTimer } from '../../components/student/QuizTimer.jsx'
@@ -16,6 +16,8 @@ export default function MiniExamPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [confirmLeave, setConfirmLeave] = useState(false)
   const [hasError, setHasError] = useState(false)
+  const isSubmittedRef = useRef(isSubmitted)
+  isSubmittedRef.current = isSubmitted
 
   useEffect(() => {
     if (!currentExam && !isGenerating && !hasError) {
@@ -28,9 +30,9 @@ export default function MiniExamPage() {
 
   useEffect(() => {
     return () => {
-      if (!isSubmitted) resetExam()
+      if (!isSubmittedRef.current) resetExam()
     }
-  }, [isSubmitted, resetExam])
+  }, [resetExam])
 
   async function handleSubmit(isAutoSubmit = false) {
     if (isSubmitting) return
