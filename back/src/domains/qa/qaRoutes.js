@@ -16,8 +16,8 @@ const createSessionSchema = z.object({
 
 const askSchema = z.object({
   question: z.string().min(1, '질문을 입력하세요').max(2000),
-  academy_id: z.string().uuid(),
-  teacher_id: z.string().uuid(),
+  academy_id: z.string().uuid().optional(),
+  teacher_id: z.string().uuid().optional(),
   lecture_id: z.string().uuid().optional(),
   session_id: z.string().uuid().optional(),
 })

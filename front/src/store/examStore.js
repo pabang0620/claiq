@@ -41,7 +41,12 @@ export const useExamStore = create((set, get) => ({
     if (!currentExam) return
     set({ isLoading: true, error: null })
     try {
-      const data = await api.post(`/exams/${currentExam.id}/submit`, { answers })
+      // 백엔드 submitSchema: answers: [{ question_id, submitted }] 배열 형식으로 변환
+      const answersArray = Object.entries(answers).map(([question_id, submitted]) => ({
+        question_id,
+        submitted: String(submitted),
+      }))
+      const data = await api.post(`/exams/${currentExam.id}/submit`, { answers: answersArray })
       set({ isSubmitted: true, report: data.data, isLoading: false })
       return data.data
     } catch (err) {

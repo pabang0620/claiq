@@ -8,11 +8,12 @@ const router = Router()
 
 router.post('/', authMiddleware, requireRole('teacher'), uploadAudio.single('audio'), lectureController.uploadLecture)
 router.get('/', authMiddleware, lectureController.getLectures)
-router.get('/:id', authMiddleware, lectureController.getLecture)
+// 정적 경로(/:id/status, /:lectureId/materials)는 동적 경로(/:id)보다 먼저 선언
 router.get('/:id/status', authMiddleware, lectureController.getLectureStatus)
-router.delete('/:id', authMiddleware, requireRole('teacher'), lectureController.deleteLecture)
 router.get('/:lectureId/materials', authMiddleware, lectureController.getMaterials)
 router.post('/:lectureId/materials', authMiddleware, requireRole('teacher'), uploadMaterial.single('file'), lectureController.uploadMaterial)
 router.delete('/:lectureId/materials/:materialId', authMiddleware, requireRole('teacher'), lectureController.deleteMaterial)
+router.get('/:id', authMiddleware, lectureController.getLecture)
+router.delete('/:id', authMiddleware, requireRole('teacher'), lectureController.deleteLecture)
 
 export default router

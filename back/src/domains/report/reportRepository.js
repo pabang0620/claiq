@@ -113,9 +113,9 @@ export const findStudentStatsForReport = async (student_id, academy_id, period) 
     pool.query(
       `SELECT COALESCE(SUM(amount), 0) AS earned
        FROM point_transactions
-       WHERE user_id = $1 AND amount > 0
-         AND TO_CHAR(created_at, 'YYYY-MM') = $2`,
-      [student_id, period]
+       WHERE user_id = $1 AND academy_id = $2 AND amount > 0
+         AND TO_CHAR(created_at, 'YYYY-MM') = $3`,
+      [student_id, academy_id, period]
     ),
   ])
 

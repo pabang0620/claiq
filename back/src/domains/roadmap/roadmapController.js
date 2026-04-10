@@ -13,10 +13,11 @@ export const getMyRoadmap = async (req, res, next) => {
 export const regenerate = async (req, res, next) => {
   try {
     const { academy_id } = req.body
+    // JWT payload에 name이 없으므로 DB에서 조회하거나 undefined로 넘김 (service에서 기본값 '학생' 사용)
     const roadmap = await roadmapService.generateStudentRoadmap({
       studentId: req.user.id,
       academyId: academy_id,
-      studentName: req.user.name,
+      studentName: undefined,
     })
     return successResponse(res, roadmap, '로드맵이 재생성되었습니다')
   } catch (err) {
