@@ -80,10 +80,50 @@ export const findTeacherDashboard = async ({ teacherId, academyId }) => {
     ),
   ])
 
+  // 이번 주 출석률 조회
+  const attendanceParams = [teacherId]
+  const attendanceAcademyClause = academyId ? `AND a.academy_id = $2` : ''
+  if (academyId) attendanceParams.push(academyId)
+  const attendanceResult = await pool.query(
+    `SELECT ROUND(
+       COUNT(CASE WHEN a.status = 'present' THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0), 1
+     ) AS rate
+     FROM attendances a
+     JOIN lectures l ON l.id = a.lecture_id
+     WHERE l.teacher_id = $1
+       ${attendanceAcademyClause}
+       AND a.marked_at >= date_trunc('week', NOW())`,
+    attendanceParams
+  )
+
+  // 최근 강의 목록 조회
+  const recentParams = [teacherId]
+  const recentAcademyClause = academyId ? `AND l.academy_id = $2` : ''
+  if (academyId) recentParams.push(academyId)
+  const recentResult = await pool.query(
+    `SELECT l.id, l.title, l.processing_status AS status, l.created_at,
+            COUNT(q.id) AS question_count
+     FROM lectures l
+     LEFT JOIN questions q ON q.lecture_id = l.id AND q.status = 'approved'
+     WHERE l.teacher_id = $1 AND l.deleted_at IS NULL ${recentAcademyClause}
+     GROUP BY l.id, l.title, l.processing_status, l.created_at
+     ORDER BY l.created_at DESC
+     LIMIT 5`,
+    recentParams
+  )
+
   return {
-    lecture_count: parseInt(lectureResult.rows[0].count),
-    pending_questions: parseInt(pendingResult.rows[0].count),
-    escalation_count: parseInt(escalationResult.rows[0].count),
+    weeklyUploads: parseInt(lectureResult.rows[0].count),
+    pendingQuestions: parseInt(pendingResult.rows[0].count),
+    escalations: parseInt(escalationResult.rows[0].count),
+    attendanceRate: parseFloat(attendanceResult.rows[0]?.rate || 0),
+    recentLectures: recentResult.rows.map((r) => ({
+      id: r.id,
+      title: r.title,
+      status: r.status,
+      createdAt: r.created_at,
+      questionCount: parseInt(r.question_count),
+    })),
   }
 }
 
@@ -115,13 +155,18 @@ export const findStudentDashboard = async ({ studentId, academyId }) => {
   const completedItems = parseInt(rm.completed_items) || 0
 
   return {
-    points: { balance: point.balance, total_earned: point.total_earned },
-    streak: { current: streak.current_streak, longest: streak.longest_streak },
-    roadmap_progress: {
+    pointBalance: point.balance ?? 0,
+    totalPoints: point.total_earned ?? 0,
+    todayPoints: 0, // 별도 집계 쿼리 없이 0으로 기본값
+    streak: { current: streak.current_streak ?? 0, longest: streak.longest_streak ?? 0 },
+    roadmapProgress: {
       total: totalItems,
       completed: completedItems,
       rate: totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0,
     },
+    roadmapItems: [], // 학생 대시보드에서는 roadmapStore로 별도 조회
+    recommendations: [], // 향후 확장 포인트
+    todayStats: null, // 향후 확장 포인트
   }
 }
 

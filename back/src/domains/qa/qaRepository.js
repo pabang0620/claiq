@@ -57,7 +57,10 @@ export const findMessages = async (session_id) => {
   return rows
 }
 
-export const findEscalations = async ({ teacher_id, academy_id, limit = 20, offset = 0 }) => {
+export const findEscalations = async ({ teacher_id, academy_id, answered = false, limit = 20, offset = 0 }) => {
+  const answerFilter = answered
+    ? 'AND qm.escalation_response IS NOT NULL'
+    : 'AND qm.escalation_response IS NULL'
   const { rows } = await pool.query(
     `SELECT qm.*, qs.student_id, u.name AS student_name, qs.title AS session_title
      FROM qa_messages qm
@@ -66,7 +69,7 @@ export const findEscalations = async ({ teacher_id, academy_id, limit = 20, offs
      WHERE qm.is_escalated = true
        AND qs.teacher_id = $1
        AND qs.academy_id = $2
-       AND qm.escalation_response IS NULL
+       ${answerFilter}
      ORDER BY qm.created_at DESC
      LIMIT $3 OFFSET $4`,
     [teacher_id, academy_id, limit, offset]

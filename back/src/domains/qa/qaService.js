@@ -150,9 +150,9 @@ export const getSessionMessages = async (sessionId, userId) => {
   return qaRepository.findMessages(sessionId)
 }
 
-export const getEscalations = async ({ teacherId, academyId, page = 1, limit = 20 }) => {
+export const getEscalations = async ({ teacherId, academyId, answered = false, page = 1, limit = 20 }) => {
   const offset = (page - 1) * limit
-  return qaRepository.findEscalations({ teacher_id: teacherId, academy_id: academyId, limit, offset })
+  return qaRepository.findEscalations({ teacher_id: teacherId, academy_id: academyId, answered, limit, offset })
 }
 
 export const replyEscalation = async ({ messageId, response, teacherId }) => {

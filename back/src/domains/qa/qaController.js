@@ -60,10 +60,11 @@ export const getSessionMessages = async (req, res, next) => {
 
 export const getEscalations = async (req, res, next) => {
   try {
-    const { academy_id, page = 1, limit = 20 } = req.query
+    const { academy_id, page = 1, limit = 20, answered } = req.query
     const escalations = await qaService.getEscalations({
       teacherId: req.user.id,
       academyId: academy_id,
+      answered: answered === 'true',
       page: Number(page),
       limit: Number(limit),
     })
