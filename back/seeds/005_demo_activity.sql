@@ -84,6 +84,17 @@ ON CONFLICT (id) DO NOTHING;
 -- 2. 문제 7개 (수능 실제 스타일)
 -- ============================================================
 
+-- 재실행 시 question_options 중복 방지 (UUID auto-gen 컬럼이라 ON CONFLICT 불가)
+DELETE FROM question_options WHERE question_id IN (
+  '00000000-0000-0000-0003-000000000001',
+  '00000000-0000-0000-0003-000000000002',
+  '00000000-0000-0000-0003-000000000003',
+  '00000000-0000-0000-0003-000000000004',
+  '00000000-0000-0000-0003-000000000005',
+  '00000000-0000-0000-0003-000000000006',
+  '00000000-0000-0000-0003-000000000007'
+);
+
 -- Q-001  국어 독서 | 사실적 이해 | 객관식 | 난이도 B
 INSERT INTO questions (
   id, lecture_id, academy_id, teacher_id, subject_id, question_type_id,
@@ -103,7 +114,8 @@ INSERT INTO questions (
   'B', 'approved', '2026-03-10 12:00:00+09',
   '00000000-0000-0000-0000-000000000001',
   '2026-03-10 11:00:00+09', '2026-03-10 12:00:00+09'
-);
+)
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO question_options (question_id, label, content) VALUES
 ('00000000-0000-0000-0003-000000000001', '1', '딥러닝은 인공 신경망을 기반으로 한 기계 학습 방법이다.'),
@@ -132,7 +144,8 @@ INSERT INTO questions (
   'B', 'approved', '2026-03-10 12:00:00+09',
   '00000000-0000-0000-0000-000000000001',
   '2026-03-10 11:00:00+09', '2026-03-10 12:00:00+09'
-);
+)
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO question_options (question_id, label, content) VALUES
 ('00000000-0000-0000-0003-000000000002', '1', '딥러닝은 규칙 기반 프로그래밍보다 설명 가능성이 높다.'),
@@ -161,7 +174,8 @@ INSERT INTO questions (
   'A', 'approved', '2026-03-17 12:00:00+09',
   '00000000-0000-0000-0000-000000000001',
   '2026-03-17 11:00:00+09', '2026-03-17 12:00:00+09'
-);
+)
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO question_options (question_id, label, content) VALUES
 ('00000000-0000-0000-0003-000000000003', '1', '임과의 재회를 소망하는 화자의 기쁨이 드러나 있다.'),
@@ -190,7 +204,8 @@ INSERT INTO questions (
   'B', 'approved', '2026-03-24 16:00:00+09',
   '00000000-0000-0000-0000-000000000001',
   '2026-03-24 15:00:00+09', '2026-03-24 16:00:00+09'
-);
+)
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO question_options (question_id, label, content) VALUES
 ('00000000-0000-0000-0003-000000000004', '1', '0'),
@@ -219,7 +234,8 @@ INSERT INTO questions (
   'C', 'approved', '2026-03-31 16:00:00+09',
   '00000000-0000-0000-0000-000000000001',
   '2026-03-31 15:00:00+09', '2026-03-31 16:00:00+09'
-);
+)
+ON CONFLICT (id) DO NOTHING;
 
 
 -- Q-006  영어 독해 | 빈칸 추론 | 객관식 | 난이도 C
@@ -241,7 +257,8 @@ INSERT INTO questions (
   'C', 'approved', '2026-04-01 17:00:00+09',
   '00000000-0000-0000-0000-000000000001',
   '2026-04-01 16:00:00+09', '2026-04-01 17:00:00+09'
-);
+)
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO question_options (question_id, label, content) VALUES
 ('00000000-0000-0000-0003-000000000006', '1', 'inherited from parents'),
@@ -270,7 +287,8 @@ INSERT INTO questions (
   'A', 'approved', '2026-04-01 17:00:00+09',
   '00000000-0000-0000-0000-000000000001',
   '2026-04-01 16:00:00+09', '2026-04-01 17:00:00+09'
-);
+)
+ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO question_options (question_id, label, content) VALUES
 ('00000000-0000-0000-0003-000000000007', '1', 'physical health benefits of intense exercise'),

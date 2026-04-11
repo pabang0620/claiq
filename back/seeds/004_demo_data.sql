@@ -1,49 +1,49 @@
--- 데모 시드 데이터 (비밀번호: demo1234)
--- bcrypt hash of 'demo1234' with 12 rounds (bcryptjs)
+-- 데모 시드 데이터 (비밀번호: claiq1234)
+-- bcrypt hash of 'claiq1234' with 12 rounds (bcryptjs)
 
 -- 데모 운영자 (학원장)
 INSERT INTO users (id, email, password_hash, name, role, phone) VALUES
   ('00000000-0000-0000-0000-000000000001',
-   'operator@demo.claiq.kr',
-   '$2a$12$TQryOytnqG6TVpG0mzdZQO7dQXuFhU.p3MvW6pb9VWmISpzO76e2W',
+   'admin@claiq.kr',
+   '$2a$12$fZeBmxSVJxL.N7I.xhLLJurnNhKZGe/tisyCwGjZIS6ndn2kJ9Cny',
    '정민석', 'operator', '010-1234-5678')
-ON CONFLICT (email) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email, password_hash = EXCLUDED.password_hash, name = EXCLUDED.name;
 
 -- 데모 교강사
 INSERT INTO users (id, email, password_hash, name, role, phone) VALUES
   ('00000000-0000-0000-0000-000000000002',
-   'teacher1@demo.claiq.kr',
-   '$2a$12$TQryOytnqG6TVpG0mzdZQO7dQXuFhU.p3MvW6pb9VWmISpzO76e2W',
+   'teacher@claiq.kr',
+   '$2a$12$fZeBmxSVJxL.N7I.xhLLJurnNhKZGe/tisyCwGjZIS6ndn2kJ9Cny',
    '이준혁', 'teacher', '010-2345-6789'),
   ('00000000-0000-0000-0000-000000000003',
-   'teacher2@demo.claiq.kr',
-   '$2a$12$TQryOytnqG6TVpG0mzdZQO7dQXuFhU.p3MvW6pb9VWmISpzO76e2W',
+   'teacher2@claiq.kr',
+   '$2a$12$fZeBmxSVJxL.N7I.xhLLJurnNhKZGe/tisyCwGjZIS6ndn2kJ9Cny',
    '박서연', 'teacher', '010-3456-7890')
-ON CONFLICT (email) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email, password_hash = EXCLUDED.password_hash, name = EXCLUDED.name;
 
 -- 데모 수강생 5명
 INSERT INTO users (id, email, password_hash, name, role, phone) VALUES
   ('00000000-0000-0000-0000-000000000010',
-   's1@demo.claiq.kr',
-   '$2a$12$TQryOytnqG6TVpG0mzdZQO7dQXuFhU.p3MvW6pb9VWmISpzO76e2W',
+   'student@claiq.kr',
+   '$2a$12$fZeBmxSVJxL.N7I.xhLLJurnNhKZGe/tisyCwGjZIS6ndn2kJ9Cny',
    '김민준', 'student', '010-4567-8901'),
   ('00000000-0000-0000-0000-000000000011',
-   's2@demo.claiq.kr',
-   '$2a$12$TQryOytnqG6TVpG0mzdZQO7dQXuFhU.p3MvW6pb9VWmISpzO76e2W',
+   'student2@claiq.kr',
+   '$2a$12$fZeBmxSVJxL.N7I.xhLLJurnNhKZGe/tisyCwGjZIS6ndn2kJ9Cny',
    '최서아', 'student', '010-5678-9012'),
   ('00000000-0000-0000-0000-000000000012',
-   's3@demo.claiq.kr',
-   '$2a$12$TQryOytnqG6TVpG0mzdZQO7dQXuFhU.p3MvW6pb9VWmISpzO76e2W',
+   'student3@claiq.kr',
+   '$2a$12$fZeBmxSVJxL.N7I.xhLLJurnNhKZGe/tisyCwGjZIS6ndn2kJ9Cny',
    '박지호', 'student', '010-6789-0123'),
   ('00000000-0000-0000-0000-000000000013',
-   's4@demo.claiq.kr',
-   '$2a$12$TQryOytnqG6TVpG0mzdZQO7dQXuFhU.p3MvW6pb9VWmISpzO76e2W',
+   'student4@claiq.kr',
+   '$2a$12$fZeBmxSVJxL.N7I.xhLLJurnNhKZGe/tisyCwGjZIS6ndn2kJ9Cny',
    '이하은', 'student', '010-7890-1234'),
   ('00000000-0000-0000-0000-000000000014',
-   's5@demo.claiq.kr',
-   '$2a$12$TQryOytnqG6TVpG0mzdZQO7dQXuFhU.p3MvW6pb9VWmISpzO76e2W',
+   'student5@claiq.kr',
+   '$2a$12$fZeBmxSVJxL.N7I.xhLLJurnNhKZGe/tisyCwGjZIS6ndn2kJ9Cny',
    '정우성', 'student', '010-8901-2345')
-ON CONFLICT (email) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email, password_hash = EXCLUDED.password_hash, name = EXCLUDED.name;
 
 -- 데모 학원 (수능일: 2026-11-19)
 INSERT INTO academies (id, name, code, owner_id, suneung_date, address) VALUES

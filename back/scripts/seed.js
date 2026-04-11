@@ -36,9 +36,9 @@ async function seed() {
 
     console.log('\n🎉 시드 데이터 투입 완료!')
     console.log('\n📋 데모 계정:')
-    console.log('  운영자: operator@star.kr / claiq1234!')
-    console.log('  교강사: lee@star.kr     / claiq1234!')
-    console.log('  수강생: kim@star.kr     / claiq1234!')
+    console.log('  운영자: admin@claiq.kr    / claiq1234')
+    console.log('  교강사: teacher@claiq.kr  / claiq1234')
+    console.log('  수강생: student@claiq.kr  / claiq1234')
   } catch (err) {
     console.error('❌ 시드 실패:', err.message)
     console.error(err)

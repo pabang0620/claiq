@@ -103,10 +103,15 @@ award/
 
 ---
 
-## 테스트 계정 (demo1234)
+## 테스트 계정 (claiq1234)
 
-| 역할 | 이메일 |
-|------|--------|
-| 운영자 | operator@demo.claiq.kr |
-| 교강사 | teacher1@demo.claiq.kr |
-| 수강생 | s1@demo.claiq.kr ~ s5@demo.claiq.kr |
+| 역할 | 이메일 | 비밀번호 | 이름 |
+|------|--------|---------|------|
+| 운영자 | admin@claiq.kr | claiq1234 | 정민석 |
+| 교강사 | teacher@claiq.kr | claiq1234 | 이준혁 |
+| 교강사2 | teacher2@claiq.kr | claiq1234 | 박서연 |
+| 수강생 | student@claiq.kr | claiq1234 | 김민준 |
+| 수강생2 | student2@claiq.kr | claiq1234 | 최서아 |
+| 수강생3 | student3@claiq.kr | claiq1234 | 박지호 |
+| 수강생4 | student4@claiq.kr | claiq1234 | 이하은 |
+| 수강생5 | student5@claiq.kr | claiq1234 | 정우성 |

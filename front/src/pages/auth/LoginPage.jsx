@@ -8,36 +8,36 @@ const DEMO_ACCOUNTS = [
   {
     group: 'operator',
     label: '운영자',
-    email: 'operator@demo.claiq.kr',
+    email: 'admin@claiq.kr',
     name: '정민석',
   },
   {
     group: 'teacher',
     label: '교강사',
-    email: 'teacher1@demo.claiq.kr',
+    email: 'teacher@claiq.kr',
     name: '이준혁',
   },
   {
     group: 'student',
     label: '수강생',
-    email: 's1@demo.claiq.kr',
+    email: 'student@claiq.kr',
     name: '김민준',
   },
   {
     group: 'student',
     label: '수강생',
-    email: 's2@demo.claiq.kr',
+    email: 'student2@claiq.kr',
     name: '최서아',
   },
   {
     group: 'student',
     label: '수강생',
-    email: 's3@demo.claiq.kr',
+    email: 'student3@claiq.kr',
     name: '박지호',
   },
 ]
 
-const DEMO_PASSWORD = 'demo1234'
+const DEMO_PASSWORD = 'claiq1234'
 
 const DEMO_BUTTON_CLASSES = {
   operator:

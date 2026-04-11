@@ -12,6 +12,11 @@ node_modules/
 dist/
 build/
 
+# Test artifacts
+playwright-report/
+test-results/
+front/tests/e2e/artifacts/
+
 # Logs
 *.log
 npm-debug.log*
