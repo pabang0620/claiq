@@ -49,7 +49,10 @@ award/
 │   │   ├── config/          # db.js, env.js, supabase.js
 │   │   ├── middleware/      # auth, validation, errorHandler, ...
 │   │   └── server.js
-│   └── migrations/          # SQL 마이그레이션 파일 (001-011)
+│   ├── migrations/          # SQL 마이그레이션 파일 (001-015)
+│   └── tests/fixtures/      # 테스트용 샘플 파일 (test_audio.wav 등)
+├── research/                # 기획 단계 리서치 (크롤링 스크립트, 데이터 JSON)
+├── submissions/             # 공모전 제출 서류 (gitignored)
 ├── CLAUDE.md
 ├── AI_협업_기록.md
 └── CLAIQ_테스트_체크리스트.md
