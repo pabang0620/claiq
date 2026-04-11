@@ -195,7 +195,7 @@ results = await asyncio.gather(*[crawl_repo(r) for r in repos])
 
 ### ③ AI 운영 비용 투명성 (토큰 단위 분석)
 
-> 모델: GPT-4o 기준 (환경변수 `OPENAI_MODEL`로 `gpt-4o-mini` 전환 시 LLM 비용 약 94% 절감)
+> 모델: OpenAI GPT-4o 기준
 
 **강의 1편 처리 비용 (30분 녹음 기준)**
 
@@ -224,7 +224,7 @@ results = await asyncio.gather(*[crawl_repo(r) for r in repos])
 | 대규모 (강사 10명, 수강생 300명) | 100편 | 300회 | **~$110** |
 
 > SaaS 구독료(월 5~15만원) 대비 AI 비용 비중 최대 30% — 수익성 있는 마진 구조.
-> `gpt-4o-mini` 전환 시 LLM 비용 약 94% 절감. STT는 모델과 무관.
+> STT(Whisper) 비용은 모델 선택과 무관하게 $0.006/min 고정.
 
 **비용 최적화 전략**
 

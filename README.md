@@ -97,7 +97,7 @@
 
 ## 💰 AI 운영 비용 투명성
 
-> 모델은 `GPT-4o` 기준. 환경변수 `OPENAI_MODEL`로 `gpt-4o-mini` 전환 가능 (비용 약 15분의 1).
+> 모델: OpenAI GPT-4o 기준.
 
 ### 강의 1편 처리 비용 (30분 녹음 기준)
 
@@ -126,7 +126,6 @@
 | 대규모 (강사 10명, 수강생 300명) | 100편 | 300회 | **~$117** |
 
 > SaaS 구독료(월 5~15만원) 대비 AI 비용은 최대 30% 수준 — 마진 구조 건전함.
-> `gpt-4o-mini` 전환 시 AI 비용 약 94% 절감 가능 (STT 비용은 모델과 무관).
 
 ---
 
@@ -227,7 +226,7 @@ cd front && npm install && npm run dev  # http://localhost:5173
 ```env
 DATABASE_URL=postgresql://...
 OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-4o          # gpt-4o-mini 로 변경 시 비용 15분의 1
+OPENAI_MODEL=gpt-4o
 JWT_SECRET=...
 CORS_ORIGIN=http://localhost:5173
 ```

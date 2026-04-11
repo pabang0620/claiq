@@ -2,7 +2,7 @@
 
 ## 프로젝트 개요
 수능 준비 중소 학원을 위한 AI 통합 교육 플랫폼.
-강의 녹음 → Whisper STT → GPT-4o-mini 문제 자동 생성 → 학생 맞춤 학습 로드맵까지 제공.
+강의 녹음 → Whisper STT → GPT-4o 문제 자동 생성 → 학생 맞춤 학습 로드맵까지 제공.
 
 **팀 구성**: 2인 (기획·개발)
 **공모전**: 2026 KIT 바이브코딩 공모전
@@ -16,7 +16,7 @@
 | Frontend | React 19, Vite 7, Tailwind v4, Zustand v5, React Router DOM v7 |
 | Backend | Node.js, Express (ESM), Zod, JWT |
 | Database | PostgreSQL + pgvector (Supabase, `claiq` schema) |
-| AI | OpenAI GPT-4o-mini, Whisper-1, text-embedding-3-small |
+| AI | OpenAI GPT-4o, Whisper-1, text-embedding-3-small |
 | 배포 | Vercel (프론트) / Render (백엔드) |
 
 ---
