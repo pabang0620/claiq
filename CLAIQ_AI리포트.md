@@ -98,6 +98,61 @@ Python 크롤러(`crawl_pain_points.py`)로 교육 관련 커뮤니티·뉴스·
 
 ## 2. AI 활용 전략
 
+### 🔑 핵심 전제: AI를 3개 레이어에 걸쳐 활용
+
+대부분의 참가작이 **"제품 안에 AI를 탑재"**하는 데 그칩니다.
+CLAIQ는 **기획 → 개발 → QA 전 단계**에 AI를 투입했습니다.
+
+```
+Layer 1 — 리서치 AI   : Playwright 크롤러로 실 데이터 기반 기획
+Layer 2 — 개발 AI     : Claude Code 멀티 에이전트로 2인 팀 한계 돌파
+Layer 3 — 제품 AI     : Whisper + GPT-4o + pgvector RAG 파이프라인
+```
+
+**Layer 1 — Playwright 기반 시장 리서치**
+
+```python
+# crawl_pain_points.py — asyncio.gather로 병렬 수집
+async def crawl_all():
+    tasks = [
+        crawl_community("site:naver.com 교사 행정업무 고충"),
+        crawl_community("site:naver.com 수강생 학습 어려움"),
+        crawl_community("site:eduin.news 학원 운영 문제"),
+    ]
+    results = await asyncio.gather(*tasks)  # 병렬 실행
+```
+
+- 교육 커뮤니티·뉴스 **70건** 수집 → 역할별 페인포인트 분류
+- 크롤링 결과로 **학부모 SMS 기능 발굴** (초기 기획에 없었음)
+- 이탈 예측 기능을 핵심으로 격상하는 근거 확보
+
+```python
+# crawl_competitors.py — 공모전 경쟁작 10개 병렬 분석
+repos = [known_repos + search_results]
+results = await asyncio.gather(*[crawl_repo(r) for r in repos])
+# → README, 기술스택, 의존성, 코드 구조 자동 추출
+```
+
+- 경쟁작 10개 구조·문서화 수준 비교 → CLAIQ 차별점 재확인
+- **brief(38레벨 게임화)** 발굴 → 게임 요소 보완 방향 결정
+
+**Layer 2 — Claude Code 멀티 에이전트 개발**
+
+10개 전문 에이전트를 역할에 맞게 병렬 실행:
+
+| 에이전트 | 담당 | 산출물 |
+|---------|------|-------|
+| architect | 전체 설계 | DB 27테이블, RAG 파이프라인 아키텍처 |
+| express-engineer | 백엔드 | 12개 도메인, AI 모듈 7개 |
+| react-specialist | 프론트엔드 | 32개 페이지, 9개 Zustand 스토어 |
+| database-reviewer | DB 검증 | 마이그레이션 11개, 쿼리 최적화 |
+| security-reviewer | 보안 | JWT Rotation, SQL 인젝션 방지 |
+| tdd-guide | QA | Playwright 자동화, 11개 버그 발견 |
+
+`CLAUDE.md`로 프로젝트 컨텍스트를 AI에게 사전 주입 → 모든 에이전트가 동일한 컨벤션으로 코드 생성.
+
+
+
 ### ① 사용할 AI 도구와 모델, 선택 이유
 
 | AI 도구 / 모델 | 활용 목적 | 선택 이유 |
@@ -138,7 +193,48 @@ Python 크롤러(`crawl_pain_points.py`)로 교육 관련 커뮤니티·뉴스·
 
 ---
 
-### ③ 토큰 낭비 최소화 및 유지보수성/재현성 전략
+### ③ AI 운영 비용 투명성 (토큰 단위 분석)
+
+> 모델: GPT-4o 기준 (환경변수 `OPENAI_MODEL`로 `gpt-4o-mini` 전환 시 LLM 비용 약 94% 절감)
+
+**강의 1편 처리 비용 (30분 녹음 기준)**
+
+| 단계 | API | 입력 | 출력 | 단가 | 비용 |
+|------|-----|------|------|------|------|
+| ① Whisper STT | Whisper-1 | 30분 오디오 | - | $0.006/min | **~$0.18** |
+| ② 임베딩 저장 | embedding-3-small | ~10K tokens | - | $0.02/M | **~$0.0002** |
+| ③ 수능 유형 매핑 | GPT-4o | 2,000 tokens | 500 tokens | $2.5/$10 per M | **~$0.010** |
+| ④ 문제 생성 ×3난이도 | GPT-4o | 6,000 tokens | 3,000 tokens | $2.5/$10 per M | **~$0.045** |
+| **합계** | | | | | **~$0.24/강의** |
+
+**수강생 세션 비용 (1회 기준)**
+
+| 기능 | API | 토큰 | 비용 |
+|------|-----|------|------|
+| AI Q&A (RAG 포함) | GPT-4o | 입력 2K + 출력 500 | **~$0.010** |
+| D-day 로드맵 생성 | GPT-4o | 입력 2K + 출력 1K | **~$0.015** |
+| 미니 모의고사 생성 | GPT-4o | 입력 3K + 출력 2K | **~$0.028** |
+
+**학원 규모별 월 예상 비용**
+
+| 학원 규모 | 강의/월 | 수강생 Q&A/일 | 월 AI 비용 |
+|----------|---------|-------------|-----------|
+| 소규모 (강사 3명, 수강생 50명) | 30편 | 50회 | **~$22** |
+| 중규모 (강사 7명, 수강생 150명) | 70편 | 150회 | **~$62** |
+| 대규모 (강사 10명, 수강생 300명) | 100편 | 300회 | **~$110** |
+
+> SaaS 구독료(월 5~15만원) 대비 AI 비용 비중 최대 30% — 수익성 있는 마진 구조.
+> `gpt-4o-mini` 전환 시 LLM 비용 약 94% 절감. STT는 모델과 무관.
+
+**비용 최적화 전략**
+
+- 강의 임베딩 결과 DB 캐싱 → 동일 강의 재업로드 시 재처리 없음
+- RAG 검색 시 교강사 네임스페이스 필터 → 전체 DB 스캔 방지
+- 문제 생성 스트리밍 응답 → 타임아웃 재요청 비용 제거
+
+---
+
+### ④ 토큰 낭비 최소화 및 유지보수성/재현성 전략
 
 **비용 최적화**
 
