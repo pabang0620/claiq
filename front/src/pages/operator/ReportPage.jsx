@@ -37,7 +37,7 @@ export default function ReportPage() {
   async function handleGenerate(studentId) {
     setGeneratingFor(studentId)
     try {
-      const res = await reportApi.generate({ studentId, period: new Date().toISOString().slice(0, 7), academyId: academy?.id })
+      const res = await reportApi.generate({ studentId, period: new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date()).slice(0, 7), academyId: academy?.id })
       setReports((prev) => [res.data, ...prev])
       addToast({ type: 'success', message: '리포트가 생성됐습니다.' })
     } catch (err) {
