@@ -61,18 +61,28 @@ export const findEscalations = async ({ teacher_id, academy_id, answered = false
   const answerFilter = answered
     ? 'AND qm.escalation_response IS NOT NULL'
     : 'AND qm.escalation_response IS NULL'
+
+  const conditions = ['qm.is_escalated = true', 'qs.teacher_id = $1']
+  const params = [teacher_id]
+  let idx = 2
+
+  if (academy_id) {
+    conditions.push(`qs.academy_id = $${idx++}`)
+    params.push(academy_id)
+  }
+
+  params.push(limit, offset)
+
   const { rows } = await pool.query(
     `SELECT qm.*, qs.student_id, u.name AS student_name, qs.title AS session_title
      FROM qa_messages qm
      JOIN qa_sessions qs ON qs.id = qm.session_id
      JOIN users u ON u.id = qs.student_id
-     WHERE qm.is_escalated = true
-       AND qs.teacher_id = $1
-       AND qs.academy_id = $2
+     WHERE ${conditions.join(' AND ')}
        ${answerFilter}
      ORDER BY qm.created_at DESC
-     LIMIT $3 OFFSET $4`,
-    [teacher_id, academy_id, limit, offset]
+     LIMIT $${idx} OFFSET $${idx + 1}`,
+    params
   )
   return rows
 }
