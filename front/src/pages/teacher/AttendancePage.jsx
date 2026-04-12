@@ -23,17 +23,16 @@ export default function AttendancePage() {
   const user = useAuthStore((s) => s.user)
   const addToast = useUIStore((s) => s.addToast)
 
-  // 날짜 바뀌면 해당 날짜 강의 목록 조회
+  // 마운트 시 강의 목록 조회 (LectureMaterialPage와 동일)
   useEffect(() => {
-    if (!academy?.id) return
-    lectureApi.getList({ academy_id: academy.id, limit: 100 })
+    lectureApi.getList({ limit: 100 })
       .then((res) => {
         const list = res.data || []
         setLectures(list)
         setSelectedLectureId(list.length > 0 ? list[0].id : '')
       })
       .catch(() => setLectures([]))
-  }, [selectedDate, academy?.id])
+  }, [])
 
   // 강의 선택 시 출결 조회
   useEffect(() => {
@@ -93,15 +92,13 @@ export default function AttendancePage() {
             className="px-3 py-2 text-sm border border-zinc-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
             aria-label="날짜 선택"
           />
-          {lectureOptions.length > 0 && (
-            <Select
-              id="lecture-select"
-              value={selectedLectureId}
-              onChange={(e) => setSelectedLectureId(e.target.value)}
-              options={lectureOptions}
-              placeholder="강의 선택"
-            />
-          )}
+          <Select
+            id="lecture-select"
+            value={selectedLectureId}
+            onChange={(e) => setSelectedLectureId(e.target.value)}
+            options={lectureOptions}
+            placeholder="강의 선택"
+          />
         </div>
       </div>
 
