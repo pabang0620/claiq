@@ -77,6 +77,7 @@ export const updateAcademy = async (id, updates) => {
   if (updates.name !== undefined) { fields.push(`name = $${idx++}`); params.push(updates.name) }
   if (updates.address !== undefined) { fields.push(`address = $${idx++}`); params.push(updates.address) }
   if (updates.suneung_date !== undefined) { fields.push(`suneung_date = $${idx++}`); params.push(updates.suneung_date) }
+  if (updates.description !== undefined) { fields.push(`description = $${idx++}`); params.push(updates.description) }
 
   if (!fields.length) {
     const err = new Error('수정할 항목이 없습니다')
@@ -110,12 +111,12 @@ export const findCoupons = async (academy_id) => {
   return rows
 }
 
-export const createCoupon = async ({ academy_id, name, description, discount_type, discount_amount, expires_at }) => {
+export const createCoupon = async ({ academy_id, name, description, discount_type, discount_amount, expires_at, award_condition }) => {
   const { rows } = await pool.query(
-    `INSERT INTO academy_coupons (academy_id, name, description, discount_type, discount_amount, expires_at)
-     VALUES ($1, $2, $3, $4, $5, $6)
+    `INSERT INTO academy_coupons (academy_id, name, description, discount_type, discount_amount, expires_at, award_condition)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING *`,
-    [academy_id, name, description || null, discount_type || 'percent', discount_amount || 0, expires_at || null]
+    [academy_id, name, description || null, discount_type || 'percent', discount_amount || 0, expires_at || null, award_condition || null]
   )
   return rows[0]
 }
@@ -125,6 +126,36 @@ export const deleteCoupon = async (id, academy_id) => {
     `UPDATE academy_coupons SET deleted_at = NOW() WHERE id = $1 AND academy_id = $2`,
     [id, academy_id]
   )
+}
+
+export const findCouponById = async (id) => {
+  const { rows } = await pool.query(
+    `SELECT * FROM academy_coupons WHERE id = $1 AND deleted_at IS NULL`,
+    [id]
+  )
+  return rows[0] || null
+}
+
+export const awardCoupon = async (id, awarded_to) => {
+  const { rows } = await pool.query(
+    `UPDATE academy_coupons SET awarded_to = $2, updated_at = NOW()
+     WHERE id = $1 AND deleted_at IS NULL
+     RETURNING *`,
+    [id, awarded_to]
+  )
+  return rows[0] || null
+}
+
+export const findCouponsByAwardedTo = async (userId) => {
+  const { rows } = await pool.query(
+    `SELECT c.*, a.name AS academy_name
+     FROM academy_coupons c
+     JOIN academies a ON a.id = c.academy_id
+     WHERE c.awarded_to = $1 AND c.deleted_at IS NULL
+     ORDER BY c.updated_at DESC`,
+    [userId]
+  )
+  return rows
 }
 
 export const updateMemberRole = async (academy_id, user_id, role) => {

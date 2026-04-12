@@ -23,8 +23,9 @@ export const getChurnRisk = async (req, res, next) => {
 
 export const getLectureStats = async (req, res, next) => {
   try {
-    const { academy_id } = req.query
-    const stats = await dashboardService.getLectureStats(academy_id)
+    const { subject, period } = req.query
+    const academyId = await resolveAcademyId(req.query.academy_id, req.user.id)
+    const stats = await dashboardService.getLectureStats(academyId, { subject, period })
     return successResponse(res, stats)
   } catch (err) {
     next(err)

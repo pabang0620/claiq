@@ -43,7 +43,7 @@ export default function LectureStatsPage() {
 
   const normalizedStats = stats.map((s) => ({
     ...s,
-    correctRate: s.correctRate ?? s.avg_correct_rate ?? 0,
+    correctRate: parseFloat(s.correctRate ?? s.avg_correct_rate) || 0,
     participantCount: s.participantCount ?? s.attendance_count ?? 0,
     questionCount: s.questionCount ?? s.question_count ?? 0,
   }))

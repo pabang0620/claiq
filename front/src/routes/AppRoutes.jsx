@@ -33,6 +33,7 @@ const WeakPointPage = lazy(() => import('../pages/student/WeakPointPage.jsx'))
 const MaterialPage = lazy(() => import('../pages/student/MaterialPage.jsx'))
 const PointPage = lazy(() => import('../pages/student/PointPage.jsx'))
 const BadgePage = lazy(() => import('../pages/student/BadgePage.jsx'))
+const ScholarshipPage = lazy(() => import('../pages/student/ScholarshipPage.jsx'))
 
 // Operator pages
 const OperatorDashboardPage = lazy(() => import('../pages/operator/OperatorDashboardPage.jsx'))
@@ -112,6 +113,7 @@ export default function AppRoutes() {
         <Route path="materials" element={<Wrap><MaterialPage /></Wrap>} />
         <Route path="points" element={<Wrap><PointPage /></Wrap>} />
         <Route path="badges" element={<Wrap><BadgePage /></Wrap>} />
+        <Route path="scholarships" element={<Wrap><ScholarshipPage /></Wrap>} />
       </Route>
 
       {/* Operator */}

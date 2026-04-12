@@ -13,4 +13,6 @@ export const academyApi = {
   getCoupons: () => api.get('/academies/me/coupons'),
   createCoupon: (data) => api.post('/academies/me/coupons', data),
   deleteCoupon: (id) => api.delete(`/academies/me/coupons/${id}`),
+  awardCoupon: (couponId, studentId) => api.post(`/academies/me/coupons/${couponId}/award`, { studentId }),
+  getMyScholarships: () => api.get('/academies/me/scholarships'),
 }

@@ -170,7 +170,7 @@ export const createCoupon = async ({ userId, couponData }) => {
     throw err
   }
 
-  const { name, description, discountType, discountValue, validDays } = couponData
+  const { name, description, discountType, discountValue, validDays, awardCondition } = couponData
   const expires_at = new Date(Date.now() + validDays * 86400000).toISOString()
 
   return academyRepository.createCoupon({
@@ -180,6 +180,7 @@ export const createCoupon = async ({ userId, couponData }) => {
     discount_type: discountType,
     discount_amount: discountValue,
     expires_at,
+    award_condition: awardCondition || null,
   })
 }
 
@@ -207,4 +208,45 @@ export const deleteCoupon = async ({ userId, couponId }) => {
     throw err
   }
   await academyRepository.deleteCoupon(couponId, academies[0].id)
+}
+
+export const awardCoupon = async ({ operatorId, couponId, studentId }) => {
+  const academies = await academyRepository.findUserAcademies(operatorId)
+  if (!academies.length) {
+    const err = new Error('소속된 학원이 없습니다')
+    err.status = 404
+    throw err
+  }
+
+  const coupon = await academyRepository.findCouponById(couponId)
+  if (!coupon || coupon.academy_id !== academies[0].id) {
+    const err = new Error('쿠폰을 찾을 수 없습니다')
+    err.status = 404
+    throw err
+  }
+
+  const membership = await academyRepository.findMembership(academies[0].id, studentId)
+  if (!membership || membership.status !== 'active') {
+    const err = new Error('해당 학생은 학원 멤버가 아닙니다')
+    err.status = 400
+    throw err
+  }
+
+  if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
+    const err = new Error('만료된 쿠폰입니다')
+    err.status = 400
+    throw err
+  }
+
+  if (coupon.awarded_to) {
+    const err = new Error('이미 수여된 쿠폰입니다')
+    err.status = 409
+    throw err
+  }
+
+  return academyRepository.awardCoupon(couponId, studentId)
+}
+
+export const getMyScholarships = async (userId) => {
+  return academyRepository.findCouponsByAwardedTo(userId)
 }

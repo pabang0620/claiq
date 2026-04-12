@@ -17,6 +17,7 @@ import {
   Settings,
   AlertTriangle,
   FileBarChart,
+  GraduationCap,
 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore.js'
 import { ROLES } from '../../constants/roles.js'
@@ -40,6 +41,7 @@ const STUDENT_MENU = [
   { to: '/student/materials', icon: FileText, label: '강의 자료' },
   { to: '/student/points', icon: Coins, label: '포인트' },
   { to: '/student/badges', icon: Award, label: '뱃지' },
+  { to: '/student/scholarships', icon: GraduationCap, label: '장학금' },
 ]
 
 const OPERATOR_MENU = [

@@ -25,12 +25,12 @@ export default function ChurnRiskPage() {
     let cancelled = false
     setIsLoading(true)
     dashboardApi
-      .getChurnRisk({ filter: riskFilter })
+      .getChurnRisk({})
       .then((res) => { if (!cancelled) setStudents(res.data || []) })
       .catch((err) => { if (!cancelled) { setStudents([]); addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' }) } })
       .finally(() => { if (!cancelled) setIsLoading(false) })
     return () => { cancelled = true }
-  }, [riskFilter])
+  }, [])
 
   function handleContact(studentId) {
     addToast({ type: 'info', message: '연락처 기능은 준비 중입니다.' })
@@ -51,6 +51,12 @@ export default function ChurnRiskPage() {
   }
 
   const sorted = [...students].sort((a, b) => b.churnScore - a.churnScore)
+  const filtered = sorted.filter((s) => {
+    if (riskFilter === 'high') return s.churnScore > 0.7
+    if (riskFilter === 'medium') return s.churnScore > 0.4 && s.churnScore <= 0.7
+    if (riskFilter === 'low') return s.churnScore <= 0.4
+    return true
+  })
 
   return (
     <div className="space-y-5">
@@ -97,7 +103,7 @@ export default function ChurnRiskPage() {
       {isLoading ? (
         <PageSpinner />
       ) : (
-        <ChurnRiskTable students={sorted} onContact={handleContact} />
+        <ChurnRiskTable students={filtered} onContact={handleContact} />
       )}
     </div>
   )

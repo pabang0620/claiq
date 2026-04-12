@@ -240,7 +240,22 @@ export const findAttendanceStats = async ({ academyId, lectureId }) => {
   return rows[0] || { total: 0, present_count: 0, absent_count: 0, late_count: 0, excused_count: 0, attendance_rate: 0 }
 }
 
-export const findLectureStats = async (academy_id) => {
+export const findLectureStats = async (academy_id, { subject, period } = {}) => {
+  const params = [academy_id]
+  const conditions = ['l.academy_id = $1', 'l.deleted_at IS NULL']
+
+  if (subject) {
+    params.push(subject)
+    conditions.push(`s.code = $${params.length}`)
+  }
+
+  if (period) {
+    params.push(parseInt(period, 10))
+    conditions.push(`l.created_at >= NOW() - ($${params.length} || ' days')::INTERVAL`)
+  }
+
+  const where = conditions.join(' AND ')
+
   const { rows } = await pool.query(
     `SELECT l.id, l.title, l.created_at, l.processing_status,
             s.name AS subject_name,
@@ -248,20 +263,20 @@ export const findLectureStats = async (academy_id) => {
             COUNT(DISTINCT a.student_id) AS attendance_count,
             COUNT(DISTINCT q.id) AS question_count,
             COUNT(DISTINCT ans.id) AS submission_count,
-            ROUND(
+            COALESCE(ROUND(
               AVG(CASE WHEN ans.is_correct THEN 100.0 ELSE 0 END), 1
-            ) AS avg_correct_rate
+            ), 0) AS avg_correct_rate
      FROM lectures l
      JOIN subjects s ON s.id = l.subject_id
      JOIN users u ON u.id = l.teacher_id
      LEFT JOIN attendances a ON a.lecture_id = l.id
      LEFT JOIN questions q ON q.lecture_id = l.id AND q.status = 'approved'
      LEFT JOIN answer_submissions ans ON ans.question_id = q.id
-     WHERE l.academy_id = $1 AND l.deleted_at IS NULL
+     WHERE ${where}
      GROUP BY l.id, l.title, l.created_at, l.processing_status, s.name, u.name
      ORDER BY l.created_at DESC
-     LIMIT 20`,
-    [academy_id]
+     LIMIT 50`,
+    params
   )
   return rows
 }

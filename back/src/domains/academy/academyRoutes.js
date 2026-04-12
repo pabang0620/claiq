@@ -36,8 +36,13 @@ const couponSchema = z.object({
   name: z.string().min(1, '쿠폰 이름을 입력하세요'),
   description: z.string().optional(),
   discountType: z.enum(['percent', 'fixed']).default('percent'),
-  discountValue: z.number().int().min(0).max(100),
+  discountValue: z.number().int().min(0).max(1000000),
   validDays: z.number().int().min(1).default(30),
+  awardCondition: z.string().max(500).optional(),
+})
+
+const awardSchema = z.object({
+  studentId: z.string().uuid('올바른 학생 ID를 입력하세요'),
 })
 
 // /me 라우트는 /:id 보다 먼저 선언
@@ -50,6 +55,8 @@ router.delete('/me/members/:userId', authMiddleware, requireRole('operator'), ac
 router.get('/me/coupons', authMiddleware, academyController.getMyCoupons)
 router.post('/me/coupons', authMiddleware, requireRole('operator'), validate(couponSchema), academyController.createCoupon)
 router.delete('/me/coupons/:id', authMiddleware, requireRole('operator'), academyController.deleteCoupon)
+router.post('/me/coupons/:id/award', authMiddleware, requireRole('operator'), validate(awardSchema), academyController.awardCoupon)
+router.get('/me/scholarships', authMiddleware, requireRole('student'), academyController.getMyScholarships)
 
 router.post('/', authMiddleware, requireRole('operator'), validate(createSchema), academyController.createAcademy)
 router.post('/join', authMiddleware, validate(joinSchema), academyController.joinAcademy)

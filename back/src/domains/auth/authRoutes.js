@@ -14,6 +14,7 @@ const signupSchema = z.object({
   name: z.string().min(1, '이름을 입력하세요').max(100),
   role: z.enum(['teacher', 'student', 'operator'], { message: '유효하지 않은 역할입니다' }),
   phone: z.string().max(20).optional(),
+  academyName: z.string().max(200).optional(),
 })
 
 const loginSchema = z.object({

@@ -5,7 +5,7 @@ import { Button } from '../../components/ui/Button.jsx'
 import { PageSpinner } from '../../components/ui/Spinner.jsx'
 import { academyApi } from '../../api/academy.api.js'
 import { useUIStore } from '../../store/uiStore.js'
-import { Settings, Plus, Trash2, Gift } from 'lucide-react'
+import { Settings, Plus, Trash2, Gift, GraduationCap, UserCheck, X } from 'lucide-react'
 import { POINT_EVENT_LABELS } from '../../constants/points.js'
 
 function formatDate(iso) {
@@ -19,20 +19,24 @@ function formatDate(iso) {
 export default function AcademySettingPage() {
   const [academy, setAcademy] = useState(null)
   const [coupons, setCoupons] = useState([])
+  const [members, setMembers] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [form, setForm] = useState({ name: '', code: '', description: '' })
-  const [couponForm, setCouponForm] = useState({ name: '', discountType: 'percent', discountValue: '', validDays: 30 })
+  const [couponForm, setCouponForm] = useState({ name: '', discountType: 'percent', discountValue: '', validDays: 30, awardCondition: '' })
+  const [awardTargetId, setAwardTargetId] = useState(null)
   const addToast = useUIStore((s) => s.addToast)
   const showConfirm = useUIStore((s) => s.showConfirm)
 
   useEffect(() => {
-    Promise.all([academyApi.getMe(), academyApi.getCoupons()])
-      .then(([aRes, cRes]) => {
+    Promise.all([academyApi.getMe(), academyApi.getCoupons(), academyApi.getMembers()])
+      .then(([aRes, cRes, mRes]) => {
         const a = aRes.data
         setAcademy(a)
         setForm({ name: a.name || '', code: a.code || '', description: a.description || '' })
         setCoupons(cRes.data || [])
+        const students = (mRes.data || []).filter((m) => m.role === 'student')
+        setMembers(students)
       })
       .catch((err) => {
         addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' })
@@ -57,9 +61,13 @@ export default function AcademySettingPage() {
   async function handleCreateCoupon(e) {
     e.preventDefault()
     try {
-      const res = await academyApi.createCoupon(couponForm)
+      const res = await academyApi.createCoupon({
+        ...couponForm,
+        discountValue: Number(couponForm.discountValue),
+        validDays: Number(couponForm.validDays),
+      })
       setCoupons((prev) => [res.data, ...prev])
-      setCouponForm({ name: '', discountType: 'percent', discountValue: '', validDays: 30 })
+      setCouponForm({ name: '', discountType: 'percent', discountValue: '', validDays: 30, awardCondition: '' })
       addToast({ type: 'success', message: '쿠폰이 생성됐습니다.' })
     } catch (err) {
       addToast({ type: 'error', message: err?.message || '쿠폰 생성에 실패했습니다.' })
@@ -67,7 +75,11 @@ export default function AcademySettingPage() {
   }
 
   async function handleDeleteCoupon(id) {
-    const ok = await showConfirm('쿠폰을 삭제하시겠습니까?', { confirmLabel: '삭제', danger: true })
+    const coupon = coupons.find((c) => c.id === id)
+    const message = coupon?.awarded_to
+      ? '이미 수여된 쿠폰입니다. 삭제하시겠습니까?'
+      : '쿠폰을 삭제하시겠습니까?'
+    const ok = await showConfirm(message, { confirmLabel: '삭제', danger: true })
     if (!ok) return
     try {
       await academyApi.deleteCoupon(id)
@@ -75,6 +87,17 @@ export default function AcademySettingPage() {
       addToast({ type: 'success', message: '쿠폰이 삭제됐습니다.' })
     } catch (err) {
       addToast({ type: 'error', message: err?.message || '삭제에 실패했습니다.' })
+    }
+  }
+
+  async function handleAwardCoupon(couponId, studentId) {
+    try {
+      const res = await academyApi.awardCoupon(couponId, studentId)
+      setCoupons((prev) => prev.map((c) => c.id === couponId ? res.data : c))
+      setAwardTargetId(null)
+      addToast({ type: 'success', message: '장학금이 수여됐습니다.' })
+    } catch (err) {
+      addToast({ type: 'error', message: err?.message || '수여에 실패했습니다.' })
     }
   }
 
@@ -164,6 +187,17 @@ export default function AcademySettingPage() {
               hint="발급일 기준 만료일수"
               required
             />
+            <div className="col-span-2">
+              <p className="text-sm font-medium text-zinc-700 mb-1">장학 조건 <span className="text-zinc-400 font-normal">(선택)</span></p>
+              <input
+                type="text"
+                placeholder="예: 모의고사 10등 이내, 출석률 95% 이상"
+                value={couponForm.awardCondition}
+                onChange={(e) => setCouponForm((p) => ({ ...p, awardCondition: e.target.value }))}
+                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm bg-white text-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p className="text-xs text-zinc-400 mt-1">입력하면 장학금 쿠폰으로 표시됩니다</p>
+            </div>
           </div>
           <Button type="submit" size="sm" variant="outline">
             <Plus size={14} />
@@ -180,28 +214,99 @@ export default function AcademySettingPage() {
         ) : (
           <div className="space-y-2">
             {coupons.map((c) => (
-              <div key={c.id} className="flex items-center justify-between p-3 bg-zinc-50 rounded-lg border border-zinc-100">
-                <div>
-                  <p className="text-sm font-medium text-zinc-800">{c.name}</p>
-                  <p className="text-xs text-zinc-500">
-                    {c.discount_type === 'percent'
-                      ? `${c.discount_amount}% 할인`
-                      : `${Number(c.discount_amount).toLocaleString()}원 할인`}
-                  </p>
-                  {c.expires_at && (
-                    <p className="text-xs text-zinc-400">
-                      만료: {formatDate(c.expires_at)}
+              <div key={c.id}>
+                <div className="flex items-start justify-between p-3 bg-zinc-50 rounded-lg border border-zinc-100">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-medium text-zinc-800">{c.name}</p>
+                      {c.award_condition && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-50 border border-amber-200 rounded text-xs text-amber-700 font-medium">
+                          <GraduationCap size={11} />
+                          장학금
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-zinc-500 mt-0.5">
+                      {c.discount_type === 'percent'
+                        ? `${c.discount_amount}% 할인`
+                        : `${Number(c.discount_amount).toLocaleString()}원 할인`}
                     </p>
-                  )}
+                    {c.award_condition && (
+                      <p className="text-xs text-amber-600 mt-0.5">조건: {c.award_condition}</p>
+                    )}
+                    {c.expires_at && (
+                      <p className="text-xs text-zinc-400 mt-0.5">
+                        만료: {formatDate(c.expires_at)}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 ml-2 flex-shrink-0">
+                    {c.award_condition && (
+                      c.awarded_to ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-lg font-medium">
+                          <UserCheck size={13} />
+                          수여 완료
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setAwardTargetId(awardTargetId === c.id ? null : c.id)}
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors font-medium"
+                        >
+                          <GraduationCap size={13} />
+                          수여
+                        </button>
+                      )
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteCoupon(c.id)}
+                      aria-label="쿠폰 삭제"
+                      className="p-1.5 rounded-lg hover:bg-red-50 text-zinc-400 hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteCoupon(c.id)}
-                  aria-label="쿠폰 삭제"
-                  className="p-1.5 rounded-lg hover:bg-red-50 text-zinc-400 hover:text-red-600 transition-colors"
-                >
-                  <Trash2 size={15} />
-                </button>
+
+                {/* Inline student selector */}
+                {awardTargetId === c.id && (
+                  <div className="mt-1 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs font-medium text-amber-800">장학금 수여할 학생 선택</p>
+                      <button
+                        type="button"
+                        onClick={() => setAwardTargetId(null)}
+                        aria-label="닫기"
+                        className="text-amber-600 hover:text-amber-800 transition-colors"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                    {members.length === 0 ? (
+                      <p className="text-xs text-amber-600">등록된 학생이 없습니다.</p>
+                    ) : (
+                      <div className="space-y-1 max-h-48 overflow-y-auto">
+                        {members.map((student) => (
+                          <button
+                            key={student.id}
+                            type="button"
+                            onClick={() => handleAwardCoupon(c.id, student.id)}
+                            className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg bg-white border border-amber-100 hover:border-amber-300 hover:bg-amber-50 transition-colors text-left"
+                          >
+                            <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-semibold text-xs flex-shrink-0">
+                              {student.name?.charAt(0) || '?'}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-medium text-zinc-800 truncate">{student.name}</p>
+                              <p className="text-xs text-zinc-400 truncate">{student.email}</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>

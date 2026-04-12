@@ -36,7 +36,7 @@ export function Dialog() {
           {title && (
             <h3 className="text-base font-bold text-zinc-900 mb-2">{title}</h3>
           )}
-          <p className="text-sm text-zinc-600 leading-relaxed">{message}</p>
+          <p className="text-sm text-zinc-600 leading-relaxed whitespace-pre-line">{message}</p>
         </div>
 
         <div className={`px-6 pb-6 flex gap-3 ${type === 'alert' ? 'justify-center' : 'justify-end'}`}>

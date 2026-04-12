@@ -60,8 +60,8 @@ export const getChurnRisk = async (academy_id) => {
   return dashboardRepository.findChurnRiskStudents(academy_id)
 }
 
-export const getLectureStats = async (academy_id) => {
-  return dashboardRepository.findLectureStats(academy_id)
+export const getLectureStats = async (academy_id, filters = {}) => {
+  return dashboardRepository.findLectureStats(academy_id, filters)
 }
 
 export const getTeacherDashboard = async ({ teacherId, academyId }) => {

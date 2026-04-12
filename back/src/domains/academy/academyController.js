@@ -146,3 +146,25 @@ export const deleteCoupon = async (req, res, next) => {
     next(err)
   }
 }
+
+export const awardCoupon = async (req, res, next) => {
+  try {
+    const coupon = await academyService.awardCoupon({
+      operatorId: req.user.id,
+      couponId: req.params.id,
+      studentId: req.body.studentId,
+    })
+    return successResponse(res, coupon, '장학금이 수여되었습니다')
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const getMyScholarships = async (req, res, next) => {
+  try {
+    const coupons = await academyService.getMyScholarships(req.user.id)
+    return successResponse(res, coupons)
+  } catch (err) {
+    next(err)
+  }
+}
