@@ -35,6 +35,7 @@ export default function WeakPointPage() {
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
             options={subjectOptions}
+            placeholder=""
             disabled={isSubjectLoading}
           />
           <Button variant="outline" size="sm" onClick={refresh}>
