@@ -87,6 +87,17 @@ export const uploadLecture = async ({ file, materialFiles, body, user }) => {
     scheduled_at,
   })
 
+  // 2-1. 업로드된 오디오를 강의자료로 자동 등록
+  if (audio_url && file) {
+    await lectureRepository.createMaterial({
+      lecture_id: lecture.id,
+      teacher_id: user.id,
+      title: `[강의녹음] ${title}`,
+      file_url: audio_url,
+      file_type: file.mimetype,
+    })
+  }
+
   // 3. 백그라운드 처리 (비동기 - 응답을 기다리지 않음)
   processLecture(lecture, file).catch(async (err) => {
     logger.error(`강의 처리 실패 [${lecture.id}]:`, err.message)
