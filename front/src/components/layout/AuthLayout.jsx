@@ -1,5 +1,6 @@
 import { Outlet, Link } from 'react-router-dom'
 import { ToastContainer } from '../ui/Toast.jsx'
+import { AlertContainer } from '../ui/Alert.jsx'
 
 export function AuthLayout() {
   return (
@@ -38,6 +39,7 @@ export function AuthLayout() {
         </div>
       </div>
       <ToastContainer />
+      <AlertContainer />
     </div>
   )
 }

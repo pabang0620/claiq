@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar.jsx'
 import { Header } from './Header.jsx'
 import { ToastContainer } from '../ui/Toast.jsx'
+import { AlertContainer } from '../ui/Alert.jsx'
 import { Dialog } from '../ui/Dialog.jsx'
 import { useUIStore } from '../../store/uiStore.js'
 
@@ -52,6 +53,7 @@ export function AppLayout() {
       </div>
 
       <ToastContainer />
+      <AlertContainer />
       <Dialog />
     </div>
   )
