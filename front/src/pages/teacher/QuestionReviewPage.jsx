@@ -101,6 +101,7 @@ export default function QuestionReviewPage() {
                 question={q}
                 onReview={handleReview}
                 isLoading={reviewingId === q.id}
+                status={activeTab}
               />
             ))}
           </div>

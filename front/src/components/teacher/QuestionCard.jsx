@@ -9,7 +9,7 @@ import { useUIStore } from '../../store/uiStore.js'
 const DIFFICULTY_COLOR = { A: 'danger', B: 'warning', C: 'success' }
 const DIFFICULTY_LABEL = { A: '상', B: '중', C: '하' }
 
-export function QuestionCard({ question, onReview, isLoading = false }) {
+export function QuestionCard({ question, onReview, isLoading = false, status = 'pending' }) {
   const [isEditing, setIsEditing] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [editContent, setEditContent] = useState(question.content || '')
@@ -172,7 +172,7 @@ export function QuestionCard({ question, onReview, isLoading = false }) {
       </div>
 
       {/* Actions */}
-      {!isEditing && (
+      {!isEditing && status === 'pending' && (
         <div className="px-5 py-3 bg-zinc-50 border-t border-zinc-100 flex items-center gap-2">
           <Button
             size="sm"
