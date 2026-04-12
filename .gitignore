@@ -30,6 +30,7 @@ Thumbs.db
 
 # Competition/personal documents (not for repo)
 *.pdf
+!back/tests/fixtures/*.pdf
 *.docx
 *.pdf:Zone.Identifier
 *.docx:Zone.Identifier
