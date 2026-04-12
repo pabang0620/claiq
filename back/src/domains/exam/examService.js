@@ -14,7 +14,7 @@ const suneungTypes = JSON.parse(
   readFileSync(join(__dirname, '../../data/suneung_types.json'), 'utf-8')
 )
 
-export const generateStudentExam = async ({ studentId, academyId, subjectId, area }) => {
+export const generateStudentExam = async ({ studentId, academyId, subjectId, area, lectureIds = [] }) => {
   // academy_id가 없으면 학생 소속 학원 자동 조회
   let resolvedAcademyId = academyId
   if (!resolvedAcademyId) {
@@ -44,6 +44,24 @@ export const generateStudentExam = async ({ studentId, academyId, subjectId, are
     }
   }
 
+  // lectureIds가 주어졌고 resolvedSubjectId가 없으면 강의에서 subject_id 자동 조회
+  if (lectureIds.length > 0 && !resolvedSubjectId) {
+    const { rows } = await pool.query(
+      `SELECT subject_id FROM lectures WHERE id = $1 AND deleted_at IS NULL LIMIT 1`,
+      [lectureIds[0]]
+    )
+    if (rows.length > 0) resolvedSubjectId = rows[0].subject_id
+  }
+
+  // area가 없고 resolvedSubjectId가 있으면 subject에서 area 자동 조회
+  if (!area && resolvedSubjectId) {
+    const { rows } = await pool.query(
+      `SELECT area FROM subjects WHERE id = $1`,
+      [resolvedSubjectId]
+    )
+    if (rows.length > 0) area = rows[0].area
+  }
+
   // 취약 유형 조회
   const typeStats = await questionRepository.findTypeStats(studentId, resolvedAcademyId)
   const weakTypes = typeStats.filter((s) => s.subject_area === area || !area)
@@ -56,9 +74,17 @@ export const generateStudentExam = async ({ studentId, academyId, subjectId, are
     type_name: info.name,
   }))
 
-  // 최근 강의 청크 가져오기 (resolvedSubjectId가 있으면 과목 필터 적용)
+  // 최근 강의 청크 가져오기
   let recentLectures
-  if (resolvedAcademyId && resolvedSubjectId) {
+  if (lectureIds.length > 0) {
+    // 선택된 강의들만 사용 (처리 완료된 것만 필터)
+    const placeholders = lectureIds.map((_, i) => `$${i + 1}`).join(', ')
+    const result = await pool.query(
+      `SELECT id FROM lectures WHERE id IN (${placeholders}) AND processing_status = 'done' AND deleted_at IS NULL`,
+      lectureIds
+    )
+    recentLectures = result.rows
+  } else if (resolvedAcademyId && resolvedSubjectId) {
     const result = await pool.query(
       `SELECT id FROM lectures
        WHERE academy_id = $1 AND subject_id = $2 AND processing_status = 'done' AND deleted_at IS NULL

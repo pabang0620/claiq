@@ -3,12 +3,13 @@ import { successResponse } from '../../utils/response.js'
 
 export const generateExam = async (req, res, next) => {
   try {
-    const { academy_id, subject_id, area } = req.body
+    const { academy_id, subject_id, area, lecture_ids } = req.body
     const exam = await examService.generateStudentExam({
       studentId: req.user.id,
       academyId: academy_id,
       subjectId: subject_id,
       area,
+      lectureIds: lecture_ids,
     })
     return successResponse(res, exam, '모의고사가 생성되었습니다', 201)
   } catch (err) {

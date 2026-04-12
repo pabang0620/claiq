@@ -7,6 +7,144 @@ import { ProgressBar } from '../../components/ui/ProgressBar.jsx'
 import { PageSpinner } from '../../components/ui/Spinner.jsx'
 import { useExamStore } from '../../store/examStore.js'
 import { useUIStore } from '../../store/uiStore.js'
+import { lectureApi } from '../../api/lecture.api.js'
+import { formatDate } from '../../utils/formatDate.js'
+
+const MAX_SELECT = 4
+
+function LectureSelectView({ onStart }) {
+  const [lectures, setLectures] = useState([])
+  const [isFetching, setIsFetching] = useState(false)
+  const [fetchError, setFetchError] = useState(null)
+  const [selected, setSelected] = useState([])
+
+  useEffect(() => {
+    const ac = new AbortController()
+    const load = async () => {
+      setIsFetching(true)
+      setFetchError(null)
+      try {
+        const res = await lectureApi.getList({ limit: 20 })
+        const all = Array.isArray(res.data) ? res.data : []
+        setLectures(all.filter((l) => l.processing_status === 'done'))
+      } catch (err) {
+        if (!ac.signal.aborted) {
+          setFetchError(err?.message || '강의 목록을 불러오지 못했습니다.')
+        }
+      } finally {
+        if (!ac.signal.aborted) setIsFetching(false)
+      }
+    }
+    load()
+    return () => ac.abort()
+  }, [])
+
+  function toggleLecture(id) {
+    setSelected((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id)
+      if (prev.length >= MAX_SELECT) return prev
+      return [...prev, id]
+    })
+  }
+
+  if (isFetching) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <PageSpinner />
+        <p className="text-sm text-zinc-500">강의 목록을 불러오는 중...</p>
+      </div>
+    )
+  }
+
+  if (fetchError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-64 gap-4">
+        <p className="text-red-500 text-sm">{fetchError}</p>
+        <Button onClick={() => setFetchError(null)}>다시 시도</Button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-xl font-bold text-zinc-900">미니 모의고사</h1>
+        <p className="text-sm text-zinc-500 mt-1">
+          문제를 출제할 강의를 선택하세요 (최대 {MAX_SELECT}개)
+        </p>
+      </div>
+
+      {lectures.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 gap-3">
+          <p className="text-zinc-500 text-sm">출제 가능한 강의가 없습니다.</p>
+          <p className="text-zinc-400 text-xs">강의 처리가 완료된 후 다시 시도해 주세요.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {lectures.map((lecture) => {
+            const isSelected = selected.includes(lecture.id)
+            const isDisabled = !isSelected && selected.length >= MAX_SELECT
+
+            return (
+              <div
+                key={lecture.id}
+                role="checkbox"
+                aria-checked={isSelected}
+                aria-disabled={isDisabled}
+                tabIndex={isDisabled ? -1 : 0}
+                className={[
+                  'flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all',
+                  isSelected
+                    ? 'border-primary-500 bg-primary-50'
+                    : 'border-zinc-200 bg-white hover:border-zinc-300',
+                  isDisabled && 'opacity-40 cursor-not-allowed',
+                ].join(' ')}
+                onClick={() => !isDisabled && toggleLecture(lecture.id)}
+                onKeyDown={(e) => {
+                  if ((e.key === 'Enter' || e.key === ' ') && !isDisabled) {
+                    e.preventDefault()
+                    toggleLecture(lecture.id)
+                  }
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  disabled={isDisabled}
+                  onChange={() => {}}
+                  className="mt-0.5 accent-primary-600 w-4 h-4 flex-shrink-0"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                />
+                <div className="min-w-0">
+                  <p className="font-medium text-sm text-zinc-800 truncate">{lecture.title}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">
+                    {lecture.subject_name}
+                    {lecture.subject_name && ' · '}
+                    {formatDate(lecture.created_at)}
+                  </p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {lectures.length > 0 && (
+        <div className="flex items-center justify-between pt-2">
+          <span className="text-xs text-zinc-400">
+            {selected.length === 0
+              ? '강의를 1개 이상 선택해 주세요'
+              : `${selected.length}개 선택됨`}
+          </span>
+          <Button disabled={selected.length === 0} onClick={() => onStart(selected)}>
+            시험 시작
+          </Button>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function MiniExamPage() {
   const navigate = useNavigate()
@@ -22,14 +160,16 @@ export default function MiniExamPage() {
     if (isSubmitted) resetExam()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    if (!currentExam && !isGenerating && !hasError) {
-      generateExam().catch((err) => {
-        setHasError(true)
-        addToast({ type: 'error', message: err?.message || '모의고사 생성에 실패했습니다.' })
-      })
+  async function handleStart(lectureIds) {
+    setHasError(false)
+    setCurrentIndex(0)
+    try {
+      await generateExam(lectureIds)
+    } catch (err) {
+      setHasError(true)
+      addToast({ type: 'error', message: err?.message || '모의고사 생성에 실패했습니다.' })
     }
-  }, [currentExam, isGenerating, hasError, generateExam, addToast])
+  }
 
   async function handleNewExam() {
     const ok = await showConfirm('현재 풀던 문제는 사라집니다.\n새로운 문제를 생성할까요?', {
@@ -39,10 +179,7 @@ export default function MiniExamPage() {
     if (!ok) return
     setCurrentIndex(0)
     setHasError(false)
-    generateExam().catch((err) => {
-      setHasError(true)
-      addToast({ type: 'error', message: err?.message || '모의고사 생성에 실패했습니다.' })
-    })
+    resetExam()
   }
 
   async function handleSubmit(isAutoSubmit = false) {
@@ -59,6 +196,12 @@ export default function MiniExamPage() {
     }
   }
 
+  // 강의 선택 화면
+  if (!currentExam && !isGenerating && !hasError) {
+    return <LectureSelectView onStart={handleStart} />
+  }
+
+  // 생성 중 로딩
   if (isGenerating || (!currentExam && !hasError)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
@@ -81,9 +224,10 @@ export default function MiniExamPage() {
         <Button
           onClick={() => {
             setHasError(false)
+            resetExam()
           }}
         >
-          다시 시도
+          강의 다시 선택
         </Button>
       </div>
     )

@@ -12,11 +12,14 @@ export const useExamStore = create((set, get) => ({
   isGenerating: false,
   error: null,
 
-  generateExam: async () => {
+  generateExam: async (lectureIds = []) => {
     set({ isGenerating: true, error: null, answers: {}, isSubmitted: false, report: null })
     try {
       const academy = useAcademyStore.getState().academy
-      const body = academy?.id ? { academy_id: academy.id } : {}
+      const body = {
+        ...(academy?.id ? { academy_id: academy.id } : {}),
+        ...(lectureIds.length > 0 ? { lecture_ids: lectureIds } : {}),
+      }
       const data = await api.post('/exams/generate', body, { timeout: 120000 })
       const exam = data.data
       set({
