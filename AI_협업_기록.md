@@ -529,3 +529,43 @@ https://claiq.vercel.app (프론트), https://claiq.onrender.com (백엔드) 배
 - CLAIQ 전용 버그 5건 수정
 - 데모 계정 통일 및 직관화 완료
 - 공모전 제출 준비 완료 (버그 제로 상태)
+
+---
+
+## 학원 장학금 쿠폰 기능 + 운영 버그 수정 - 2026-04-13
+
+### 작업 배경
+기능 테스트 중 발견된 5개 운영 버그를 수정하고, 학생 동기부여를 위한 "학원 장학금 쿠폰" 기능을 추가했다. 기존 쿠폰 시스템을 확장하되 새 테이블 없이 컬럼 2개 추가만으로 구현했다.
+
+### AI와 함께 한 것
+
+**버그 수정 (5건)**
+- Supabase Transaction Mode pooler(port 6543) 호환 문제: `SET search_path`가 트랜잭션 간 미유지 → `pool.query` 전체 오버라이드로 매 쿼리마다 search_path 설정 주입
+- 로그인 실패 시 페이지 새로고침 현상: axios 401 인터셉터가 `/auth/login` 응답에도 token refresh 시도 → `isAuthEndpoint` 가드 추가
+- 강의 통계 데이터 미표시: 컨트롤러가 `req.query.academy_id`(프론트 미전송)를 직접 사용 → `resolveAcademyId(req.query.academy_id, req.user.id)` 패턴 적용
+- 평균 정답률 NaN 표시: 제출 데이터 없을 때 SQL AVG()가 NULL 반환 → `COALESCE(..., 0)` + 프론트 `parseFloat() || 0` 이중 방어
+- 학원 소개(description) 저장 안됨: `academies` 테이블에 `description` 컬럼 자체 미존재 → migration 016 + repository updateAcademy에 필드 추가
+- 이탈위험 필터 미적용: 전체 데이터를 `sorted`로 테이블에 전달 → 필터 기준에 따른 `filtered` 배열 분리 (클라이언트 사이드)
+
+**장학금 쿠폰 기능 설계 및 구현**
+- 기획 방향 결정: "쿠폰을 구매하는 게 아니라 수상하는 것" → 운영자가 조건(예: 모의고사 10등 이내)을 설정하고 학생에게 수여
+- 아키텍처 결정: 기존 `academy_coupons` 테이블 확장 (컬럼 2개 추가) vs 별도 테이블 → 단순성 우선으로 확장 방식 선택
+- planner 에이전트로 9단계 구현 계획 수립 (DB → Repository → Service → Controller → Routes → API Client → 운영자 UI → 학생 페이지 → 라우트/사이드바)
+- express-engineer + react-specialist 병렬 실행으로 백엔드·프론트 동시 구현
+
+### 핵심 결정 및 근거
+
+1. **기존 테이블 확장 방식**: `award_condition TEXT`, `awarded_to UUID` 컬럼만 추가. 쿠폰 1개 = 학생 1명(1:1). 향후 1:N 필요 시 별도 매핑 테이블로 마이그레이션 가능. 현재 요구사항에는 1:1이 적합.
+
+2. **수동 수여 방식**: 자동 조건 판별(모의고사 순위 자동 감지) 대신 운영자가 직접 수여. 개발 복잡도↓, 운영자 재량권↑. 조건은 텍스트로만 저장해 형식 자유도 확보.
+
+3. **Supabase Transaction Mode 해결**: `pool.on('connect')` 이벤트 기반 search_path 설정은 async race condition으로 불신뢰 → pg-pool의 `query` 메서드 자체를 오버라이드해 매 쿼리마다 client.connect() → SET search_path → query → release 순서 강제.
+
+### 결과
+
+- 버그 5건 수정 (서버 내부 오류 → 정상 동작)
+- 장학금 쿠폰 기능 완성:
+  - 운영자: 쿠폰 생성 시 장학 조건 입력 + 학생 수여 UI (인라인 드롭다운)
+  - 학생: `/student/scholarships` 페이지에서 수여받은 장학금 확인
+  - DB: migration 016(description), 017(award_condition, awarded_to) 적용
+- 전체 변경 파일 23개, 커밋 및 원격 푸시 완료

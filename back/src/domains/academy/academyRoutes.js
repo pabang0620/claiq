@@ -21,6 +21,7 @@ const updateSchema = z.object({
   name: z.string().min(1).max(200).optional(),
   address: z.string().optional(),
   suneung_date: z.string().optional(),
+  description: z.string().optional(),
 })
 
 const inviteSchema = z.object({

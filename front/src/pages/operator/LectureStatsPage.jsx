@@ -65,12 +65,14 @@ export default function LectureStatsPage() {
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             options={SUBJECT_OPTIONS}
+            placeholder=""
           />
           <Select
             id="period"
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
             options={PERIOD_OPTIONS}
+            placeholder=""
           />
         </div>
       </div>

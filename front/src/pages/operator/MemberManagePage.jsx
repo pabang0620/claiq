@@ -58,11 +58,11 @@ export default function MemberManagePage() {
     setIsInviting(true)
     try {
       await academyApi.invite(inviteForm)
-      addToast({ type: 'success', message: `${inviteForm.email}로 초대 이메일을 발송했습니다.` })
+      addToast({ type: 'success', message: `${inviteForm.email} 멤버가 추가됐습니다.` })
       setShowInviteModal(false)
       setInviteForm({ email: '', role: ROLES.STUDENT })
     } catch (err) {
-      addToast({ type: 'error', message: err?.message || '초대에 실패했습니다.' })
+      addToast({ type: 'error', message: err?.message || '멤버 추가에 실패했습니다.' })
     } finally {
       setIsInviting(false)
     }
@@ -85,11 +85,11 @@ export default function MemberManagePage() {
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900">멤버 관리</h1>
-          <p className="text-zinc-500 text-sm mt-1">학원 멤버를 초대하고 관리합니다.</p>
+          <p className="text-zinc-500 text-sm mt-1">학원 멤버를 추가하고 관리합니다.</p>
         </div>
         <Button onClick={() => setShowInviteModal(true)}>
           <UserPlus size={14} />
-          멤버 초대
+          멤버 추가
         </Button>
       </div>
 
@@ -155,7 +155,7 @@ export default function MemberManagePage() {
       <Modal
         isOpen={showInviteModal}
         onClose={() => setShowInviteModal(false)}
-        title="멤버 초대"
+        title="멤버 추가"
         size="sm"
         footer={
           <>
@@ -163,7 +163,7 @@ export default function MemberManagePage() {
               취소
             </Button>
             <Button form="invite-form" type="submit" loading={isInviting}>
-              초대 이메일 발송
+              멤버 추가
             </Button>
           </>
         }
@@ -173,7 +173,7 @@ export default function MemberManagePage() {
             id="invite-email"
             label="이메일"
             type="email"
-            placeholder="초대할 이메일을 입력하세요"
+            placeholder="추가할 멤버의 이메일을 입력하세요"
             value={inviteForm.email}
             onChange={(e) => setInviteForm((p) => ({ ...p, email: e.target.value }))}
             required
@@ -186,7 +186,7 @@ export default function MemberManagePage() {
             options={ROLE_OPTIONS}
           />
           <p className="text-xs text-zinc-400">
-            초대 링크가 포함된 이메일이 발송됩니다.
+            CLAIQ에 가입된 계정만 추가할 수 있습니다.
           </p>
         </form>
       </Modal>

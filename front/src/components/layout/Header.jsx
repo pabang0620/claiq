@@ -1,4 +1,4 @@
-import { Menu, Bell, LogOut, ChevronRight } from 'lucide-react'
+import { Menu, LogOut, ChevronRight } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { useUIStore } from '../../store/uiStore.js'
 import { useAuth } from '../../hooks/useAuth.js'
@@ -32,13 +32,6 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-2">
-        <button
-          aria-label="알림"
-          className="p-2 rounded-lg hover:bg-zinc-100 text-zinc-500 transition-colors relative"
-        >
-          <Bell size={20} />
-        </button>
-
         <div className="flex items-center gap-2 pl-2 border-l border-zinc-200">
           <Avatar name={user?.name} size="sm" />
           {user && (

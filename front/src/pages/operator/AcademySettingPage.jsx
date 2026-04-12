@@ -104,12 +104,13 @@ export default function AcademySettingPage() {
   if (isLoading) return <PageSpinner />
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-zinc-900">학원 설정</h1>
         <p className="text-zinc-500 text-sm mt-1">학원 기본 정보와 쿠폰 정책을 관리합니다.</p>
       </div>
 
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
       {/* Academy info */}
       <Card title="학원 기본 정보">
         <form onSubmit={handleSaveAcademy} className="space-y-4">
@@ -212,48 +213,44 @@ export default function AcademySettingPage() {
             <p className="text-sm">생성된 쿠폰이 없습니다.</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
             {coupons.map((c) => (
               <div key={c.id}>
-                <div className="flex items-start justify-between p-3 bg-zinc-50 rounded-lg border border-zinc-100">
+                <div className="flex items-center justify-between px-2.5 py-1.5 bg-zinc-50 rounded-lg border border-zinc-100">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-medium text-zinc-800">{c.name}</p>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <p className="text-xs font-medium text-zinc-800">{c.name}</p>
                       {c.award_condition && (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-50 border border-amber-200 rounded text-xs text-amber-700 font-medium">
-                          <GraduationCap size={11} />
+                        <span className="inline-flex items-center gap-0.5 px-1 py-0.5 bg-amber-50 border border-amber-200 rounded text-xs text-amber-700 font-medium">
+                          <GraduationCap size={10} />
                           장학금
                         </span>
                       )}
+                      <span className="text-xs text-zinc-400">
+                        {c.discount_type === 'percent'
+                          ? `${c.discount_amount}%`
+                          : `${Number(c.discount_amount).toLocaleString()}원`}
+                        {c.expires_at && ` · ${formatDate(c.expires_at)}`}
+                      </span>
                     </div>
-                    <p className="text-xs text-zinc-500 mt-0.5">
-                      {c.discount_type === 'percent'
-                        ? `${c.discount_amount}% 할인`
-                        : `${Number(c.discount_amount).toLocaleString()}원 할인`}
-                    </p>
                     {c.award_condition && (
-                      <p className="text-xs text-amber-600 mt-0.5">조건: {c.award_condition}</p>
-                    )}
-                    {c.expires_at && (
-                      <p className="text-xs text-zinc-400 mt-0.5">
-                        만료: {formatDate(c.expires_at)}
-                      </p>
+                      <p className="text-xs text-amber-600 truncate">조건: {c.award_condition}</p>
                     )}
                   </div>
                   <div className="flex items-center gap-1 ml-2 flex-shrink-0">
                     {c.award_condition && (
                       c.awarded_to ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-lg font-medium">
-                          <UserCheck size={13} />
-                          수여 완료
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 rounded font-medium">
+                          <UserCheck size={11} />
+                          수여완료
                         </span>
                       ) : (
                         <button
                           type="button"
                           onClick={() => setAwardTargetId(awardTargetId === c.id ? null : c.id)}
-                          className="inline-flex items-center gap-1 px-2 py-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors font-medium"
+                          className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded hover:bg-amber-100 transition-colors font-medium"
                         >
-                          <GraduationCap size={13} />
+                          <GraduationCap size={11} />
                           수여
                         </button>
                       )
@@ -262,9 +259,9 @@ export default function AcademySettingPage() {
                       type="button"
                       onClick={() => handleDeleteCoupon(c.id)}
                       aria-label="쿠폰 삭제"
-                      className="p-1.5 rounded-lg hover:bg-red-50 text-zinc-400 hover:text-red-600 transition-colors"
+                      className="p-1 rounded hover:bg-red-50 text-zinc-400 hover:text-red-600 transition-colors"
                     >
-                      <Trash2 size={15} />
+                      <Trash2 size={13} />
                     </button>
                   </div>
                 </div>
@@ -312,6 +309,7 @@ export default function AcademySettingPage() {
           </div>
         )}
       </Card>
+      </div>
     </div>
   )
 }

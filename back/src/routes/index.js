@@ -16,6 +16,7 @@ import { authMiddleware } from '../middleware/authMiddleware.js'
 import { requireRole } from '../middleware/roleMiddleware.js'
 import * as lectureService from '../domains/lecture/lectureService.js'
 import { successResponse } from '../utils/response.js'
+import { pool } from '../config/db.js'
 
 const router = Router()
 
@@ -34,6 +35,18 @@ router.use('/dashboard', dashboardRoutes)
 
 // 학생 타입 통계 (별도 경로)
 router.get('/students/me/type-stats', authMiddleware, getTypeStats)
+
+// 과목 목록 조회 (강의 업로드 시 UUID 선택용)
+router.get('/subjects', async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, code, name FROM subjects ORDER BY name`
+    )
+    return successResponse(res, rows)
+  } catch (err) {
+    next(err)
+  }
+})
 
 // 수강생용: 내 강의 자료 목록
 router.get('/materials/me', authMiddleware, requireRole('student'), async (req, res, next) => {
