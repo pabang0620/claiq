@@ -163,7 +163,7 @@ export default function LectureMaterialPage() {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".pdf,.pptx,.docx,.jpg,.jpeg,.png"
+            accept=".pdf,.pptx,.ppt,.docx,.doc,.jpg,.jpeg,.png,.webp,.gif"
             onChange={handleUpload}
             className="sr-only"
             aria-hidden="true"

@@ -15,11 +15,22 @@ const audioFilter = (req, file, cb) => {
 }
 
 const materialFilter = (req, file, cb) => {
-  const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
+  const allowed = [
+    'application/pdf',
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp',
+    'image/gif',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation', // pptx
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',   // docx
+    'application/vnd.ms-powerpoint', // ppt
+    'application/msword',            // doc
+  ]
   if (allowed.includes(file.mimetype)) {
     cb(null, true)
   } else {
-    const err = new Error('허용되지 않는 파일 형식입니다 (PDF, JPG, PNG만 가능)')
+    const err = new Error('허용되지 않는 파일 형식입니다 (PDF, 이미지, PPT, Word만 가능)')
     err.status = 400
     cb(err, false)
   }
@@ -41,7 +52,12 @@ export const uploadMaterial = multer({
 // 파일 타입 검증 없이 사용하지 않는다.
 const ALLOWED_ANY = new Set([
   'audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/m4a', 'audio/webm', 'audio/ogg',
-  'application/pdf', 'image/jpeg', 'image/png', 'image/webp',
+  'application/pdf',
+  'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-powerpoint',
+  'application/msword',
 ])
 const anyFilter = (req, file, cb) => {
   if (ALLOWED_ANY.has(file.mimetype)) {

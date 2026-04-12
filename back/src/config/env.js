@@ -29,7 +29,7 @@ export const env = {
     url: required('SUPABASE_URL', 'https://placeholder.supabase.co'),
     serviceRoleKey: required('SUPABASE_SERVICE_ROLE_KEY', 'placeholder'),
     bucketAudio: process.env.SUPABASE_STORAGE_BUCKET_AUDIO || 'claiq-audio',
-    bucketMaterial: process.env.SUPABASE_STORAGE_BUCKET_MATERIAL || 'claiq-material',
+    bucketMaterial: process.env.SUPABASE_STORAGE_BUCKET_MATERIAL || process.env.SUPABASE_STORAGE_BUCKET_AUDIO || 'claiq-audio',
   },
 
   jwt: {
