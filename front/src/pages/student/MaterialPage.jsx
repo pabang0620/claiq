@@ -48,15 +48,15 @@ export default function MaterialPage() {
                   <FileText size={20} className="text-primary-600" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-zinc-800 truncate">{m.name}</p>
-                  <p className="text-xs text-zinc-500 mt-0.5">{m.lectureName}</p>
-                  <p className="text-xs text-zinc-400 mt-1">{formatDate(m.createdAt)}</p>
+                  <p className="text-sm font-semibold text-zinc-800 truncate">{m.title}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">{m.lecture_title}</p>
+                  <p className="text-xs text-zinc-400 mt-1">{formatDate(m.created_at)}</p>
                 </div>
               </div>
-              {m.url && (
+              {m.file_url && (
                 <div className="flex gap-2 mt-3 pt-3 border-t border-zinc-100">
                   <a
-                    href={m.url}
+                    href={m.file_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 text-xs text-primary-600 hover:text-primary-800 font-medium"
@@ -65,7 +65,7 @@ export default function MaterialPage() {
                     열기
                   </a>
                   <a
-                    href={m.url}
+                    href={m.file_url}
                     download
                     className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-700 font-medium"
                   >
