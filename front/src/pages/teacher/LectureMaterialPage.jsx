@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
-import { Upload, FileText, Trash2, Download } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Upload, FileText, Trash2, Download, Plus } from 'lucide-react'
 import { Button } from '../../components/ui/Button.jsx'
 import { Select } from '../../components/ui/Select.jsx'
 import { PageSpinner } from '../../components/ui/Spinner.jsx'
@@ -13,7 +14,9 @@ export default function LectureMaterialPage() {
   const [selectedLecture, setSelectedLecture] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const fileInputRef = useRef(null)
+  const navigate = useNavigate()
   const addToast = useUIStore((s) => s.addToast)
   const showConfirm = useUIStore((s) => s.showConfirm)
 
@@ -72,6 +75,29 @@ export default function LectureMaterialPage() {
     }
   }
 
+  async function handleDeleteLecture() {
+    if (!selectedLecture) return
+    const lecture = lectures.find((l) => l.id === selectedLecture)
+    const ok = await showConfirm(
+      `"${lecture?.title}" 강의를 삭제하시겠습니까?\n강의와 관련된 자료, 문제가 모두 삭제됩니다.`,
+      { confirmLabel: '강의 삭제', danger: true }
+    )
+    if (!ok) return
+    setIsDeleting(true)
+    try {
+      await lectureApi.delete(selectedLecture)
+      const next = lectures.filter((l) => l.id !== selectedLecture)
+      setLectures(next)
+      setSelectedLecture(next.length > 0 ? next[0].id : '')
+      setMaterials([])
+      addToast({ type: 'success', message: '강의가 삭제됐습니다.' })
+    } catch (err) {
+      addToast({ type: 'error', message: err?.message || '강의 삭제에 실패했습니다.' })
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
   const lectureOptions = lectures.map((l) => ({ value: l.id, label: l.title }))
 
   return (
@@ -81,7 +107,7 @@ export default function LectureMaterialPage() {
           <h1 className="text-2xl font-bold text-zinc-900">강의 자료</h1>
           <p className="text-zinc-500 text-sm mt-1">강의별 정리 자료를 업로드하고 관리합니다.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-wrap">
           <Select
             id="lecture-select"
             value={selectedLecture}
@@ -89,6 +115,25 @@ export default function LectureMaterialPage() {
             options={lectureOptions}
             placeholder="강의 선택"
           />
+          <button
+            type="button"
+            onClick={handleDeleteLecture}
+            disabled={!selectedLecture || isDeleting}
+            aria-label="강의 삭제"
+            title="선택한 강의 삭제"
+            className="p-2 rounded-lg hover:bg-red-50 text-zinc-400 hover:text-red-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <Trash2 size={16} />
+          </button>
+          <div className="w-px h-5 bg-zinc-200 mx-1" />
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => navigate('/teacher/upload')}
+          >
+            <Plus size={14} />
+            강의 추가
+          </Button>
           <Button
             size="sm"
             onClick={() => fileInputRef.current?.click()}
