@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import api from '../api/axios.js'
+import { badgeApi } from '../api/badge.api.js'
 
 export const usePointStore = create((set) => ({
   balance: 0,
@@ -66,6 +67,18 @@ export const usePointStore = create((set) => ({
       const data = await api.post('/points/me/redeem', {})
       set({ balance: data.data?.remainingBalance ?? 0, isLoading: false })
       return { success: true }
+    } catch (err) {
+      set({ error: err.message, isLoading: false })
+      return { success: false, error: err.message }
+    }
+  },
+
+  claimAllCompleteReward: async () => {
+    set({ isLoading: true, error: null })
+    try {
+      const data = await badgeApi.claimAllCompleteReward()
+      set({ isLoading: false })
+      return { success: true, data: data.data }
     } catch (err) {
       set({ error: err.message, isLoading: false })
       return { success: false, error: err.message }

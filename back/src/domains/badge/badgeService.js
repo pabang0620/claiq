@@ -6,6 +6,46 @@ export const getMyBadges = async (userId) => {
   return badgeRepository.findUserBadges(userId)
 }
 
+const ALL_COMPLETE_REWARD_POINTS = 500
+
+export const claimAllCompleteReward = async ({ userId, academyId }) => {
+  const [totalBadges, userBadgeCount] = await Promise.all([
+    badgeRepository.countAllActiveBadges(),
+    badgeRepository.countUserBadges(userId),
+  ])
+
+  if (totalBadges === 0 || userBadgeCount < totalBadges) {
+    const err = new Error('아직 모든 뱃지를 획득하지 못했습니다.')
+    err.status = 400
+    throw err
+  }
+
+  const idempotencyKey = `badge_all_complete:${userId}`
+
+  // pointService.addPoints는 idempotencyKey가 이미 존재하면
+  // 새 지급 없이 기존 트랜잭션 레코드를 반환한다.
+  // created_at이 현재 시각과 다르면 이미 수령한 것으로 판단한다.
+  const transaction = await pointService.addPoints({
+    userId,
+    academyId,
+    type: 'badge_all_complete',
+    amount: ALL_COMPLETE_REWARD_POINTS,
+    idempotencyKey,
+    note: '모든 뱃지 달성 보상',
+  })
+
+  // addPoints 내부에서 idempotency 중복 시 기존 레코드를 반환한다.
+  // 트랜잭션 생성 시각과 현재 시각 비교로 신규/기존 수령 여부를 판단한다.
+  const createdAt = new Date(transaction.created_at)
+  const isAlreadyClaimed = Date.now() - createdAt.getTime() > 5000
+
+  return {
+    points: ALL_COMPLETE_REWARD_POINTS,
+    alreadyClaimed: isAlreadyClaimed,
+    message: isAlreadyClaimed ? '이미 보상을 받으셨습니다.' : '모든 뱃지 달성 보상!',
+  }
+}
+
 const fetchUserStats = async (userId) => {
   const [quizResult, streakResult, examResult, qaResult, attendanceResult] = await Promise.all([
     // 총 문제 풀이 수 및 정답률

@@ -38,6 +38,24 @@ export const findStreak = async (userId) => {
   return rows[0] || null
 }
 
+export const countAllActiveBadges = async () => {
+  const { rows } = await pool.query(
+    `SELECT COUNT(*) AS total FROM badge_definitions WHERE is_active = true`
+  )
+  return parseInt(rows[0]?.total || 0)
+}
+
+export const countUserBadges = async (userId) => {
+  const { rows } = await pool.query(
+    `SELECT COUNT(*) AS total
+     FROM user_badges ub
+     JOIN badge_definitions bd ON bd.id = ub.badge_id
+     WHERE ub.user_id = $1 AND bd.is_active = true`,
+    [userId]
+  )
+  return parseInt(rows[0]?.total || 0)
+}
+
 export const upsertStreak = async (userId, currentStreak, longestStreak, lastActiveDate) => {
   const { rows } = await pool.query(
     `INSERT INTO learning_streaks (user_id, current_streak, longest_streak, last_active_date)

@@ -1,15 +1,18 @@
-import { useEffect } from 'react'
-import { Flame } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Card } from '../../components/ui/Card.jsx'
 import { StreakBadge } from '../../components/student/StreakBadge.jsx'
 import { PageSpinner } from '../../components/ui/Spinner.jsx'
+import { Button } from '../../components/ui/Button.jsx'
 import { usePointStore } from '../../store/pointStore.js'
 import { BADGE_DEFINITIONS } from '../../constants/points.js'
 import { useUIStore } from '../../store/uiStore.js'
+import { badgeApi } from '../../api/badge.api.js'
 
 export default function BadgePage() {
   const { badges, streak, isLoading, fetchBadges, fetchStreak } = usePointStore()
   const addToast = useUIStore((s) => s.addToast)
+  const [isClaiming, setIsClaiming] = useState(false)
+  const [isClaimed, setIsClaimed] = useState(false)
 
   useEffect(() => {
     fetchBadges().catch((err) =>
@@ -19,6 +22,30 @@ export default function BadgePage() {
       addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' })
     )
   }, [fetchBadges, fetchStreak])
+
+  const handleClaimReward = async () => {
+    if (isClaiming || isClaimed) return
+    setIsClaiming(true)
+    try {
+      const res = await badgeApi.claimAllCompleteReward()
+      if (res?.data?.alreadyClaimed) {
+        addToast({ type: 'info', message: '이미 포인트를 수령했습니다.' })
+        setIsClaimed(true)
+      } else {
+        addToast({ type: 'success', message: '500 포인트를 받았습니다!' })
+        setIsClaimed(true)
+      }
+    } catch (err) {
+      if (err?.alreadyClaimed) {
+        addToast({ type: 'info', message: '이미 포인트를 수령했습니다.' })
+        setIsClaimed(true)
+      } else {
+        addToast({ type: 'error', message: err?.message || '포인트 수령에 실패했습니다.' })
+      }
+    } finally {
+      setIsClaiming(false)
+    }
+  }
 
   if (isLoading && !badges.length) return <PageSpinner />
 
@@ -96,6 +123,19 @@ export default function BadgePage() {
             ? '🎉 모든 뱃지를 획득했습니다! 대단해요!'
             : `아직 ${BADGE_DEFINITIONS.length - earnedIds.size}개 뱃지가 남았어요. 계속 학습해서 모아보세요!`}
         </p>
+        {earnedIds.size === BADGE_DEFINITIONS.length && (
+          <div className="mt-3">
+            <Button
+              variant="primary"
+              size="md"
+              disabled={isClaimed}
+              loading={isClaiming}
+              onClick={handleClaimReward}
+            >
+              {isClaimed ? '수령 완료' : '포인트 받기'}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )

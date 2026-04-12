@@ -7,4 +7,5 @@ export const pointApi = {
   getStreak: () => api.get('/points/me/streak'),
   redeem: () => api.post('/points/me/redeem', {}),
   getRewards: () => api.get('/points/rewards'),
+  claimAllBadgeReward: () => api.post('/badges/all-complete-reward'),
 }
