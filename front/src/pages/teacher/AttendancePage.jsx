@@ -10,8 +10,7 @@ import { formatDate } from '../../utils/formatDate.js'
 import { useAuthStore } from '../../store/authStore.js'
 
 const getKSTDateString = () => {
-  const kst = new Date(Date.now() + 9 * 60 * 60 * 1000)
-  return kst.toISOString().split('T')[0]
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date())
 }
 
 export default function AttendancePage() {
@@ -27,14 +26,14 @@ export default function AttendancePage() {
   // 날짜 바뀌면 해당 날짜 강의 목록 조회
   useEffect(() => {
     if (!academy?.id) return
-    lectureApi.getList({ teacher_id: user?.id, limit: 50 })
+    lectureApi.getList({ academy_id: academy.id, limit: 100 })
       .then((res) => {
         const list = res.data || []
         setLectures(list)
         setSelectedLectureId(list.length > 0 ? list[0].id : '')
       })
       .catch(() => setLectures([]))
-  }, [selectedDate, academy?.id, user?.id])
+  }, [selectedDate, academy?.id])
 
   // 강의 선택 시 출결 조회
   useEffect(() => {
