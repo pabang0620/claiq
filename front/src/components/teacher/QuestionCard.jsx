@@ -4,6 +4,7 @@ import { Button } from '../ui/Button.jsx'
 import { Badge } from '../ui/Badge.jsx'
 import { Textarea } from '../ui/Textarea.jsx'
 import { Input } from '../ui/Input.jsx'
+import { useUIStore } from '../../store/uiStore.js'
 
 const DIFFICULTY_COLOR = { A: 'danger', B: 'warning', C: 'success' }
 const DIFFICULTY_LABEL = { A: '상', B: '중', C: '하' }
@@ -14,16 +15,32 @@ export function QuestionCard({ question, onReview, isLoading = false }) {
   const [editContent, setEditContent] = useState(question.content || '')
   const [editOptions, setEditOptions] = useState(question.options || [])
   const [editExplanation, setEditExplanation] = useState(question.explanation || '')
+  const showConfirm = useUIStore((s) => s.showConfirm)
 
-  function handleApprove() {
+  async function handleApprove() {
+    const ok = await showConfirm(
+      '이 문제를 승인하시겠습니까?\n승인된 문제는 학생에게 출제됩니다.',
+      { confirmLabel: '승인' }
+    )
+    if (!ok) return
     onReview(question.id, 'approve')
   }
 
-  function handleReject() {
+  async function handleReject() {
+    const ok = await showConfirm(
+      '이 문제를 반려하시겠습니까?\n반려된 문제는 학생에게 출제되지 않습니다.',
+      { confirmLabel: '반려', danger: true }
+    )
+    if (!ok) return
     onReview(question.id, 'reject')
   }
 
-  function handleSaveEdit() {
+  async function handleSaveEdit() {
+    const ok = await showConfirm(
+      '수정 내용을 저장하고 승인하시겠습니까?\n승인된 문제는 학생에게 출제됩니다.',
+      { confirmLabel: '저장 및 승인' }
+    )
+    if (!ok) return
     onReview(question.id, 'edit', {
       content: editContent,
       options: editOptions,
