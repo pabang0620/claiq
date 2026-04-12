@@ -9,6 +9,7 @@ export function useAuth() {
   const { user, accessToken, isAuthenticated, isInitialized, setAuth, clearUser } =
     useAuthStore()
   const addToast = useUIStore((s) => s.addToast)
+  const showConfirm = useUIStore((s) => s.showConfirm)
   const navigate = useNavigate()
 
   const login = useCallback(
@@ -33,9 +34,12 @@ export function useAuth() {
     async (data) => {
       try {
         const res = await authApi.signup(data)
-        const { user: u, accessToken: token } = res.data
+        const { user: u, accessToken: token, academyCode } = res.data
         setAuth(u, token)
         addToast({ type: 'success', message: '회원가입이 완료됐습니다.' })
+        if (u.role === 'operator' && academyCode) {
+          addToast({ type: 'warning', message: `학원 코드: ${academyCode} — 수강생에게 공유하세요` })
+        }
         navigate(u.role === 'operator' ? getDashboardPath(u.role) : '/join-academy')
         return { success: true }
       } catch (err) {
@@ -48,6 +52,8 @@ export function useAuth() {
   )
 
   const logout = useCallback(async () => {
+    const ok = await showConfirm('로그아웃 하시겠습니까?', { confirmLabel: '로그아웃' })
+    if (!ok) return
     try {
       await authApi.logout()
     } catch {
@@ -56,7 +62,7 @@ export function useAuth() {
       clearUser()
       navigate('/login')
     }
-  }, [clearUser, navigate])
+  }, [showConfirm, clearUser, navigate])
 
   return {
     user,

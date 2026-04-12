@@ -30,10 +30,12 @@ export const signup = async ({ email, password, name, role, phone, academyName }
   const password_hash = await hashPassword(password)
   const user = await authRepository.createUser({ email, password_hash, name, role, phone })
 
+  let academyCode = null
   if (role === 'operator' && academyName) {
     const code = generateAcademyCode()
     const academy = await createAcademy({ name: academyName, code, owner_id: user.id })
     await addMember({ academy_id: academy.id, user_id: user.id, role: 'operator' })
+    academyCode = code
   }
 
   const accessToken = signAccessToken({ id: user.id, email: user.email, role: user.role })
@@ -41,7 +43,7 @@ export const signup = async ({ email, password, name, role, phone, academyName }
 
   await authRepository.saveRefreshToken(user.id, refreshToken, makeRefreshExpiry())
 
-  return { user, accessToken, refreshToken }
+  return { user, accessToken, refreshToken, academyCode }
 }
 
 export const login = async ({ email, password }) => {

@@ -3,9 +3,9 @@ import { successResponse, errorResponse } from '../../utils/response.js'
 
 export const signup = async (req, res, next) => {
   try {
-    const { user, accessToken, refreshToken } = await authService.signup(req.body)
+    const { user, accessToken, refreshToken, academyCode } = await authService.signup(req.body)
     res.cookie('refreshToken', refreshToken, authService.REFRESH_COOKIE_OPTIONS)
-    return successResponse(res, { user, accessToken }, '회원가입이 완료되었습니다', 201)
+    return successResponse(res, { user, accessToken, academyCode }, '회원가입이 완료되었습니다', 201)
   } catch (err) {
     next(err)
   }
