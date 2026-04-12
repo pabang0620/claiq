@@ -19,8 +19,6 @@ export default function WeakPointPage() {
     }
   }, [error])
 
-  const sorted = [...(weakTypes ?? [])].sort((a, b) => a.correctRate - b.correctRate)
-
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       <div className="flex items-start justify-between flex-wrap gap-3">
@@ -53,46 +51,7 @@ export default function WeakPointPage() {
             <WeakTypeChart data={weakTypes} subject={selectedSubject} />
           </Card>
 
-          {/* Ranking */}
-          {sorted.length > 0 && (
-            <Card title="취약 유형 순위" subtitle="정답률 낮은 순">
-              <div className="space-y-3">
-                {sorted.map((item, i) => {
-                  const pct = Math.round(item.correctRate * 100)
-                  return (
-                    <div key={item.typeCode} className="flex items-center gap-3">
-                      <span className="w-5 text-xs text-zinc-400 font-medium">{i + 1}</span>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium text-zinc-700">{item.typeName}</span>
-                          <span
-                            className={[
-                              'text-sm font-bold',
-                              pct < 50 ? 'text-red-600' : pct < 70 ? 'text-amber-600' : 'text-emerald-600',
-                            ].join(' ')}
-                          >
-                            {pct}%
-                          </span>
-                        </div>
-                        <div className="w-full bg-zinc-100 rounded-full h-1.5">
-                          <div
-                            className={[
-                              'h-1.5 rounded-full transition-all',
-                              pct < 50 ? 'bg-red-400' : pct < 70 ? 'bg-amber-400' : 'bg-emerald-400',
-                            ].join(' ')}
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                        <p className="text-xs text-zinc-400 mt-0.5">{item.totalAttempts}문제 풀이</p>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </Card>
-          )}
-
-          {sorted.length === 0 && (
+          {(weakTypes ?? []).length === 0 && (
             <div className="text-center py-12 bg-white rounded-xl border border-zinc-200 text-zinc-400">
               <p>아직 분석할 데이터가 없습니다.</p>
               <p className="text-sm mt-2">문제를 풀면 유형별 분석이 생성됩니다.</p>

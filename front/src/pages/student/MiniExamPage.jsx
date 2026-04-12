@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { QuizCard } from '../../components/student/QuizCard.jsx'
 import { QuizTimer } from '../../components/student/QuizTimer.jsx'
@@ -12,12 +12,15 @@ export default function MiniExamPage() {
   const navigate = useNavigate()
   const { currentExam, answers, isGenerating, isSubmitted, generateExam, setAnswer, submitExam, resetExam } = useExamStore()
   const addToast = useUIStore((s) => s.addToast)
+  const showConfirm = useUIStore((s) => s.showConfirm)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [confirmLeave, setConfirmLeave] = useState(false)
   const [hasError, setHasError] = useState(false)
-  const isSubmittedRef = useRef(isSubmitted)
-  isSubmittedRef.current = isSubmitted
+
+  // 마운트 시 제출 완료된 이전 시험 정리
+  useEffect(() => {
+    if (isSubmitted) resetExam()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!currentExam && !isGenerating && !hasError) {
@@ -28,11 +31,19 @@ export default function MiniExamPage() {
     }
   }, [currentExam, isGenerating, hasError, generateExam, addToast])
 
-  useEffect(() => {
-    return () => {
-      if (!isSubmittedRef.current) resetExam()
-    }
-  }, [resetExam])
+  async function handleNewExam() {
+    const ok = await showConfirm('현재 풀던 문제는 사라집니다.\n새로운 문제를 생성할까요?', {
+      confirmLabel: '새로 생성',
+      danger: false,
+    })
+    if (!ok) return
+    setCurrentIndex(0)
+    setHasError(false)
+    generateExam().catch((err) => {
+      setHasError(true)
+      addToast({ type: 'error', message: err?.message || '모의고사 생성에 실패했습니다.' })
+    })
+  }
 
   async function handleSubmit(isAutoSubmit = false) {
     if (isSubmitting) return
@@ -93,7 +104,22 @@ export default function MiniExamPage() {
           <h1 className="text-xl font-bold text-zinc-900">미니 모의고사</h1>
           <p className="text-zinc-500 text-sm">{questions.length}문항 · 20분</p>
         </div>
-        <QuizTimer onTimeUp={() => handleSubmit(true)} />
+        <div className="flex items-center gap-2">
+          {answeredCount > 0 && !isSubmitted && (
+            <span className="text-xs px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
+              이어풀기 중 ({answeredCount}/{questions.length})
+            </span>
+          )}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleNewExam}
+            disabled={isSubmitting}
+          >
+            새 문제 생성
+          </Button>
+          <QuizTimer onTimeUp={() => handleSubmit(true)} />
+        </div>
       </div>
 
       {/* Progress */}
