@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import api from '../api/axios.js'
 import { useAcademyStore } from './academyStore.js'
+import { TYPE_CODE_NAMES } from '../constants/questionTypes.js'
 
 export const useRoadmapStore = create((set) => ({
   roadmap: null,
@@ -43,7 +44,7 @@ export const useRoadmapStore = create((set) => ({
       const mapped = (data?.data ?? []).map((d) => ({
         ...d,
         typeCode: d.type_code ?? d.typeCode ?? '',
-        typeName: d.type_name ?? d.typeName ?? d.type_code ?? '',
+        typeName: d.type_name ?? d.typeName ?? TYPE_CODE_NAMES[d.type_code] ?? d.type_code ?? '',
         correctRate: parseFloat(d.correct_rate ?? d.correctRate ?? 0) || 0,
         totalAttempts: d.total_attempts ?? d.totalAttempts ?? 0,
         correctCount: d.correct_count ?? d.correctCount ?? 0,
