@@ -65,20 +65,32 @@ export const findQuestionById = async (id) => {
   return { ...qResult.rows[0], options: optResult.rows }
 }
 
-export const reviewQuestion = async ({ id, status, content, correct_answer, explanation, reviewedBy }) => {
-  const sets = ['status = $2', 'reviewed_at = NOW()', 'reviewed_by = $3', 'updated_at = NOW()']
-  const params = [id, status, reviewedBy]
-  let idx = 4
+export const reviewQuestion = async ({ id, status, content, correct_answer, explanation, options, reviewedBy }) => {
+  return withTransaction(async (client) => {
+    const sets = ['status = $2', 'reviewed_at = NOW()', 'reviewed_by = $3', 'updated_at = NOW()']
+    const params = [id, status, reviewedBy]
+    let idx = 4
 
-  if (content !== undefined) { sets.push(`content = $${idx++}`); params.push(content) }
-  if (correct_answer !== undefined) { sets.push(`correct_answer = $${idx++}`); params.push(correct_answer) }
-  if (explanation !== undefined) { sets.push(`explanation = $${idx++}`); params.push(explanation) }
+    if (content !== undefined) { sets.push(`content = $${idx++}`); params.push(content) }
+    if (correct_answer !== undefined) { sets.push(`correct_answer = $${idx++}`); params.push(correct_answer) }
+    if (explanation !== undefined) { sets.push(`explanation = $${idx++}`); params.push(explanation) }
 
-  const { rows } = await pool.query(
-    `UPDATE questions SET ${sets.join(', ')} WHERE id = $1 RETURNING *`,
-    params
-  )
-  return rows[0]
+    const { rows } = await client.query(
+      `UPDATE questions SET ${sets.join(', ')} WHERE id = $1 RETURNING *`,
+      params
+    )
+
+    if (Array.isArray(options) && options.length > 0) {
+      for (const opt of options) {
+        await client.query(
+          `UPDATE question_options SET content = $1 WHERE question_id = $2 AND label = $3`,
+          [opt.content ?? opt.text, id, String(opt.label)]
+        )
+      }
+    }
+
+    return rows[0]
+  })
 }
 
 export const findApprovedQuestions = async ({ academy_id, type_code, difficulty, limit = 20, offset = 0 }) => {

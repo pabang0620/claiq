@@ -10,14 +10,14 @@ export const getPendingQuestions = async ({ academy_id, teacher_id, page = 1, li
   return { data: rows, meta: { total, page, limit } }
 }
 
-export const reviewQuestion = async ({ id, status, content, correct_answer, explanation, reviewedBy }) => {
+export const reviewQuestion = async ({ id, status, content, correct_answer, explanation, options, reviewedBy }) => {
   const question = await questionRepository.findQuestionById(id)
   if (!question) {
     const err = new Error('문제를 찾을 수 없습니다')
     err.status = 404
     throw err
   }
-  return questionRepository.reviewQuestion({ id, status, content, correct_answer, explanation, reviewedBy })
+  return questionRepository.reviewQuestion({ id, status, content, correct_answer, explanation, options, reviewedBy })
 }
 
 export const getStudentQuestions = async ({ academy_id, type_code, difficulty, page = 1, limit = 20 }) => {
