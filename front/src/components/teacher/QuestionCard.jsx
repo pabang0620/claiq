@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CheckCircle, XCircle, Edit3, ChevronDown, ChevronUp } from 'lucide-react'
+import { CheckCircle, XCircle, Edit3, ChevronDown, ChevronUp, BookOpen } from 'lucide-react'
 import { Button } from '../ui/Button.jsx'
 import { Badge } from '../ui/Badge.jsx'
 import { Textarea } from '../ui/Textarea.jsx'
@@ -58,21 +58,29 @@ export function QuestionCard({ question, onReview, isLoading = false }) {
     <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden">
       {/* Header */}
       <div className="px-5 py-4 border-b border-zinc-100 flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2 flex-wrap">
-          <Badge label={question.typeName || question.typeCode} variant="primary" />
-          <Badge
-            label={`난이도 ${DIFFICULTY_LABEL[question.difficulty] || question.difficulty}`}
-            variant={DIFFICULTY_COLOR[question.difficulty] || 'default'}
-          />
-          <Badge
-            label={question.type === 'multiple_choice' ? '5지선다' : '단답형'}
-            variant="default"
-          />
+        <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+          {question.lecture_title && (
+            <div className="flex items-center gap-1.5 text-xs text-zinc-400">
+              <BookOpen size={12} />
+              <span className="truncate">{question.lecture_title}</span>
+            </div>
+          )}
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge label={question.typeName || question.typeCode} variant="primary" />
+            <Badge
+              label={`난이도 ${DIFFICULTY_LABEL[question.difficulty] || question.difficulty}`}
+              variant={DIFFICULTY_COLOR[question.difficulty] || 'default'}
+            />
+            <Badge
+              label={question.type === 'multiple_choice' ? '5지선다' : '단답형'}
+              variant="default"
+            />
+          </div>
         </div>
         <button
           onClick={() => setExpanded((p) => !p)}
           aria-label={expanded ? '접기' : '펼치기'}
-          className="p-1 text-zinc-400 hover:text-zinc-600"
+          className="p-1 text-zinc-400 hover:text-zinc-600 flex-shrink-0"
         >
           {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
         </button>
