@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { CheckCircle, Circle, Clock } from 'lucide-react'
 
 const STATUS_CONFIG = {
@@ -6,7 +7,34 @@ const STATUS_CONFIG = {
   pending: { icon: Circle, color: 'text-zinc-300', bg: 'bg-zinc-100', label: '예정' },
 }
 
+const PAGE_SIZE = 8
+
 export function RoadmapTimeline({ items = [], ddayCount }) {
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const sentinelRef = useRef(null)
+
+  const loadMore = useCallback(() => {
+    setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, items.length))
+  }, [items.length])
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE)
+  }, [items])
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMore()
+      },
+      { threshold: 0.1 }
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [loadMore])
+
   if (!items.length) {
     return (
       <div className="text-center py-8 text-zinc-400">
@@ -15,13 +43,16 @@ export function RoadmapTimeline({ items = [], ddayCount }) {
     )
   }
 
+  const visibleItems = items.slice(0, visibleCount)
+  const hasMore = visibleCount < items.length
+
   return (
     <div className="relative">
       {/* Vertical line */}
       <div className="absolute left-5 top-5 bottom-5 w-0.5 bg-zinc-200" aria-hidden="true" />
 
       <ol className="space-y-4" aria-label="학습 로드맵">
-        {items.map((item, index) => {
+        {visibleItems.map((item) => {
           const cfg = STATUS_CONFIG[item.status] || STATUS_CONFIG.pending
           const Icon = cfg.icon
 
@@ -84,6 +115,11 @@ export function RoadmapTimeline({ items = [], ddayCount }) {
           )
         })}
       </ol>
+
+      {hasMore && <div ref={sentinelRef} className="h-8" aria-hidden="true" />}
+      {!hasMore && items.length > PAGE_SIZE && (
+        <p className="text-center text-xs text-zinc-400 pt-4">모든 주차를 불러왔습니다.</p>
+      )}
     </div>
   )
 }
