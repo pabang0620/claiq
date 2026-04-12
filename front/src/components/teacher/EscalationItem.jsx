@@ -1,16 +1,28 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MessageSquare, ChevronDown, ChevronUp, Send } from 'lucide-react'
 import { Button } from '../ui/Button.jsx'
 import { Textarea } from '../ui/Textarea.jsx'
 import { Badge } from '../ui/Badge.jsx'
 import { formatRelative } from '../../utils/formatDate.js'
+import { qaApi } from '../../api/qa.api.js'
 
 export function EscalationItem({ item, onAnswer, isLoading = false }) {
   const [expanded, setExpanded] = useState(false)
   const [answer, setAnswer] = useState('')
   const [isReplying, setIsReplying] = useState(false)
+  const [messages, setMessages] = useState(null)
+  const [loadingMessages, setLoadingMessages] = useState(false)
 
   const isAnswered = item.escalation_response != null
+
+  useEffect(() => {
+    if (!expanded || messages !== null) return
+    setLoadingMessages(true)
+    qaApi.getMessages(item.session_id)
+      .then((res) => setMessages(res.data || []))
+      .catch(() => setMessages([]))
+      .finally(() => setLoadingMessages(false))
+  }, [expanded, item.session_id, messages])
 
   async function handleSubmit() {
     if (!answer.trim()) return
@@ -43,7 +55,7 @@ export function EscalationItem({ item, onAnswer, isLoading = false }) {
                 <Badge label="답변 대기" variant="warning" size="sm" />
               )}
             </div>
-            <p className="text-sm text-zinc-600 mt-0.5 truncate">{item.content}</p>
+            <p className="text-sm text-zinc-600 mt-0.5 truncate">{item.student_question || item.content}</p>
             <p className="text-xs text-zinc-400 mt-1">{formatRelative(item.created_at)}</p>
           </div>
         </div>
@@ -54,26 +66,42 @@ export function EscalationItem({ item, onAnswer, isLoading = false }) {
 
       {expanded && (
         <div className="px-5 pb-5 border-t border-zinc-100 space-y-4">
-          {/* Original question */}
+          {/* Conversation history */}
           <div className="mt-4">
-            <p className="text-xs font-semibold text-zinc-500 mb-2">학생 질문</p>
-            <div className="p-3 bg-zinc-50 rounded-lg border border-zinc-100">
-              <p className="text-sm text-zinc-700 leading-relaxed">{item.content}</p>
-            </div>
+            <p className="text-xs font-semibold text-zinc-500 mb-2">대화 내역</p>
+            {loadingMessages ? (
+              <div className="py-4 text-center text-xs text-zinc-400">불러오는 중...</div>
+            ) : messages && messages.length > 0 ? (
+              <div className="space-y-2">
+                {messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={[
+                      'p-3 rounded-lg text-sm leading-relaxed',
+                      msg.role === 'user'
+                        ? 'bg-zinc-50 border border-zinc-100 text-zinc-700'
+                        : msg.is_escalated
+                        ? 'bg-amber-50 border border-amber-100 text-amber-800'
+                        : 'bg-primary-50 border border-primary-100 text-primary-800',
+                    ].join(' ')}
+                  >
+                    <p className="text-xs font-semibold mb-1 opacity-60">
+                      {msg.role === 'user' ? item.student_name : 'AI'}
+                    </p>
+                    <p>{msg.content}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-3 bg-zinc-50 rounded-lg border border-zinc-100">
+                <p className="text-xs font-semibold text-zinc-500 mb-1">학생 질문</p>
+                <p className="text-sm text-zinc-700">{item.student_question || item.content}</p>
+              </div>
+            )}
           </div>
 
-          {/* AI failed context */}
-          {item.aiContext && (
-            <div>
-              <p className="text-xs font-semibold text-zinc-500 mb-2">AI 답변 시도 (에스컬레이션 사유)</p>
-              <div className="p-3 bg-amber-50 rounded-lg border border-amber-100">
-                <p className="text-sm text-amber-800">{item.aiContext}</p>
-              </div>
-            </div>
-          )}
-
           {/* Teacher answer */}
-          {isAnswered ? (
+          {isAnswered && item.escalation_response ? (
             <div>
               <p className="text-xs font-semibold text-zinc-500 mb-2">내 답변</p>
               <div className="p-3 bg-primary-50 rounded-lg border border-primary-100">

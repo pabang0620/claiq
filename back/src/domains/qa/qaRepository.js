@@ -74,7 +74,10 @@ export const findEscalations = async ({ teacher_id, academy_id, answered = false
   params.push(limit, offset)
 
   const { rows } = await pool.query(
-    `SELECT qm.*, qs.student_id, u.name AS student_name, qs.title AS session_title
+    `SELECT qm.*, qs.student_id, u.name AS student_name, qs.title AS session_title,
+            (SELECT content FROM qa_messages
+             WHERE session_id = qm.session_id AND role = 'user' AND created_at < qm.created_at
+             ORDER BY created_at DESC LIMIT 1) AS student_question
      FROM qa_messages qm
      JOIN qa_sessions qs ON qs.id = qm.session_id
      JOIN users u ON u.id = qs.student_id
