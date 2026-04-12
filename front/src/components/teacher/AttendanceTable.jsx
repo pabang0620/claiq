@@ -33,13 +33,13 @@ export function AttendanceTable({ records = [], onUpdate, isLoading = false, dat
   const [pendingUpdates, setPendingUpdates] = useState({})
 
   function handleStatusChange(recordId, studentId, status) {
-    setPendingUpdates((prev) => ({ ...prev, [recordId]: status }))
+    setPendingUpdates((prev) => ({ ...prev, [studentId]: status }))
     onUpdate(recordId, studentId, status)
   }
 
   const displayRecords = records.map((r) => ({
     ...r,
-    status: pendingUpdates[r.id] !== undefined ? pendingUpdates[r.id] : r.status,
+    status: pendingUpdates[r.student_id] !== undefined ? pendingUpdates[r.student_id] : r.status,
   }))
 
   const stats = {
@@ -86,7 +86,7 @@ export function AttendanceTable({ records = [], onUpdate, isLoading = false, dat
                 const statusCfg = STATUS_CONFIG[record.status] || STATUS_CONFIG.unset
                 const Icon = statusCfg.icon
                 return (
-                  <tr key={record.id} className="hover:bg-zinc-50/50 transition-colors">
+                  <tr key={record.student_id} className="hover:bg-zinc-50/50 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">
