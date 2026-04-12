@@ -35,7 +35,7 @@ export default function QAEscalationPage() {
       await qaApi.replyEscalation(id, answer)
       setItems((prev) =>
         prev.map((item) =>
-          item.id === id ? { ...item, answered: true, teacherAnswer: answer } : item
+          item.id === id ? { ...item, escalation_response: answer } : item
         )
       )
       addToast({ type: 'success', message: '답변이 등록됐습니다.' })
@@ -47,7 +47,7 @@ export default function QAEscalationPage() {
   }
 
   const tabsWithCount = TABS.map((t) =>
-    t.value === 'unanswered' ? { ...t, count: items.filter((i) => !i.answered).length } : t
+    t.value === 'unanswered' ? { ...t, count: items.filter((i) => i.escalation_response == null).length } : t
   )
 
   return (

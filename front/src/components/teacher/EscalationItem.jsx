@@ -10,6 +10,8 @@ export function EscalationItem({ item, onAnswer, isLoading = false }) {
   const [answer, setAnswer] = useState('')
   const [isReplying, setIsReplying] = useState(false)
 
+  const isAnswered = item.escalation_response != null
+
   async function handleSubmit() {
     if (!answer.trim()) return
     try {
@@ -33,16 +35,16 @@ export function EscalationItem({ item, onAnswer, isLoading = false }) {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-medium text-zinc-800">{item.studentName}</span>
-              <Badge label={item.subject || '질문'} variant="primary" size="sm" />
-              {item.answered ? (
+              <span className="text-sm font-medium text-zinc-800">{item.student_name}</span>
+              <Badge label={item.session_title || '질문'} variant="primary" size="sm" />
+              {isAnswered ? (
                 <Badge label="답변 완료" variant="success" size="sm" />
               ) : (
                 <Badge label="답변 대기" variant="warning" size="sm" />
               )}
             </div>
-            <p className="text-sm text-zinc-600 mt-0.5 truncate">{item.question}</p>
-            <p className="text-xs text-zinc-400 mt-1">{formatRelative(item.createdAt)}</p>
+            <p className="text-sm text-zinc-600 mt-0.5 truncate">{item.content}</p>
+            <p className="text-xs text-zinc-400 mt-1">{formatRelative(item.created_at)}</p>
           </div>
         </div>
         <button aria-label={expanded ? '접기' : '펼치기'} className="flex-shrink-0 text-zinc-400">
@@ -56,7 +58,7 @@ export function EscalationItem({ item, onAnswer, isLoading = false }) {
           <div className="mt-4">
             <p className="text-xs font-semibold text-zinc-500 mb-2">학생 질문</p>
             <div className="p-3 bg-zinc-50 rounded-lg border border-zinc-100">
-              <p className="text-sm text-zinc-700 leading-relaxed">{item.question}</p>
+              <p className="text-sm text-zinc-700 leading-relaxed">{item.content}</p>
             </div>
           </div>
 
@@ -71,11 +73,11 @@ export function EscalationItem({ item, onAnswer, isLoading = false }) {
           )}
 
           {/* Teacher answer */}
-          {item.answered && item.teacherAnswer ? (
+          {isAnswered ? (
             <div>
               <p className="text-xs font-semibold text-zinc-500 mb-2">내 답변</p>
               <div className="p-3 bg-primary-50 rounded-lg border border-primary-100">
-                <p className="text-sm text-primary-800">{item.teacherAnswer}</p>
+                <p className="text-sm text-primary-800">{item.escalation_response}</p>
               </div>
             </div>
           ) : (
