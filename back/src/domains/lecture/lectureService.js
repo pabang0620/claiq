@@ -2,6 +2,7 @@ import path from 'path'
 import * as lectureRepository from './lectureRepository.js'
 import * as vectorRepository from './vectorRepository.js'
 import * as questionRepository from '../question/questionRepository.js'
+import * as academyRepository from '../academy/academyRepository.js'
 import { uploadToStorage } from '../../config/supabase.js'
 import { transcribeAudio } from '../../ai/whisper.js'
 import { embedTexts } from '../../ai/embedding.js'
@@ -38,18 +39,34 @@ export const removeSseClient = (lectureId, res) => {
   sseClients.get(lectureId)?.delete(res)
 }
 
-export const broadcastStatus = (lectureId, status, extra = {}) => {
+export const broadcastStatus = (lectureId, type, extra = {}) => {
   const clients = sseClients.get(lectureId)
   if (!clients) return
-  const data = JSON.stringify({ status, ...extra })
+  const data = JSON.stringify({ type, ...extra })
   for (const res of clients) {
     res.write(`data: ${data}\n\n`)
   }
 }
 
 export const uploadLecture = async ({ file, materialFiles, body, user }) => {
-  const { subject_id, title, description, scheduled_at } = body
-  const { academy_id } = body
+  const { title, description, scheduled_at } = body
+
+  // academy_id를 body 대신 DB에서 조회 (교강사 소속 학원)
+  const academies = await academyRepository.findUserAcademies(user.id)
+  if (!academies.length) {
+    const err = new Error('소속된 학원이 없습니다')
+    err.status = 404
+    throw err
+  }
+  const academy_id = academies[0].id
+
+  // 프론트에서 /api/subjects로 조회한 UUID를 subject_id 또는 subject 필드로 전송
+  const subject_id = body.subject_id || body.subject
+  if (!subject_id) {
+    const err = new Error('과목을 선택해주세요')
+    err.status = 400
+    throw err
+  }
 
   // 1. 오디오 Supabase 업로드
   let audio_url = null
@@ -77,7 +94,7 @@ export const uploadLecture = async ({ file, materialFiles, body, user }) => {
       await lectureRepository.updateLectureStatus(lecture.id, 'error', {
         processing_error: err.message,
       })
-      broadcastStatus(lecture.id, 'error', { error: err.message })
+      broadcastStatus(lecture.id, 'error', { message: err.message })
     } catch (updateErr) {
       logger.error('상태 업데이트 실패:', updateErr.message)
     }
@@ -90,14 +107,14 @@ const processLecture = async (lecture, file) => {
   try {
     // STT
     await lectureRepository.updateLectureStatus(lecture.id, 'stt_processing')
-    broadcastStatus(lecture.id, 'stt_processing')
+    broadcastStatus(lecture.id, 'progress', { step: 'stt', progress: 10 })
 
     let transcript = ''
     if (file) {
       transcript = await transcribeAudio(file.buffer, file.mimetype, file.originalname)
     }
     await lectureRepository.updateLectureStatus(lecture.id, 'embedding', { transcript })
-    broadcastStatus(lecture.id, 'embedding')
+    broadcastStatus(lecture.id, 'progress', { step: 'embedding', progress: 35 })
 
     // 청킹 + 임베딩
     const chunks = chunkText(transcript)
@@ -117,7 +134,7 @@ const processLecture = async (lecture, file) => {
 
     // 유형 매핑
     await lectureRepository.updateLectureStatus(lecture.id, 'type_mapping')
-    broadcastStatus(lecture.id, 'type_mapping')
+    broadcastStatus(lecture.id, 'progress', { step: 'type_mapping', progress: 60 })
 
     // 강의 과목으로 area 조회
     const fullLecture = await lectureRepository.findLectureById(lecture.id)
@@ -125,7 +142,7 @@ const processLecture = async (lecture, file) => {
     const typeCodes = await mapTypes(transcript, area)
 
     await lectureRepository.updateLectureStatus(lecture.id, 'question_gen', { type_tags: typeCodes })
-    broadcastStatus(lecture.id, 'question_gen')
+    broadcastStatus(lecture.id, 'progress', { step: 'question_gen', progress: 75 })
 
     // 문제 생성
     const chunkContents = chunks.map((c) => c.content)
@@ -155,7 +172,7 @@ const processLecture = async (lecture, file) => {
     await lectureRepository.updateLectureStatus(lecture.id, 'error', {
       processing_error: err.message,
     })
-    broadcastStatus(lecture.id, 'error', { error: err.message })
+    broadcastStatus(lecture.id, 'error', { message: err.message })
     logger.error(`강의 처리 에러 [${lecture.id}]:`, err.message)
   }
 }

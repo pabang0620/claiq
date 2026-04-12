@@ -10,6 +10,7 @@ router.post('/', authMiddleware, requireRole('teacher'), uploadAudio.single('aud
 router.get('/', authMiddleware, lectureController.getLectures)
 // 정적 경로(/:id/status, /:lectureId/materials)는 동적 경로(/:id)보다 먼저 선언
 router.get('/:id/status', authMiddleware, lectureController.getLectureStatus)
+router.get('/:id/progress', authMiddleware, lectureController.getLectureStatus)
 router.get('/:lectureId/materials', authMiddleware, lectureController.getMaterials)
 router.post('/:lectureId/materials', authMiddleware, requireRole('teacher'), uploadMaterial.single('file'), lectureController.uploadMaterial)
 router.delete('/:lectureId/materials/:materialId', authMiddleware, requireRole('teacher'), lectureController.deleteMaterial)
