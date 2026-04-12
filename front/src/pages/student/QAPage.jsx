@@ -51,13 +51,8 @@ export default function QAPage() {
     }
   }, [streamError, addToast])
 
-  async function handleNewSession() {
-    try {
-      const session = await startSession()
-      return session
-    } catch (err) {
-      addToast({ type: 'error', message: err?.message || '세션 생성에 실패했습니다.' })
-    }
+  function handleNewSession() {
+    clearMessages()
   }
 
   async function handleSend() {
@@ -66,7 +61,12 @@ export default function QAPage() {
 
     let session = currentSession
     if (!session) {
-      session = await handleNewSession()
+      try {
+        session = await startSession()
+      } catch (err) {
+        addToast({ type: 'error', message: err?.message || '세션 생성에 실패했습니다.' })
+        return
+      }
       if (!session) return
     }
 
