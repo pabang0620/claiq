@@ -6,6 +6,7 @@ import { PageSpinner } from '../../components/ui/Spinner.jsx'
 import { Button } from '../../components/ui/Button.jsx'
 import { useQuestionStore } from '../../store/questionStore.js'
 import { useUIStore } from '../../store/uiStore.js'
+import api from '../../api/axios.js'
 
 const TABS = [
   { value: 'pending', label: '검증 대기' },
@@ -20,6 +21,19 @@ export default function QuestionReviewPage() {
   const [reviewingId, setReviewingId] = useState(null)
   const [page, setPage] = useState(1)
   const [tabCounts, setTabCounts] = useState({ pending: 0, approved: 0, rejected: 0 })
+
+  // 마운트 시 전체 탭 카운트 초기화
+  useEffect(() => {
+    Promise.all(
+      ['pending', 'approved', 'rejected'].map((s) =>
+        api.get('/questions', { params: { status: s, page: 1, limit: 1 } })
+          .then((res) => [s, res.meta?.total ?? 0])
+          .catch(() => [s, 0])
+      )
+    ).then((entries) => {
+      setTabCounts(Object.fromEntries(entries))
+    })
+  }, [])
 
   useEffect(() => {
     let cancelled = false
