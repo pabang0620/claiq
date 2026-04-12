@@ -8,13 +8,29 @@ export const POINT_EVENTS = {
 }
 
 export const POINT_EVENT_LABELS = {
+  // 문제풀이
+  correct_a: '정답 (상)',
+  correct_b: '정답 (중)',
+  correct_c: '정답 (하)',
   quiz_correct: '문제 정답',
   quiz_participation: '문제 참여',
+  // Q&A
+  qa_use: 'AI Q&A 이용',
+  // 출석
+  daily_attendance: '출석 체크',
   daily_login: '일일 로그인',
-  mini_exam_complete: '모의고사 완료',
+  // 연속 출석
   streak_7: '7일 연속 출석',
   streak_30: '30일 연속 출석',
+  // 시험
+  mini_exam_complete: '모의고사 완료',
+  // 교환/지급
+  redeem: '쿠폰 교환',
   coupon_redeem: '쿠폰 교환',
+  // 뱃지
+  badge_earned: '뱃지 획득',
+  badge_all_complete: '뱃지 전체 달성',
+  // 관리자
   manual_grant: '관리자 지급',
   manual_deduct: '관리자 차감',
 }

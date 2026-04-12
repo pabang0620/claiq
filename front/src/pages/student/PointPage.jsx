@@ -53,7 +53,7 @@ export default function PointPage() {
   if (isLoading && !transactions.length) return <PageSpinner />
 
   return (
-    <div className="space-y-5 max-w-2xl">
+    <div className="space-y-5">
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900">포인트</h1>
