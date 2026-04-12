@@ -27,6 +27,7 @@ export function Input({
         onChange={onChange}
         disabled={disabled}
         required={required}
+        onInvalid={(e) => e.preventDefault()}
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
         className={[
