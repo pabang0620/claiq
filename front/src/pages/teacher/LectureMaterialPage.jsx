@@ -63,6 +63,23 @@ export default function LectureMaterialPage() {
     }
   }
 
+  async function handleDownload(url, filename) {
+    try {
+      const res = await fetch(url)
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = blobUrl
+      a.download = filename || 'download'
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(blobUrl)
+    } catch {
+      addToast({ type: 'error', message: '다운로드에 실패했습니다.' })
+    }
+  }
+
   async function handleDelete(materialId) {
     const ok = await showConfirm('자료를 삭제하시겠습니까?', { confirmLabel: '삭제', danger: true })
     if (!ok) return
@@ -191,15 +208,14 @@ export default function LectureMaterialPage() {
                   <td className="px-4 py-3 text-center">
                     <div className="flex items-center justify-center gap-2">
                       {(m.file_url || m.url) && (
-                        <a
-                          href={m.file_url || m.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          type="button"
+                          onClick={() => handleDownload(m.file_url || m.url, m.title || m.name)}
                           aria-label="다운로드"
                           className="p-1.5 rounded-lg hover:bg-zinc-100 text-zinc-400 hover:text-zinc-600 transition-colors"
                         >
                           <Download size={15} />
-                        </a>
+                        </button>
                       )}
                       <button
                         onClick={() => handleDelete(m.id)}
