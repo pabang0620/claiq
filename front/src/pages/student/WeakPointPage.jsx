@@ -11,7 +11,10 @@ export default function WeakPointPage() {
   const addToast = useUIStore((s) => s.addToast)
   const { weakTypes, isLoading, error, subjects, isSubjectLoading, selectedSubject, setSelectedSubject, refresh } = useWeakPoint()
 
-  const subjectOptions = subjects.map((s) => ({ value: s.code, label: s.name }))
+  const subjectOptions = [
+    { value: '', label: '전체 과목' },
+    ...subjects.map((s) => ({ value: s.code, label: s.name })),
+  ]
 
   useEffect(() => {
     if (error) {

@@ -13,14 +13,13 @@ export function useWeakPoint() {
       .then((res) => {
         const list = res.data || []
         setSubjects(list)
-        if (list.length > 0) setSelectedSubject(list[0].code)
+        setSelectedSubject('')
       })
       .catch(() => {})
       .finally(() => setIsSubjectLoading(false))
   }, [])
 
   useEffect(() => {
-    if (!selectedSubject) return
     fetchWeakTypes(selectedSubject)
   }, [selectedSubject, fetchWeakTypes])
 
