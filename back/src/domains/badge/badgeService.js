@@ -80,7 +80,7 @@ const fetchUserStats = async (userId) => {
        FROM attendances
        WHERE student_id = $1
          AND status IN ('present', 'late')
-         AND marked_at >= date_trunc('month', NOW())`,
+         AND marked_at >= date_trunc('month', NOW() AT TIME ZONE 'Asia/Seoul') AT TIME ZONE 'Asia/Seoul'`,
       [userId]
     ),
   ])

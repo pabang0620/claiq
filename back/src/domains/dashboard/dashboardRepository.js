@@ -92,7 +92,7 @@ export const findTeacherDashboard = async ({ teacherId, academyId }) => {
      JOIN lectures l ON l.id = a.lecture_id
      WHERE l.teacher_id = $1
        ${attendanceAcademyClause}
-       AND a.marked_at >= date_trunc('week', NOW())`,
+       AND a.marked_at >= date_trunc('week', NOW() AT TIME ZONE 'Asia/Seoul') AT TIME ZONE 'Asia/Seoul'`,
     attendanceParams
   )
 
@@ -197,7 +197,7 @@ export const findOperatorDashboard = async (academy_id) => {
        ) AS rate
        FROM attendances a
        WHERE a.academy_id = $1
-         AND a.marked_at >= date_trunc('month', NOW())`,
+         AND a.marked_at >= date_trunc('month', NOW() AT TIME ZONE 'Asia/Seoul') AT TIME ZONE 'Asia/Seoul'`,
       [academy_id]
     ),
     pool.query(
