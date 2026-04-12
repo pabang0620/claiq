@@ -27,35 +27,57 @@
 award/
 ├── front/          # React 19 + Vite 7
 │   ├── src/
-│   │   ├── pages/           # operator / teacher / student / auth / legal
+│   │   ├── pages/           # operator / teacher / student / auth / common / legal / report
 │   │   ├── api/             # axios 기반 API 클라이언트
 │   │   ├── store/           # Zustand v5 스토어 (uiStore, authStore, academyStore, ...)
 │   │   ├── components/      # 공통(ui, layout) 및 역할별 컴포넌트
 │   │   │   ├── ui/          # Dialog, Input, Button, Avatar, Card, Spinner, ...
 │   │   │   ├── layout/      # AppLayout, Header, Sidebar, ...
-│   │   │   ├── operator/    # ReportPreview, ...
-│   │   │   └── ...
-│   │   ├── hooks/           # useAuth, useSSE, useDebounce, ...
-│   │   ├── constants/       # roles, 상수 정의
+│   │   │   ├── student/     # ChatBubble, QuizCard, RoadmapTimeline, WeakTypeChart, ...
+│   │   │   ├── teacher/     # QuestionCard, EscalationItem, UploadDropzone, ...
+│   │   │   └── operator/    # ReportPreview, ...
+│   │   ├── hooks/           # useAuth, useSSE, useQAStream, useRoadmap, ...
+│   │   ├── constants/       # roles, points, 상수 정의
 │   │   ├── styles/          # index.css (Tailwind v4 + 커스텀 애니메이션)
-│   │   ├── utils/           # formatDate, 유틸리티 함수
+│   │   ├── utils/           # formatDate, formatPoint, 유틸리티 함수
 │   │   └── main.jsx
 │   └── index.html
 ├── back/           # Node.js + Express (ESM)
 │   ├── src/
-│   │   ├── domains/         # auth, academy, lecture, question, qa, roadmap, exam, attendance, point, report, ...
-│   │   │   └── [domain]/    # controller.js, service.js, repository.js
-│   │   ├── ai/              # whisper.js, questionGenerator.js, ragQA.js, embedding.js, typeMapper.js, ...
+│   │   ├── domains/
+│   │   │   ├── auth/        # JWT 인증, Refresh Token Rotation
+│   │   │   ├── academy/     # 학원·수강생·쿠폰 관리
+│   │   │   ├── lecture/     # 강의 업로드, STT, 자료 관리
+│   │   │   ├── question/    # 문제 생성·검수·퀴즈
+│   │   │   ├── qa/          # RAG 챗봇, 에스컬레이션
+│   │   │   ├── roadmap/     # AI 학습 로드맵
+│   │   │   ├── exam/        # 모의고사
+│   │   │   ├── attendance/  # 출석 체크, 이탈 감지
+│   │   │   ├── point/       # 포인트·뱃지·쿠폰 교환
+│   │   │   ├── badge/       # 뱃지 정의·수여
+│   │   │   ├── report/      # 학원 리포트
+│   │   │   └── dashboard/   # 대시보드 집계
+│   │   ├── ai/              # whisper.js, questionGenerator.js, ragQA.js,
+│   │   │                    # embedding.js, roadmapGenerator.js, examGenerator.js, typeMapper.js
 │   │   ├── config/          # db.js, env.js, supabase.js
-│   │   ├── middleware/      # auth, validation, errorHandler, ...
+│   │   ├── middleware/      # authMiddleware, roleMiddleware, validate, rateLimiter, ...
 │   │   └── server.js
-│   ├── migrations/          # SQL 마이그레이션 파일 (001-015)
-│   └── tests/fixtures/      # 테스트용 샘플 파일 (test_audio.wav 등)
-├── research/                # 기획 단계 리서치 (크롤링 스크립트, 데이터 JSON)
-├── submissions/             # 공모전 제출 서류 (gitignored)
-├── CLAUDE.md
-├── AI_협업_기록.md
-└── CLAIQ_테스트_체크리스트.md
+│   ├── migrations/          # SQL 마이그레이션 파일 (001 ~ 017)
+│   └── seeds/               # 데모 데이터 SQL
+├── .claude/
+│   └── agents/              # 프로젝트 전용 Claude 에이전트 정의
+│       ├── claiq-bug-hunter.md
+│       ├── claiq-api-linker.md
+│       ├── claiq-e2e-tester.md
+│       ├── claiq-seed-generator.md
+│       ├── competition-writer.md
+│       └── error-handler-fix.md
+├── docs/
+│   ├── planning/            # 기획 초안, 질문리스트, 경쟁 레퍼런스
+│   ├── dev/                 # AI 협업 기록, ADR, 에이전트 가이드
+│   └── submission/          # 공모전 제출 서류, 심사자 데모가이드
+├── submissions/             # 공모전 제출 파일 (gitignored)
+└── CLAUDE.md
 ```
 
 ---
@@ -71,23 +93,34 @@ award/
 
 ---
 
-## 멀티 에이전트 협업 구조
+## CLAUDE.md의 역할 — 오케스트레이터 시스템 프롬프트
 
-Claude Code 오케스트레이터는 코드를 직접 작성하지 않는다. 모든 구현은 역할별 서브에이전트에 위임한다.
+**이 파일 자체가 Claude Code 오케스트레이터의 행동 지침서다.**
+
+Claude Code를 실행하면 CLAUDE.md가 자동으로 컨텍스트에 주입되어, 메인 Claude가 이 파일에 정의된 규칙과 역할 분담 원칙에 따라 동작한다. 즉, 오케스트레이터(메인 Claude)는 코드를 직접 작성하지 않고 아래 에이전트들에게 위임하는 지휘자 역할을 수행한다.
+
+### 멀티 에이전트 협업 구조
 
 ```
-요청 접수
-  └─ claiq-bug-hunter     (버그 분석 · 재현)
-  └─ planner              (구현 계획 수립)
-       ├─ react-specialist     (프론트엔드 구현) ─┐ 병렬
-       └─ express-engineer     (백엔드 구현)    ─┘
-            └─ code-reviewer   (모든 변경 후 자동 실행)
-  └─ claiq-api-linker     (프론트↔백엔드 API 연결 검증)
-  └─ claiq-e2e-tester     (핵심 플로우 E2E 테스트)
-  └─ claiq-seed-generator (DB 시드 데이터 생성)
+사용자 요청
+  │
+  ├─ [버그] claiq-bug-hunter → 재현·분석 → 전문 에이전트 호출
+  │
+  ├─ [기능] planner → 구현 계획
+  │            ├─ react-specialist  (프론트엔드) ─┐ 독립 작업 병렬 실행
+  │            └─ express-engineer  (백엔드)     ─┘
+  │                       └─ code-reviewer  (변경 후 항상 자동 실행)
+  │
+  ├─ [연결] claiq-api-linker → 프론트↔백엔드 API 필드명·타입 정합성 검증
+  ├─ [테스트] claiq-e2e-tester → 핵심 사용자 플로우 E2E 검증
+  ├─ [데이터] claiq-seed-generator → 데모용 DB 시드 데이터 생성
+  └─ [문서] competition-writer → 공모전 제출 문서 작성
 ```
 
-에이전트 정의 파일: `.claude/agents/` 디렉토리 참조
+### 오케스트레이터 원칙
+- 오케스트레이터는 분석·판단·위임만 한다. Edit·Write 도구로 코드 파일 직접 수정 금지
+- 독립적인 작업은 반드시 병렬로 에이전트를 동시 실행해 속도 최적화
+- 에이전트 정의 파일: `.claude/agents/` 디렉토리
 
 ---
 
