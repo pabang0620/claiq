@@ -50,7 +50,7 @@ export function QuestionCard({ question, onReview, isLoading = false }) {
   }
 
   function updateOption(idx, val) {
-    const next = editOptions.map((o, i) => (i === idx ? { ...o, text: val } : o))
+    const next = editOptions.map((o, i) => (i === idx ? { ...o, content: val, text: val } : o))
     setEditOptions(next)
   }
 
@@ -105,7 +105,7 @@ export function QuestionCard({ question, onReview, isLoading = false }) {
                     key={opt.label ?? i}
                     id={`opt-${opt.label ?? i}`}
                     placeholder={`${opt.label}번 선택지`}
-                    value={opt.text}
+                    value={opt.content ?? opt.text}
                     onChange={(e) => updateOption(i, e.target.value)}
                   />
                 ))}
@@ -155,7 +155,7 @@ export function QuestionCard({ question, onReview, isLoading = false }) {
                     ].join(' ')}
                   >
                     <span className="font-semibold flex-shrink-0">{'①②③④⑤'.charAt(Number(opt.label) - 1) || opt.label}</span>
-                    <span>{opt.text}</span>
+                    <span>{opt.content ?? opt.text}</span>
                   </li>
                 ))}
               </ol>

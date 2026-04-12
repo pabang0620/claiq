@@ -12,7 +12,7 @@ export function QuizCard({
   correctAnswer,
   explanation,
 }) {
-  const isMultiple = question.type === 'multiple_choice'
+  const isMultiple = (question.answer_type || question.type) === 'multiple_choice'
 
   function getOptionStyle(optLabel) {
     if (!isSubmitted) {
@@ -55,7 +55,7 @@ export function QuizCard({
             onClick={() => !isSubmitted && onAnswer(String(opt.label || i + 1))}
             disabled={isSubmitted}
             aria-pressed={selectedAnswer === String(opt.label || i + 1)}
-            aria-label={`${i + 1}번: ${opt.text}`}
+            aria-label={`${i + 1}번: ${opt.content ?? opt.text}`}
             className={[
               'w-full flex items-start gap-3 px-4 py-3 rounded-lg border-2 transition-all duration-150 text-left',
               getOptionStyle(opt.label || i + 1),
@@ -63,7 +63,7 @@ export function QuizCard({
             ].join(' ')}
           >
             <span className="flex-shrink-0 font-bold text-sm">{CIRCLE_NUMS[i]}</span>
-            <span className="text-sm leading-relaxed">{opt.text}</span>
+            <span className="text-sm leading-relaxed">{opt.content ?? opt.text}</span>
           </button>
         ))}
 

@@ -93,13 +93,16 @@ export const findApprovedQuestions = async ({ academy_id, type_code, difficulty,
   params.push(limit, offset)
 
   const { rows } = await pool.query(
-    `SELECT q.id, q.content, q.answer_type, q.difficulty, q.type_code, q.created_at,
-            s.name AS subject_name
+    `SELECT q.id, q.content, q.answer_type, q.correct_answer, q.difficulty, q.type_code, q.explanation, q.created_at,
+            s.name AS subject_name,
+            array_agg(row_to_json(qo.*) ORDER BY qo.label) FILTER (WHERE qo.id IS NOT NULL) AS options
      FROM questions q
      JOIN subjects s ON s.id = q.subject_id
+     LEFT JOIN question_options qo ON qo.question_id = q.id
      WHERE ${conditions.join(' AND ')}
+     GROUP BY q.id, s.name
      ORDER BY q.created_at DESC
-     LIMIT $${idx++} OFFSET $${idx++}`,
+     LIMIT $${idx} OFFSET $${idx + 1}`,
     params
   )
   return rows
