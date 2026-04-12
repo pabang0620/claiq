@@ -179,7 +179,7 @@ export default function LectureMaterialPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <FileText size={16} className="text-primary-600 flex-shrink-0" />
-                      <span className="text-zinc-800 truncate max-w-xs">{m.name}</span>
+                      <span className="text-zinc-800 truncate max-w-xs">{m.title || m.name}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-zinc-500 hidden sm:table-cell">
@@ -190,9 +190,9 @@ export default function LectureMaterialPage() {
                   </td>
                   <td className="px-4 py-3 text-center">
                     <div className="flex items-center justify-center gap-2">
-                      {m.url && (
+                      {(m.file_url || m.url) && (
                         <a
-                          href={m.url}
+                          href={m.file_url || m.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           aria-label="다운로드"
