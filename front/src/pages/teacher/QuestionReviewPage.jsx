@@ -19,9 +19,16 @@ export default function QuestionReviewPage() {
   const [activeTab, setActiveTab] = useState('pending')
   const [reviewingId, setReviewingId] = useState(null)
   const [page, setPage] = useState(1)
+  const [tabCounts, setTabCounts] = useState({ pending: 0, approved: 0, rejected: 0 })
 
   useEffect(() => {
-    fetchPendingQuestions({ status: activeTab, page })
+    let cancelled = false
+    fetchPendingQuestions({ status: activeTab, page }).then(() => {
+      if (cancelled) return
+      const total = useQuestionStore.getState().pagination.total
+      setTabCounts((prev) => ({ ...prev, [activeTab]: total }))
+    })
+    return () => { cancelled = true }
   }, [activeTab, page, fetchPendingQuestions])
 
   async function handleReview(id, action, editedData) {
@@ -32,6 +39,12 @@ export default function QuestionReviewPage() {
       if (result.success) {
         const labels = { approve: '승인', edit: '수정 후 승인', reject: '반려' }
         addToast({ type: 'success', message: `문제가 ${labels[action]}됐습니다.` })
+        const targetTab = (action === 'approve' || action === 'edit') ? 'approved' : 'rejected'
+        setTabCounts((prev) => ({
+          ...prev,
+          pending: Math.max(0, (prev.pending ?? 0) - 1),
+          [targetTab]: (prev[targetTab] ?? 0) + 1,
+        }))
       } else {
         addToast({ type: 'error', message: result.error || '요청 처리에 실패했습니다.' })
       }
@@ -41,9 +54,7 @@ export default function QuestionReviewPage() {
     }
   }
 
-  const tabsWithCount = TABS.map((t) =>
-    t.value === 'pending' ? { ...t, count: pagination.total } : t
-  )
+  const tabsWithCount = TABS.map((t) => ({ ...t, count: tabCounts[t.value] ?? 0 }))
 
   return (
     <div className="space-y-5">
