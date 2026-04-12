@@ -71,13 +71,68 @@ award/
 
 ---
 
+## 멀티 에이전트 협업 구조
+
+Claude Code 오케스트레이터는 코드를 직접 작성하지 않는다. 모든 구현은 역할별 서브에이전트에 위임한다.
+
+```
+요청 접수
+  └─ claiq-bug-hunter     (버그 분석 · 재현)
+  └─ planner              (구현 계획 수립)
+       ├─ react-specialist     (프론트엔드 구현) ─┐ 병렬
+       └─ express-engineer     (백엔드 구현)    ─┘
+            └─ code-reviewer   (모든 변경 후 자동 실행)
+  └─ claiq-api-linker     (프론트↔백엔드 API 연결 검증)
+  └─ claiq-e2e-tester     (핵심 플로우 E2E 테스트)
+  └─ claiq-seed-generator (DB 시드 데이터 생성)
+```
+
+에이전트 정의 파일: `.claude/agents/` 디렉토리 참조
+
+---
+
+## AI 기능 설계 원칙
+
+**Human-in-the-Loop 필수**
+- AI가 생성한 문제는 반드시 교사 검수(승인·수정·반려) 후 학생에게 노출
+- RAG 답변 불가 판단 시 교사 에스컬레이션 — AI 단독 오답 차단
+
+**RAG 파이프라인**
+- 강의 전사본 → 청크 분할 → text-embedding-3-small → pgvector 저장
+- 질문 벡터화 → 유사 청크 검색 → GPT-4o 컨텍스트 주입 → 출처 인용 응답
+- 스트리밍 응답(SSE)으로 체감 대기 시간 최소화
+
+**문제 생성 프롬프트 전략**
+- 수능 9종 유형별 시스템 프롬프트 분리 설계
+- JSON 구조화 출력 강제 (파싱 실패 재시도 방지)
+- 난이도(상/중/하) 명시 → 포인트 차등 지급 연동
+
+---
+
+## API 응답 규격
+
+```js
+// 성공
+{ success: true, data: T, message?: string }
+// 페이지네이션
+{ success: true, data: T[], meta: { total, page, limit } }
+// 실패
+{ success: false, error: string }
+```
+
+모든 엔드포인트는 Zod 스키마 validation 미들웨어 적용 필수
+
+---
+
 ## 개발 규칙
 
 - 들여쓰기: 2 spaces
 - 네이밍: 컴포넌트 PascalCase / 함수·변수 camelCase / 상수 UPPER_SNAKE_CASE
 - DB 쿼리: parameterized query 필수 (SQL injection 방지)
+- 상태 불변성: 객체 직접 변경 금지, 항상 새 객체 반환
 - 환경변수: `.env` 사용, 커밋 금지 (`.env.production` 예외 - 시크릿 없음)
 - 타임존: 서버·DB 모두 `Asia/Seoul` (KST)
+- 에러 처리: try-catch 필수, 사용자 노출 메시지와 서버 로그 분리
 
 ---
 
