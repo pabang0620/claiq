@@ -6,6 +6,7 @@ import { ToastContainer } from '../ui/Toast.jsx'
 import { AlertContainer } from '../ui/Alert.jsx'
 import { Dialog } from '../ui/Dialog.jsx'
 import { useUIStore } from '../../store/uiStore.js'
+import { useAcademyStore } from '../../store/academyStore.js'
 
 function useIsDesktop() {
   const [isDesktop, setIsDesktop] = useState(() =>
@@ -26,6 +27,11 @@ export function AppLayout() {
   const sidebarOpen = useUIStore((s) => s.sidebarOpen)
   const closeSidebar = useUIStore((s) => s.closeSidebar)
   const isDesktop = useIsDesktop()
+  const fetchAcademy = useAcademyStore((s) => s.fetchAcademy)
+
+  useEffect(() => {
+    fetchAcademy()
+  }, [])
 
   const desktopMargin = sidebarOpen ? 240 : 64
 
