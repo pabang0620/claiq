@@ -5,13 +5,19 @@ import { StreakBadge } from '../../components/student/StreakBadge.jsx'
 import { PageSpinner } from '../../components/ui/Spinner.jsx'
 import { usePointStore } from '../../store/pointStore.js'
 import { BADGE_DEFINITIONS } from '../../constants/points.js'
+import { useUIStore } from '../../store/uiStore.js'
 
 export default function BadgePage() {
   const { badges, streak, isLoading, fetchBadges, fetchStreak } = usePointStore()
+  const addToast = useUIStore((s) => s.addToast)
 
   useEffect(() => {
-    fetchBadges()
-    fetchStreak()
+    fetchBadges().catch((err) =>
+      addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' })
+    )
+    fetchStreak().catch((err) =>
+      addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' })
+    )
   }, [fetchBadges, fetchStreak])
 
   if (isLoading && !badges.length) return <PageSpinner />

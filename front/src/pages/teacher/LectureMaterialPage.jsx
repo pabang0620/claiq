@@ -18,12 +18,16 @@ export default function LectureMaterialPage() {
   const showConfirm = useUIStore((s) => s.showConfirm)
 
   useEffect(() => {
-    lectureApi.getList({ limit: 50 }).then((res) => {
-      const list = res.data || []
-      setLectures(list)
-      if (list.length > 0) setSelectedLecture(list[0].id)
-    })
-  }, [])
+    lectureApi.getList({ limit: 50 })
+      .then((res) => {
+        const list = res.data || []
+        setLectures(list)
+        if (list.length > 0) setSelectedLecture(list[0].id)
+      })
+      .catch((err) => {
+        addToast({ type: 'error', message: err?.message || '강의 목록을 불러오는 데 실패했습니다.' })
+      })
+  }, [addToast])
 
   useEffect(() => {
     if (!selectedLecture) return
@@ -31,7 +35,10 @@ export default function LectureMaterialPage() {
     lectureApi
       .getMaterials(selectedLecture)
       .then((res) => setMaterials(res.data || []))
-      .catch(() => setMaterials([]))
+      .catch((err) => {
+        setMaterials([])
+        addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' })
+      })
       .finally(() => setIsLoading(false))
   }, [selectedLecture])
 
@@ -46,7 +53,7 @@ export default function LectureMaterialPage() {
       setMaterials((prev) => [res.data, ...prev])
       addToast({ type: 'success', message: '자료가 업로드됐습니다.' })
     } catch (err) {
-      addToast({ type: 'error', message: err.message || '업로드에 실패했습니다.' })
+      addToast({ type: 'error', message: err?.message || '업로드에 실패했습니다.' })
     } finally {
       setIsUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
@@ -61,7 +68,7 @@ export default function LectureMaterialPage() {
       setMaterials((prev) => prev.filter((m) => m.id !== materialId))
       addToast({ type: 'success', message: '자료가 삭제됐습니다.' })
     } catch (err) {
-      addToast({ type: 'error', message: err.message || '삭제에 실패했습니다.' })
+      addToast({ type: 'error', message: err?.message || '삭제에 실패했습니다.' })
     }
   }
 

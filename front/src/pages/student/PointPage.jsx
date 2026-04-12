@@ -25,7 +25,7 @@ export default function PointPage() {
     fetchTransactions()
     pointApi.getRewards()
       .then((res) => { if (!cancelled) setRewards(res.data || []) })
-      .catch(() => {})
+      .catch((err) => { addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' }) })
     return () => { cancelled = true }
   }, [fetchBalance, fetchTransactions])
 
@@ -35,13 +35,18 @@ export default function PointPage() {
       return
     }
     setRedeemingId(reward.id)
-    const result = await redeem()
-    setRedeemingId(null)
-    if (result.success) {
-      addToast({ type: 'success', message: `${reward.name} 교환 완료!` })
-      setShowRedeemModal(false)
-    } else {
-      addToast({ type: 'error', message: result.error || '교환에 실패했습니다.' })
+    try {
+      const result = await redeem()
+      if (result.success) {
+        addToast({ type: 'success', message: `${reward.name} 교환 완료!` })
+        setShowRedeemModal(false)
+      } else {
+        addToast({ type: 'error', message: result.error || '교환에 실패했습니다.' })
+      }
+    } catch (err) {
+      addToast({ type: 'error', message: err?.message || '교환에 실패했습니다.' })
+    } finally {
+      setRedeemingId(null)
     }
   }
 

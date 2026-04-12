@@ -8,6 +8,7 @@ import { Button } from '../../components/ui/Button.jsx'
 import { PageSpinner } from '../../components/ui/Spinner.jsx'
 import { WeakTypeChart } from '../../components/student/WeakTypeChart.jsx'
 import { useExamStore } from '../../store/examStore.js'
+import { useUIStore } from '../../store/uiStore.js'
 import { getScoreColor } from '../../constants/colors.js'
 
 function ScoreRing({ score, total }) {
@@ -39,13 +40,20 @@ export default function MiniExamResultPage() {
   const { id } = useParams()
   const { state } = useLocation()
   const navigate = useNavigate()
-  const { report, isLoading, fetchReport, resetExam } = useExamStore()
+  const { report, isLoading, error, fetchReport, resetExam } = useExamStore()
+  const addToast = useUIStore((s) => s.addToast)
 
   const hasStateReport = !!state?.report
   useEffect(() => {
     if (!hasStateReport) fetchReport(id)
     return () => resetExam()
   }, [id, hasStateReport, fetchReport, resetExam])
+
+  useEffect(() => {
+    if (error) {
+      addToast({ type: 'error', message: error || '데이터를 불러오는 데 실패했습니다.' })
+    }
+  }, [error, addToast])
 
   const raw = state?.report || report
 

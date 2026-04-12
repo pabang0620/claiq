@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Input } from '../../components/ui/Input.jsx'
 import { Button } from '../../components/ui/Button.jsx'
 import { useAuth } from '../../hooks/useAuth.js'
+import { useUIStore } from '../../store/uiStore.js'
 
 const DEMO_ACCOUNTS = [
   {
@@ -50,6 +51,7 @@ const DEMO_BUTTON_CLASSES = {
 
 export default function LoginPage() {
   const { login } = useAuth()
+  const addToast = useUIStore((s) => s.addToast)
   const [form, setForm] = useState({ email: '', password: '' })
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
@@ -57,7 +59,7 @@ export default function LoginPage() {
   function validate() {
     const errs = {}
     if (!form.email) errs.email = '이메일을 입력하세요.'
-    else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = '올바른 이메일 형식이 아닙니다.'
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email)) errs.email = '올바른 이메일 형식으로 입력해 주세요. (예: example@email.com)'
     if (!form.password) errs.password = '비밀번호를 입력하세요.'
     return errs
   }
@@ -71,16 +73,26 @@ export default function LoginPage() {
     }
     setErrors({})
     setIsLoading(true)
-    await login(form.email, form.password)
-    setIsLoading(false)
+    try {
+      await login(form.email, form.password)
+    } catch (err) {
+      addToast({ type: 'error', message: err?.message || '인증에 실패했습니다.' })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   async function handleDemoLogin(email) {
     setErrors({})
     setForm({ email, password: DEMO_PASSWORD })
     setIsLoading(true)
-    await login(email, DEMO_PASSWORD)
-    setIsLoading(false)
+    try {
+      await login(email, DEMO_PASSWORD)
+    } catch (err) {
+      addToast({ type: 'error', message: err?.message || '인증에 실패했습니다.' })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (

@@ -34,7 +34,9 @@ export default function AcademySettingPage() {
         setForm({ name: a.name || '', code: a.code || '', description: a.description || '' })
         setCoupons(cRes.data || [])
       })
-      .catch(() => {})
+      .catch((err) => {
+        addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' })
+      })
       .finally(() => setIsLoading(false))
   }, [])
 
@@ -46,7 +48,7 @@ export default function AcademySettingPage() {
       setAcademy(res.data)
       addToast({ type: 'success', message: '학원 정보가 저장됐습니다.' })
     } catch (err) {
-      addToast({ type: 'error', message: err.message || '저장에 실패했습니다.' })
+      addToast({ type: 'error', message: err?.message || '저장에 실패했습니다.' })
     } finally {
       setIsSaving(false)
     }
@@ -60,7 +62,7 @@ export default function AcademySettingPage() {
       setCouponForm({ name: '', discountType: 'percent', discountValue: '', validDays: 30 })
       addToast({ type: 'success', message: '쿠폰이 생성됐습니다.' })
     } catch (err) {
-      addToast({ type: 'error', message: err.message || '쿠폰 생성에 실패했습니다.' })
+      addToast({ type: 'error', message: err?.message || '쿠폰 생성에 실패했습니다.' })
     }
   }
 
@@ -72,7 +74,7 @@ export default function AcademySettingPage() {
       setCoupons((prev) => prev.filter((c) => c.id !== id))
       addToast({ type: 'success', message: '쿠폰이 삭제됐습니다.' })
     } catch (err) {
-      addToast({ type: 'error', message: err.message || '삭제에 실패했습니다.' })
+      addToast({ type: 'error', message: err?.message || '삭제에 실패했습니다.' })
     }
   }
 

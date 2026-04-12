@@ -18,7 +18,7 @@ export default function AttendancePage() {
     attendanceApi
       .getList({ date: selectedDate })
       .then((res) => { if (!cancelled) setRecords(res.data || []) })
-      .catch((err) => { if (!cancelled) setError(err.message || '출결 데이터를 불러오지 못했습니다.') })
+      .catch((err) => { if (!cancelled) { setError(err?.message || '출결 데이터를 불러오지 못했습니다.'); addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' }) } })
       .finally(() => { if (!cancelled) setIsLoading(false) })
     return () => { cancelled = true }
   }, [selectedDate])
@@ -30,7 +30,7 @@ export default function AttendancePage() {
         prev.map((r) => (r.id === recordId ? { ...r, status } : r))
       )
     } catch (err) {
-      addToast({ type: 'error', message: err.message || '출결 상태 변경에 실패했습니다.' })
+      addToast({ type: 'error', message: err?.message || '저장에 실패했습니다.' })
     }
   }
 

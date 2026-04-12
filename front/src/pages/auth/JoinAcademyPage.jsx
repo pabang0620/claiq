@@ -29,7 +29,8 @@ export default function JoinAcademyPage() {
       addToast({ type: 'success', message: '학원에 성공적으로 가입됐습니다!' })
       navigate(getDashboardPath(user?.role))
     } catch (err) {
-      setError(err.message || '학원 코드가 올바르지 않습니다.')
+      setError(err?.message || '학원 코드가 올바르지 않습니다.')
+      addToast({ type: 'error', message: err?.message || '학원 코드가 올바르지 않습니다.' })
     } finally {
       setIsLoading(false)
     }

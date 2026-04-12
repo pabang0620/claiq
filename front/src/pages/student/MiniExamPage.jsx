@@ -21,9 +21,9 @@ export default function MiniExamPage() {
 
   useEffect(() => {
     if (!currentExam && !isGenerating && !hasError) {
-      generateExam().catch(() => {
+      generateExam().catch((err) => {
         setHasError(true)
-        addToast({ type: 'error', message: '모의고사 생성에 실패했습니다.' })
+        addToast({ type: 'error', message: err?.message || '모의고사 생성에 실패했습니다.' })
       })
     }
   }, [currentExam, isGenerating, hasError, generateExam, addToast])
@@ -41,8 +41,8 @@ export default function MiniExamPage() {
       const report = await submitExam()
       addToast({ type: 'success', message: isAutoSubmit ? '시간이 종료되어 자동 제출됐습니다.' : '모의고사가 제출됐습니다.' })
       navigate(`/student/exam/result/${currentExam.id}`, { state: { report } })
-    } catch {
-      addToast({ type: 'error', message: '제출에 실패했습니다.' })
+    } catch (err) {
+      addToast({ type: 'error', message: err?.message || '제출에 실패했습니다.' })
     } finally {
       setIsSubmitting(false)
     }

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { BookOpen, Calendar, CheckCircle, AlertTriangle, Award } from 'lucide-react'
 import { reportApi } from '../../api/report.api.js'
 import { PageSpinner } from '../../components/ui/Spinner.jsx'
+import { useUIStore } from '../../store/uiStore.js'
 
 function StatCard({ label, value, icon: Icon, color = 'text-zinc-700' }) {
   return (
@@ -20,6 +21,7 @@ function StatCard({ label, value, icon: Icon, color = 'text-zinc-700' }) {
 
 export default function PublicReportPage() {
   const { token } = useParams()
+  const addToast = useUIStore((s) => s.addToast)
   const [report, setReport] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -29,7 +31,10 @@ export default function PublicReportPage() {
     reportApi
       .getPublic(token)
       .then((res) => setReport(res.data))
-      .catch(() => setError('리포트를 불러올 수 없습니다. 링크가 유효하지 않거나 만료되었을 수 있습니다.'))
+      .catch((err) => {
+        addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' })
+        setError('리포트를 불러올 수 없습니다. 링크가 유효하지 않거나 만료되었을 수 있습니다.')
+      })
       .finally(() => setIsLoading(false))
   }, [token])
 

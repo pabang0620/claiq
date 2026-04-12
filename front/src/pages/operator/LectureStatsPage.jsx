@@ -5,6 +5,7 @@ import { Select } from '../../components/ui/Select.jsx'
 import { PageSpinner } from '../../components/ui/Spinner.jsx'
 import { dashboardApi } from '../../api/dashboard.api.js'
 import { ACTIVE_SUBJECTS } from '../../constants/subjects.js'
+import { useUIStore } from '../../store/uiStore.js'
 
 const SUBJECT_OPTIONS = [
   { value: '', label: '전체 과목' },
@@ -18,6 +19,7 @@ const PERIOD_OPTIONS = [
 ]
 
 export default function LectureStatsPage() {
+  const addToast = useUIStore((s) => s.addToast)
   const [stats, setStats] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [subject, setSubject] = useState('')
@@ -29,7 +31,12 @@ export default function LectureStatsPage() {
     dashboardApi
       .getLectureStats({ subject, period })
       .then((res) => { if (!cancelled) setStats(res.data || []) })
-      .catch(() => { if (!cancelled) setStats([]) })
+      .catch((err) => {
+        if (!cancelled) {
+          setStats([])
+          addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' })
+        }
+      })
       .finally(() => { if (!cancelled) setIsLoading(false) })
     return () => { cancelled = true }
   }, [subject, period])

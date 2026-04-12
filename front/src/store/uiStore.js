@@ -25,11 +25,7 @@ export const useUIStore = create((set) => ({
 
   addToast: (toast) => {
     const item = { id: Date.now() + Math.random(), duration: 3000, ...toast }
-    if (item.type === 'error' || item.type === 'warning') {
-      set((state) => ({ alerts: [...state.alerts, item] }))
-    } else {
-      set((state) => ({ toasts: [...state.toasts, item] }))
-    }
+    set((state) => ({ toasts: [...state.toasts, item] }))
   },
 
   removeToast: (id) =>

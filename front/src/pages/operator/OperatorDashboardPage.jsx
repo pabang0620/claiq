@@ -6,9 +6,11 @@ import { Button } from '../../components/ui/Button.jsx'
 import { PageSpinner } from '../../components/ui/Spinner.jsx'
 import { dashboardApi } from '../../api/dashboard.api.js'
 import { useAuthStore } from '../../store/authStore.js'
+import { useUIStore } from '../../store/uiStore.js'
 
 export default function OperatorDashboardPage() {
   const user = useAuthStore((s) => s.user)
+  const addToast = useUIStore((s) => s.addToast)
   const [summary, setSummary] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -17,7 +19,12 @@ export default function OperatorDashboardPage() {
     dashboardApi
       .getOperator()
       .then((res) => { if (!cancelled) setSummary(res.data) })
-      .catch(() => { if (!cancelled) setSummary(null) })
+      .catch((err) => {
+        if (!cancelled) {
+          setSummary(null)
+          addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' })
+        }
+      })
       .finally(() => { if (!cancelled) setIsLoading(false) })
     return () => { cancelled = true }
   }, [])

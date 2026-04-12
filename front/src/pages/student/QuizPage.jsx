@@ -34,8 +34,8 @@ export default function QuizPage() {
     try {
       const result = await submitAnswer(currentQuestion.id, answer)
       setSubmittedResults((prev) => ({ ...prev, [currentQuestion.id]: result }))
-    } catch {
-      addToast({ type: 'error', message: '제출에 실패했습니다.' })
+    } catch (err) {
+      addToast({ type: 'error', message: err?.message || '제출에 실패했습니다.' })
     } finally {
       setIsSubmitting(false)
     }

@@ -50,8 +50,8 @@ export default function QAPage() {
     try {
       const session = await startSession()
       return session
-    } catch {
-      addToast({ type: 'error', message: '세션 생성에 실패했습니다.' })
+    } catch (err) {
+      addToast({ type: 'error', message: err?.message || '세션 생성에 실패했습니다.' })
     }
   }
 

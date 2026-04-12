@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { WeakTypeChart } from '../../components/student/WeakTypeChart.jsx'
 import { Card } from '../../components/ui/Card.jsx'
 import { PageSpinner } from '../../components/ui/Spinner.jsx'
@@ -5,11 +6,19 @@ import { Button } from '../../components/ui/Button.jsx'
 import { Select } from '../../components/ui/Select.jsx'
 import { useWeakPoint } from '../../hooks/useWeakPoint.js'
 import { ACTIVE_SUBJECTS } from '../../constants/subjects.js'
+import { useUIStore } from '../../store/uiStore.js'
 
 const SUBJECT_OPTIONS = ACTIVE_SUBJECTS.map((s) => ({ value: s.code, label: s.label }))
 
 export default function WeakPointPage() {
+  const addToast = useUIStore((s) => s.addToast)
   const { weakTypes, isLoading, error, selectedSubject, setSelectedSubject, refresh } = useWeakPoint()
+
+  useEffect(() => {
+    if (error) {
+      addToast({ type: 'error', message: error || '데이터를 불러오는 데 실패했습니다.' })
+    }
+  }, [error])
 
   const sorted = [...(weakTypes ?? [])].sort((a, b) => a.correctRate - b.correctRate)
 

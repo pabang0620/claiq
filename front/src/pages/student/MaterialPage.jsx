@@ -3,8 +3,10 @@ import { FileText, Download, ExternalLink } from 'lucide-react'
 import { PageSpinner } from '../../components/ui/Spinner.jsx'
 import { lectureApi } from '../../api/lecture.api.js'
 import { formatDate } from '../../utils/formatDate.js'
+import { useUIStore } from '../../store/uiStore.js'
 
 export default function MaterialPage() {
+  const addToast = useUIStore((s) => s.addToast)
   const [materials, setMaterials] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -13,7 +15,10 @@ export default function MaterialPage() {
     lectureApi
       .getMyMaterials()
       .then((res) => setMaterials(res.data || []))
-      .catch((err) => setError(err.message || '자료를 불러오지 못했습니다.'))
+      .catch((err) => {
+        setError(err?.message || '자료를 불러오지 못했습니다.')
+        addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' })
+      })
       .finally(() => setIsLoading(false))
   }, [])
 

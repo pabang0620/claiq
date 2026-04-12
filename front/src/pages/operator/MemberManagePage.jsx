@@ -47,7 +47,7 @@ export default function MemberManagePage() {
         const allMembers = res.data || []
         setMembers(role ? allMembers.filter((m) => m.role === role) : allMembers)
       })
-      .catch(() => { if (!cancelled) setMembers([]) })
+      .catch((err) => { if (!cancelled) { setMembers([]); addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' }) } })
       .finally(() => { if (!cancelled) setIsLoading(false) })
     return () => { cancelled = true }
   }, [activeTab])
@@ -62,7 +62,7 @@ export default function MemberManagePage() {
       setShowInviteModal(false)
       setInviteForm({ email: '', role: ROLES.STUDENT })
     } catch (err) {
-      addToast({ type: 'error', message: err.message || '초대에 실패했습니다.' })
+      addToast({ type: 'error', message: err?.message || '초대에 실패했습니다.' })
     } finally {
       setIsInviting(false)
     }
@@ -76,7 +76,7 @@ export default function MemberManagePage() {
       setMembers((prev) => prev.filter((m) => m.id !== userId))
       addToast({ type: 'success', message: '멤버가 제거됐습니다.' })
     } catch (err) {
-      addToast({ type: 'error', message: err.message || '제거에 실패했습니다.' })
+      addToast({ type: 'error', message: err?.message || '제거에 실패했습니다.' })
     }
   }
 

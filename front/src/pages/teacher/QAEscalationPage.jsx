@@ -22,7 +22,10 @@ export default function QAEscalationPage() {
     qaApi
       .getEscalations({ answered: activeTab === 'answered' })
       .then((res) => setItems(res.data || []))
-      .catch(() => setItems([]))
+      .catch((err) => {
+        setItems([])
+        addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' })
+      })
       .finally(() => setIsLoading(false))
   }, [activeTab])
 
@@ -37,7 +40,7 @@ export default function QAEscalationPage() {
       )
       addToast({ type: 'success', message: '답변이 등록됐습니다.' })
     } catch (err) {
-      addToast({ type: 'error', message: err.message || '답변 등록에 실패했습니다.' })
+      addToast({ type: 'error', message: err?.message || '답변 등록에 실패했습니다.' })
     } finally {
       setAnsweringId(null)
     }

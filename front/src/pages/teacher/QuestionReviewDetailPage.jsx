@@ -58,7 +58,7 @@ export default function QuestionReviewDetailPage() {
         addToast({ type: 'error', message: result.error || '처리에 실패했습니다.' })
       }
     } catch (err) {
-      addToast({ type: 'error', message: err.message || '처리 중 오류가 발생했습니다.' })
+      addToast({ type: 'error', message: err?.message || '처리 중 오류가 발생했습니다.' })
     } finally {
       setIsSaving(false)
     }

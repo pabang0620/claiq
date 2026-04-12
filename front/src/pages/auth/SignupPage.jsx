@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/Button.jsx'
 import { useAuth } from '../../hooks/useAuth.js'
 import { ROLES, ROLE_LABELS } from '../../constants/roles.js'
 import { GraduationCap, BookOpen, Settings } from 'lucide-react'
+import { useUIStore } from '../../store/uiStore.js'
 
 const ROLE_ITEMS = [
   { role: ROLES.TEACHER, label: '교강사', icon: GraduationCap },
@@ -14,6 +15,7 @@ const ROLE_ITEMS = [
 
 export default function SignupPage() {
   const { signup } = useAuth()
+  const addToast = useUIStore((s) => s.addToast)
   const [step, setStep] = useState(1) // 1: role, 2: form
   const [selectedRole, setSelectedRole] = useState('')
   const [form, setForm] = useState({ name: '', academyName: '', email: '', password: '', passwordConfirm: '' })
@@ -26,7 +28,7 @@ export default function SignupPage() {
     if (!form.name.trim()) errs.name = '이름을 입력하세요.'
     if (selectedRole === ROLES.OPERATOR && !form.academyName.trim()) errs.academyName = '학원 이름을 입력하세요.'
     if (!form.email) errs.email = '이메일을 입력하세요.'
-    else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = '올바른 이메일 형식이 아닙니다.'
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email)) errs.email = '올바른 이메일 형식으로 입력해 주세요. (예: example@email.com)'
     if (!form.password) errs.password = '비밀번호를 입력하세요.'
     else if (form.password.length < 8) errs.password = '비밀번호는 8자 이상이어야 합니다.'
     if (form.password !== form.passwordConfirm) errs.passwordConfirm = '비밀번호가 일치하지 않습니다.'
@@ -42,8 +44,13 @@ export default function SignupPage() {
     if (Object.keys(errs).length) { setErrors(errs); return }
     setErrors({})
     setIsLoading(true)
-    await signup({ ...form, role: selectedRole })
-    setIsLoading(false)
+    try {
+      await signup({ ...form, role: selectedRole })
+    } catch (err) {
+      addToast({ type: 'error', message: err?.message || '인증에 실패했습니다.' })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   if (step === 1) {

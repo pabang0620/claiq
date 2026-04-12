@@ -63,8 +63,8 @@ export default function LectureUploadPage() {
       const lecture = await uploadLecture(formData)
       setUploadedLectureId(lecture.id)
       setSseActive(true)
-    } catch {
-      addToast({ type: 'error', message: '업로드에 실패했습니다. 다시 시도해주세요.' })
+    } catch (err) {
+      addToast({ type: 'error', message: err?.message || '업로드에 실패했습니다.' })
     }
   }
 

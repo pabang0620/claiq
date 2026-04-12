@@ -18,7 +18,9 @@ export const errorHandler = (err, req, res, next) => {
   }
 
   const status = err.status || 500
-  const message = err.message || '서버 내부 오류가 발생했습니다'
+  const message = status >= 500
+    ? '서버 내부 오류가 발생했습니다'
+    : (err.message || '요청 처리에 실패했습니다')
 
   if (status >= 500) {
     logger.error(`[${req.method}] ${req.path} - ${status}: ${message}`)

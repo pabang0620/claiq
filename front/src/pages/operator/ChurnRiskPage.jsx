@@ -27,7 +27,7 @@ export default function ChurnRiskPage() {
     dashboardApi
       .getChurnRisk({ filter: riskFilter })
       .then((res) => { if (!cancelled) setStudents(res.data || []) })
-      .catch(() => { if (!cancelled) setStudents([]) })
+      .catch((err) => { if (!cancelled) { setStudents([]); addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' }) } })
       .finally(() => { if (!cancelled) setIsLoading(false) })
     return () => { cancelled = true }
   }, [riskFilter])
@@ -43,8 +43,8 @@ export default function ChurnRiskPage() {
       const res = await dashboardApi.generateRiskComments({})
       setStudents(res.data || [])
       addToast({ type: 'success', message: 'AI 코멘트가 생성되었습니다.' })
-    } catch {
-      addToast({ type: 'error', message: 'AI 코멘트 생성에 실패했습니다.' })
+    } catch (err) {
+      addToast({ type: 'error', message: err?.message || 'AI 코멘트 생성에 실패했습니다.' })
     } finally {
       setIsGenerating(false)
     }

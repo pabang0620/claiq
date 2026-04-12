@@ -26,13 +26,18 @@ export default function QuestionReviewPage() {
 
   async function handleReview(id, action, editedData) {
     setReviewingId(id)
-    const result = await reviewQuestion(id, action, editedData)
-    setReviewingId(null)
-    if (result.success) {
-      const labels = { approve: '승인', edit: '수정 후 승인', reject: '반려' }
-      addToast({ type: 'success', message: `문제가 ${labels[action]}됐습니다.` })
-    } else {
-      addToast({ type: 'error', message: result.error || '처리에 실패했습니다.' })
+    try {
+      const result = await reviewQuestion(id, action, editedData)
+      setReviewingId(null)
+      if (result.success) {
+        const labels = { approve: '승인', edit: '수정 후 승인', reject: '반려' }
+        addToast({ type: 'success', message: `문제가 ${labels[action]}됐습니다.` })
+      } else {
+        addToast({ type: 'error', message: result.error || '요청 처리에 실패했습니다.' })
+      }
+    } catch (err) {
+      setReviewingId(null)
+      addToast({ type: 'error', message: err?.message || '요청 처리에 실패했습니다.' })
     }
   }
 

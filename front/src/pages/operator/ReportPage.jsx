@@ -29,7 +29,7 @@ export default function ReportPage() {
         const allMembers = memberRes.data || []
         setStudents(allMembers.filter((m) => m.role === 'student'))
       })
-      .catch(() => {})
+      .catch((err) => { if (!cancelled) addToast({ type: 'error', message: err?.message || '데이터를 불러오는 데 실패했습니다.' }) })
       .finally(() => { if (!cancelled) setIsLoading(false) })
     return () => { cancelled = true }
   }, [])
@@ -41,7 +41,7 @@ export default function ReportPage() {
       setReports((prev) => [res.data, ...prev])
       addToast({ type: 'success', message: '리포트가 생성됐습니다.' })
     } catch (err) {
-      addToast({ type: 'error', message: err.message || '리포트 생성에 실패했습니다.' })
+      addToast({ type: 'error', message: err?.message || '리포트 생성에 실패했습니다.' })
     } finally {
       setGeneratingFor(null)
     }
@@ -58,7 +58,7 @@ export default function ReportPage() {
       )
       addToast({ type: 'success', message: 'SMS가 발송됐습니다.' })
     } catch (err) {
-      addToast({ type: 'error', message: err.message || 'SMS 발송에 실패했습니다.' })
+      addToast({ type: 'error', message: err?.message || 'SMS 발송에 실패했습니다.' })
     } finally {
       setSendingId(null)
     }
@@ -77,7 +77,7 @@ export default function ReportPage() {
       )
       addToast({ type: 'success', message: `${unsentIds.length}개 리포트가 일괄 발송됐습니다.` })
     } catch (err) {
-      addToast({ type: 'error', message: err.message || '일괄 발송에 실패했습니다.' })
+      addToast({ type: 'error', message: err?.message || '일괄 발송에 실패했습니다.' })
     }
   }
 
