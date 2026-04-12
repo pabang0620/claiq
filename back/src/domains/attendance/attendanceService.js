@@ -33,7 +33,20 @@ export const getAttendancesByLecture = async (lectureId) => {
   return attendanceRepository.findAttendancesByLecture(lectureId)
 }
 
-export const getAttendanceList = async ({ lectureId, studentId, date }) => {
+export const getAttendanceList = async ({ lectureId, studentId, date, academyId }) => {
+  if (academyId && !lectureId) {
+    return attendanceRepository.findAcademyStudentsWithAttendance(
+      academyId,
+      date || new Date().toISOString().split('T')[0]
+    )
+  }
+  if (academyId && lectureId) {
+    return attendanceRepository.findAcademyStudentsWithAttendance(
+      academyId,
+      date || new Date().toISOString().split('T')[0],
+      lectureId
+    )
+  }
   return attendanceRepository.findAttendances({ lectureId, studentId, date })
 }
 

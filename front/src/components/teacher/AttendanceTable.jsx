@@ -90,9 +90,9 @@ export function AttendanceTable({ records = [], onUpdate, isLoading = false, dat
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">
-                          {record.studentName?.charAt(0) || '?'}
+                          {record.student_name?.charAt(0) || '?'}
                         </div>
-                        <span className="font-medium text-zinc-800">{record.studentName}</span>
+                        <span className="font-medium text-zinc-800">{record.student_name}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -108,7 +108,7 @@ export function AttendanceTable({ records = [], onUpdate, isLoading = false, dat
                             key={s}
                             status={s}
                             current={record.status}
-                            onClick={(status) => handleStatusChange(record.id, record.studentId, status)}
+                            onClick={(status) => handleStatusChange(record.id, record.student_id, status)}
                             disabled={isLoading}
                           />
                         ))}

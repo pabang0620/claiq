@@ -28,8 +28,14 @@ export const getAttendances = async (req, res, next) => {
 
 export const getAttendanceList = async (req, res, next) => {
   try {
-    const { lectureId, studentId, date } = req.query
-    const attendances = await attendanceService.getAttendanceList({ lectureId, studentId, date })
+    const { lectureId, lecture_id, studentId, date, academy_id } = req.query
+    const resolvedLectureId = lectureId || lecture_id   // 둘 다 지원
+    const attendances = await attendanceService.getAttendanceList({
+      lectureId: resolvedLectureId,
+      studentId,
+      date,
+      academyId: academy_id,
+    })
     return successResponse(res, attendances)
   } catch (err) {
     next(err)

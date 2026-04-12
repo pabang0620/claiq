@@ -77,3 +77,30 @@ export const findTodayAttendance = async (student_id) => {
   )
   return rows[0] || null
 }
+
+export const findAcademyStudentsWithAttendance = async (academyId, date, lectureId = null) => {
+  const { rows } = await pool.query(
+    `SELECT
+       u.id         AS student_id,
+       u.name       AS student_name,
+       u.email      AS student_email,
+       a.id,
+       a.status,
+       a.lecture_id,
+       a.academy_id,
+       a.marked_at
+     FROM academy_members am
+     JOIN users u ON u.id = am.user_id
+     LEFT JOIN attendances a
+       ON a.student_id = am.user_id
+      AND a.academy_id = am.academy_id
+      AND DATE(a.marked_at AT TIME ZONE 'Asia/Seoul') = $2
+      AND ($3::uuid IS NULL OR a.lecture_id = $3::uuid)
+     WHERE am.academy_id = $1
+       AND am.role = 'student'
+       AND am.status = 'active'
+     ORDER BY u.name ASC`,
+    [academyId, date, lectureId || null]
+  )
+  return rows
+}
