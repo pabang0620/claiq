@@ -58,9 +58,30 @@ export default function LectureUploadPage() {
     }
   )
 
+  function getAudioDuration(f) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(f)
+      const audio = new Audio()
+      audio.onloadedmetadata = () => { URL.revokeObjectURL(url); resolve(audio.duration) }
+      audio.onerror = () => { URL.revokeObjectURL(url); reject(new Error('파일 길이를 확인할 수 없습니다.')) }
+      audio.src = url
+    })
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
     if (!file || !title.trim() || !subject) return
+
+    try {
+      const duration = await getAudioDuration(file)
+      if (duration < 60) {
+        addToast({ type: 'error', message: `최소 1분 이상의 강의 파일을 업로드해주세요. (현재 ${Math.floor(duration)}초)` })
+        return
+      }
+    } catch (err) {
+      addToast({ type: 'error', message: err.message })
+      return
+    }
 
     const formData = new FormData()
     formData.append('audio', file)
