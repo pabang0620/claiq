@@ -4,7 +4,7 @@ import { RoadmapTimeline } from '../../components/student/RoadmapTimeline.jsx'
 import { PageSpinner } from '../../components/ui/Spinner.jsx'
 import { useRoadmap } from '../../hooks/useRoadmap.js'
 import { useUIStore } from '../../store/uiStore.js'
-import { RotateCcw } from 'lucide-react'
+import { RotateCcw, Info } from 'lucide-react'
 
 export default function RoadmapPage() {
   const { roadmap, isLoading, isRegenerating, error, regenerateRoadmap } = useRoadmap()
@@ -35,6 +35,17 @@ export default function RoadmapPage() {
           <RotateCcw size={14} />
           로드맵 재생성
         </Button>
+      </div>
+
+      <div className="flex gap-3 p-4 bg-blue-50 border border-blue-100 rounded-xl text-sm text-blue-800">
+        <Info size={16} className="flex-shrink-0 mt-0.5 text-blue-500" />
+        <div className="space-y-1">
+          <p className="font-medium">AI 맞춤형 학습 로드맵이란?</p>
+          <p className="text-blue-700 leading-relaxed">
+            내가 푼 문제의 유형별 정답률을 분석해 약점 위주로 수능까지 주차별 학습 계획을 자동 생성합니다.
+            문제를 많이 풀수록 더 정확해지며, <span className="font-semibold">로드맵 재생성</span> 버튼으로 최신 데이터 기반의 새 계획을 만들 수 있습니다.
+          </p>
+        </div>
       </div>
 
       <DdayCounter />
