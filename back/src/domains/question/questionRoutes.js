@@ -12,6 +12,10 @@ const reviewSchema = z.object({
   content: z.string().optional(),
   correct_answer: z.string().optional(),
   explanation: z.string().optional(),
+  options: z.array(z.object({
+    label: z.union([z.string(), z.number()]),
+    content: z.string(),
+  })).optional(),
 }).transform((data) => ({
   ...data,
   status: data.status === 'approve' ? 'approved' : data.status === 'reject' ? 'rejected' : data.status,

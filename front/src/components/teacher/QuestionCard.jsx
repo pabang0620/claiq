@@ -49,6 +49,20 @@ export function QuestionCard({ question, onReview, isLoading = false, status = '
     setIsEditing(false)
   }
 
+  async function handleSaveUpdate() {
+    const ok = await showConfirm(
+      '문제를 수정하시겠습니까?',
+      { confirmLabel: '저장' }
+    )
+    if (!ok) return
+    onReview(question.id, 'update', {
+      content: editContent,
+      options: editOptions,
+      explanation: editExplanation,
+    })
+    setIsEditing(false)
+  }
+
   function updateOption(idx, val) {
     const next = editOptions.map((o, i) => (i === idx ? { ...o, content: val, text: val } : o))
     setEditOptions(next)
@@ -119,13 +133,15 @@ export function QuestionCard({ question, onReview, isLoading = false, status = '
               rows={2}
             />
             <div className="flex gap-2">
-              <Button
-                size="sm"
-                onClick={handleSaveEdit}
-                loading={isLoading}
-              >
-                저장 및 승인
-              </Button>
+              {status === 'approved' ? (
+                <Button size="sm" onClick={handleSaveUpdate} loading={isLoading}>
+                  저장
+                </Button>
+              ) : (
+                <Button size="sm" onClick={handleSaveEdit} loading={isLoading}>
+                  저장 및 승인
+                </Button>
+              )}
               <Button
                 size="sm"
                 variant="ghost"
@@ -200,6 +216,19 @@ export function QuestionCard({ question, onReview, isLoading = false, status = '
           >
             <XCircle size={14} />
             반려
+          </Button>
+        </div>
+      )}
+      {!isEditing && status === 'approved' && (
+        <div className="px-5 py-3 bg-zinc-50 border-t border-zinc-100 flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setIsEditing(true)}
+            disabled={isLoading}
+          >
+            <Edit3 size={14} />
+            문제 수정
           </Button>
         </div>
       )}

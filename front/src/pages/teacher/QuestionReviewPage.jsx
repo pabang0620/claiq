@@ -51,14 +51,17 @@ export default function QuestionReviewPage() {
       const result = await reviewQuestion(id, action, editedData)
       setReviewingId(null)
       if (result.success) {
-        const labels = { approve: '승인', edit: '수정 후 승인', reject: '반려' }
+        const labels = { approve: '승인', edit: '수정 후 승인', reject: '반려', update: '수정' }
         addToast({ type: 'success', message: `문제가 ${labels[action]}됐습니다.` })
-        const targetTab = (action === 'approve' || action === 'edit') ? 'approved' : 'rejected'
-        setTabCounts((prev) => ({
-          ...prev,
-          pending: Math.max(0, (prev.pending ?? 0) - 1),
-          [targetTab]: (prev[targetTab] ?? 0) + 1,
-        }))
+        if (action !== 'update') {
+          // update는 이미 approved 탭에 있으므로 카운트 변경 없음
+          const targetTab = (action === 'approve' || action === 'edit') ? 'approved' : 'rejected'
+          setTabCounts((prev) => ({
+            ...prev,
+            pending: Math.max(0, (prev.pending ?? 0) - 1),
+            [targetTab]: (prev[targetTab] ?? 0) + 1,
+          }))
+        }
       } else {
         addToast({ type: 'error', message: result.error || '요청 처리에 실패했습니다.' })
       }

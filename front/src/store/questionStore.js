@@ -40,12 +40,22 @@ export const useQuestionStore = create((set) => ({
   reviewQuestion: async (id, action, editedData = {}) => {
     set({ isLoading: true, error: null })
     try {
-      const status = (action === 'approve' || action === 'edit') ? 'approved' : action === 'reject' ? 'rejected' : action
+      const status = (action === 'approve' || action === 'edit' || action === 'update') ? 'approved' : action === 'reject' ? 'rejected' : action
       await api.patch(`/questions/${id}/review`, { status, ...editedData })
-      set((state) => ({
-        pendingQuestions: state.pendingQuestions.filter((q) => q.id !== id),
-        isLoading: false,
-      }))
+      if (action === 'update') {
+        // 승인됨 탭에서 수정 → 목록에서 제거하지 않고 내용만 업데이트
+        set((state) => ({
+          pendingQuestions: state.pendingQuestions.map((q) =>
+            q.id === id ? { ...q, ...editedData } : q
+          ),
+          isLoading: false,
+        }))
+      } else {
+        set((state) => ({
+          pendingQuestions: state.pendingQuestions.filter((q) => q.id !== id),
+          isLoading: false,
+        }))
+      }
       return { success: true }
     } catch (err) {
       set({ error: err.message, isLoading: false })
