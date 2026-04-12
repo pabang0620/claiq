@@ -67,7 +67,7 @@ export const redeemPoints = async (req, res, next) => {
 
 export const getRewards = async (req, res, next) => {
   try {
-    const rewards = await pointService.getRewards()
+    const rewards = await pointService.getRewards(req.user.id)
     return successResponse(res, rewards)
   } catch (err) {
     next(err)

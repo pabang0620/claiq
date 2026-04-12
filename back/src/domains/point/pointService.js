@@ -1,5 +1,6 @@
 import * as pointRepository from './pointRepository.js'
-import { withTransaction } from '../../config/db.js'
+import * as academyRepository from '../academy/academyRepository.js'
+import { pool, withTransaction } from '../../config/db.js'
 import { env } from '../../config/env.js'
 
 export const addPoints = async ({ userId, academyId, type, amount, referenceId, idempotencyKey, note }) => {
@@ -56,17 +57,33 @@ export const getMyTransactions = async ({ userId, page, limit }) => {
   return pointRepository.findTransactions(userId, limit, offset)
 }
 
-export const getRewards = async () => {
-  // 교환 가능한 쿠폰/보상 목록 (환경변수 기준 mock)
-  return [
-    {
-      id: 'coupon_1000',
-      name: '1,000P 쿠폰',
-      description: '1,000 포인트를 쿠폰 1매로 교환',
-      required_points: env.points.toCoupon,
-      type: 'coupon',
-    },
-  ]
+export const getRewards = async (userId) => {
+  const academies = await academyRepository.findUserAcademies(userId)
+  if (!academies.length) return []
+
+  const academyId = academies[0].id
+
+  const { rows } = await pool.query(
+    `SELECT * FROM academy_coupons
+     WHERE academy_id = $1
+       AND deleted_at IS NULL
+       AND award_condition IS NULL
+       AND awarded_to IS NULL
+       AND (expires_at IS NULL OR expires_at > NOW())
+     ORDER BY created_at DESC`,
+    [academyId]
+  )
+
+  return rows.map((c) => ({
+    id: c.id,
+    name: c.name,
+    description: c.description,
+    discount_type: c.discount_type,
+    discount_amount: c.discount_amount,
+    expires_at: c.expires_at,
+    required_points: env.points.toCoupon,
+    type: 'coupon',
+  }))
 }
 
 export const redeemPoints = async ({ userId, academyId }) => {
