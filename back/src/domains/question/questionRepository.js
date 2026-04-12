@@ -30,22 +30,30 @@ export const findPendingQuestions = async ({ academy_id, teacher_id, limit = 20,
   if (academy_id) { conditions.push(`q.academy_id = $${idx++}`); params.push(academy_id) }
   if (teacher_id) { conditions.push(`q.teacher_id = $${idx++}`); params.push(teacher_id) }
 
+  const countParams = [...params]
   params.push(limit, offset)
 
-  const { rows } = await pool.query(
-    `SELECT q.*, l.title AS lecture_title, s.name AS subject_name,
-            array_agg(row_to_json(qo.*)) FILTER (WHERE qo.id IS NOT NULL) AS options
-     FROM questions q
-     JOIN lectures l ON l.id = q.lecture_id
-     JOIN subjects s ON s.id = q.subject_id
-     LEFT JOIN question_options qo ON qo.question_id = q.id
-     WHERE ${conditions.join(' AND ')}
-     GROUP BY q.id, l.title, s.name
-     ORDER BY q.created_at ASC
-     LIMIT $${idx++} OFFSET $${idx++}`,
-    params
-  )
-  return rows
+  const [{ rows }, { rows: countRows }] = await Promise.all([
+    pool.query(
+      `SELECT q.*, l.title AS lecture_title, s.name AS subject_name,
+              array_agg(row_to_json(qo.*)) FILTER (WHERE qo.id IS NOT NULL) AS options
+       FROM questions q
+       JOIN lectures l ON l.id = q.lecture_id
+       JOIN subjects s ON s.id = q.subject_id
+       LEFT JOIN question_options qo ON qo.question_id = q.id
+       WHERE ${conditions.join(' AND ')}
+       GROUP BY q.id, l.title, s.name
+       ORDER BY q.created_at ASC
+       LIMIT $${idx} OFFSET $${idx + 1}`,
+      params
+    ),
+    pool.query(
+      `SELECT COUNT(*) FROM questions q WHERE ${conditions.join(' AND ')}`,
+      countParams
+    ),
+  ])
+
+  return { rows, total: parseInt(countRows[0].count, 10) }
 }
 
 export const findQuestionById = async (id) => {

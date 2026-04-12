@@ -1,17 +1,17 @@
 import * as questionService from './questionService.js'
-import { successResponse } from '../../utils/response.js'
+import { successResponse, paginatedResponse } from '../../utils/response.js'
 
 export const getPendingQuestions = async (req, res, next) => {
   try {
     const { academy_id, page = 1, limit = 20, status } = req.query
-    const questions = await questionService.getPendingQuestions({
+    const result = await questionService.getPendingQuestions({
       academy_id,
       teacher_id: req.user.role === 'teacher' ? req.user.id : undefined,
       page: Number(page),
-      limit: Number(limit),
+      limit: Math.min(Number(limit), 100),
       status: status || 'pending',
     })
-    return successResponse(res, questions)
+    return paginatedResponse(res, result.data, result.meta)
   } catch (err) {
     next(err)
   }

@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Input } from '../../components/ui/Input.jsx'
 import { Select } from '../../components/ui/Select.jsx'
 import { Button } from '../../components/ui/Button.jsx'
@@ -7,17 +8,24 @@ import { UploadProgressSSE } from '../../components/teacher/UploadProgressSSE.js
 import { useLectureStore } from '../../store/lectureStore.js'
 import { useSSE } from '../../hooks/useSSE.js'
 import { useUIStore } from '../../store/uiStore.js'
-import { ACTIVE_SUBJECTS } from '../../constants/subjects.js'
-
-const SUBJECT_OPTIONS = ACTIVE_SUBJECTS.map((s) => ({ value: s.code, label: s.label }))
+import api from '../../api/axios.js'
 
 export default function LectureUploadPage() {
   const [file, setFile] = useState(null)
   const [title, setTitle] = useState('')
-  const [subject, setSubject] = useState(ACTIVE_SUBJECTS[0]?.code || '')
+  const [subject, setSubject] = useState('')
+  const [subjectOptions, setSubjectOptions] = useState([])
   const [uploadedLectureId, setUploadedLectureId] = useState(null)
   const [questionCount, setQuestionCount] = useState(null)
   const [sseActive, setSseActive] = useState(false)
+
+  useEffect(() => {
+    api.get('/subjects').then((res) => {
+      const opts = (res.data || []).map((s) => ({ value: s.id, label: s.name }))
+      setSubjectOptions(opts)
+      if (opts.length) setSubject(opts[0].value)
+    }).catch(() => {})
+  }, [])
 
   const { uploadLecture, uploadStatus, uploadProgress, processingStep, processingProgress, setProcessingStep, setUploadStatus, resetUpload } = useLectureStore()
   const addToast = useUIStore((s) => s.addToast)
@@ -104,7 +112,7 @@ export default function LectureUploadPage() {
             label="과목"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
-            options={SUBJECT_OPTIONS}
+            options={subjectOptions}
             required
           />
           <div>
@@ -135,9 +143,18 @@ export default function LectureUploadPage() {
           />
 
           {isDone && (
-            <Button variant="outline" onClick={handleReset} className="w-full">
-              새 강의 업로드
-            </Button>
+            <div className="space-y-3">
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-sm text-emerald-800 text-center">
+                문제 생성이 완료됐습니다.{' '}
+                <Link to="/teacher/review" className="font-semibold underline hover:text-emerald-900">
+                  문제 검증 페이지
+                </Link>
+                에서 생성된 문제를 확인하고 승인해주세요.
+              </div>
+              <Button variant="outline" onClick={handleReset} className="w-full">
+                새 강의 업로드
+              </Button>
+            </div>
           )}
         </div>
       )}

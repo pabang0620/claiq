@@ -69,7 +69,7 @@ export default function QuestionReviewPage() {
         </div>
       ) : (
         <>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {pendingQuestions.map((q) => (
               <QuestionCard
                 key={q.id}

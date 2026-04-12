@@ -6,7 +6,8 @@ import { checkAndAwardBadges } from '../badge/badgeService.js'
 
 export const getPendingQuestions = async ({ academy_id, teacher_id, page = 1, limit = 20, status = 'pending' }) => {
   const offset = (page - 1) * limit
-  return questionRepository.findPendingQuestions({ academy_id, teacher_id, limit, offset, status })
+  const { rows, total } = await questionRepository.findPendingQuestions({ academy_id, teacher_id, limit, offset, status })
+  return { data: rows, meta: { total, page, limit } }
 }
 
 export const reviewQuestion = async ({ id, status, content, correct_answer, explanation, reviewedBy }) => {
