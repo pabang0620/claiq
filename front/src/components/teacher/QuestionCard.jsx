@@ -72,7 +72,7 @@ export function QuestionCard({ question, onReview, isLoading = false }) {
               variant={DIFFICULTY_COLOR[question.difficulty] || 'default'}
             />
             <Badge
-              label={question.type === 'multiple_choice' ? '5지선다' : '단답형'}
+              label={(question.answer_type || question.type) === 'multiple_choice' ? '5지선다' : '단답형'}
               variant="default"
             />
           </div>
@@ -97,7 +97,7 @@ export function QuestionCard({ question, onReview, isLoading = false }) {
               onChange={(e) => setEditContent(e.target.value)}
               rows={4}
             />
-            {question.type === 'multiple_choice' && (
+            {(question.answer_type || question.type) === 'multiple_choice' && (
               <div className="space-y-2">
                 <p className="text-xs font-medium text-zinc-600">선택지</p>
                 {editOptions.map((opt, i) => (
@@ -142,7 +142,7 @@ export function QuestionCard({ question, onReview, isLoading = false }) {
               {question.content}
             </p>
 
-            {expanded && question.type === 'multiple_choice' && question.options?.length > 0 && (
+            {expanded && (question.answer_type || question.type) === 'multiple_choice' && question.options?.length > 0 && (
               <ol className="mt-4 space-y-2">
                 {question.options.map((opt) => (
                   <li
