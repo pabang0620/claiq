@@ -41,3 +41,9 @@ __pycache__/
 
 # Misc
 *.local
+front/tests/e2e/check_urls.spec.js
+front/tests/e2e/debug_login.spec.js
+front/tests/e2e/debug_login2.spec.js
+front/tests/e2e/real_login.spec.js
+front/tests/e2e/save_login_state.spec.js
+front/tests/e2e/try_login.spec.js
