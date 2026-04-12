@@ -3,7 +3,7 @@ import { Loader2 } from 'lucide-react'
 const VARIANT_CLASSES = {
   primary: 'bg-primary-700 hover:bg-primary-800 text-white disabled:bg-primary-300',
   secondary: 'bg-primary-100 hover:bg-primary-200 text-primary-700 disabled:opacity-50',
-  danger: 'bg-red-500 hover:bg-red-600 text-white disabled:bg-red-300',
+  danger: 'bg-red-400 hover:bg-red-500 text-white disabled:bg-red-200',
   ghost: 'bg-transparent hover:bg-primary-50 text-primary-700 disabled:opacity-50',
   outline:
     'bg-white hover:bg-primary-50 text-primary-700 border border-primary-300 disabled:opacity-50',
@@ -22,12 +22,14 @@ export function Button({
   loading = false,
   onClick,
   type = 'button',
+  form,
   children,
   className = '',
 }) {
   return (
     <button
       type={type}
+      form={form}
       disabled={disabled || loading}
       onClick={onClick}
       className={[
