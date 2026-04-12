@@ -48,11 +48,17 @@ export default function MiniExamPage() {
     }
   }
 
-  if (isGenerating) {
+  if (isGenerating || (!currentExam && !hasError)) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-64 gap-4">
-        <PageSpinner />
-        <p className="text-zinc-500">AI가 맞춤형 모의고사를 생성 중입니다...</p>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
+        <div className="w-16 h-16 rounded-2xl bg-primary-50 flex items-center justify-center">
+          <PageSpinner />
+        </div>
+        <div className="text-center space-y-1.5">
+          <p className="text-base font-semibold text-zinc-800">문제를 생성 중입니다</p>
+          <p className="text-sm text-zinc-500">AI가 약점 유형을 분석해 맞춤형 문제를 만들고 있어요.</p>
+          <p className="text-xs text-zinc-400">30초~1분 정도 걸릴 수 있습니다.</p>
+        </div>
       </div>
     )
   }
