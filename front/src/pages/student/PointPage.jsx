@@ -75,9 +75,9 @@ export default function PointPage() {
       />
 
       {/* Transaction history */}
-      <Card title="거래 내역">
+      <Card title="적립 내역">
         {transactions.length === 0 ? (
-          <p className="text-sm text-zinc-400 text-center py-6">거래 내역이 없습니다.</p>
+          <p className="text-sm text-zinc-400 text-center py-6">적립 내역이 없습니다.</p>
         ) : (
           <div className="space-y-3">
             {transactions.map((t) => (
