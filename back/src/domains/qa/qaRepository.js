@@ -100,3 +100,25 @@ export const replyEscalation = async (messageId, response) => {
   )
   return rows[0]
 }
+
+export const deleteSession = async (sessionId, studentId) => {
+  await pool.query(
+    `DELETE FROM qa_messages WHERE session_id = $1`,
+    [sessionId]
+  )
+  const { rows } = await pool.query(
+    `DELETE FROM qa_sessions WHERE id = $1 AND student_id = $2 RETURNING id`,
+    [sessionId, studentId]
+  )
+  return rows[0] || null
+}
+
+export const renameSession = async (sessionId, studentId, title) => {
+  const { rows } = await pool.query(
+    `UPDATE qa_sessions SET title = $3, updated_at = NOW()
+     WHERE id = $1 AND student_id = $2
+     RETURNING *`,
+    [sessionId, studentId, title]
+  )
+  return rows[0] || null
+}

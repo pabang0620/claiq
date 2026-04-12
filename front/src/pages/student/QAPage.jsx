@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { Send, Plus, MessageSquare, ChevronDown } from 'lucide-react'
+import { Send, Plus, MessageSquare, ChevronDown, Trash2, Pencil, Check, X } from 'lucide-react'
 import { ChatBubble } from '../../components/student/ChatBubble.jsx'
 import { Button } from '../../components/ui/Button.jsx'
 import { PageSpinner } from '../../components/ui/Spinner.jsx'
@@ -22,13 +22,18 @@ export default function QAPage() {
     selectSession,
     addUserMessage,
     clearMessages,
+    deleteSession,
+    renameSession,
   } = useQAStore()
   const { sendMessage, isStreaming, streamError, abort } = useQAStream()
   const addToast = useUIStore((s) => s.addToast)
+  const showConfirm = useUIStore((s) => s.showConfirm)
   const user = useAuthStore((s) => s.user)
 
   const [inputText, setInputText] = useState('')
   const [showSessionList, setShowSessionList] = useState(false)
+  const [editingSessionId, setEditingSessionId] = useState(null)
+  const [editingTitle, setEditingTitle] = useState('')
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
 
@@ -77,6 +82,42 @@ export default function QAPage() {
     }
   }
 
+  async function handleDeleteSession(e, sessionId) {
+    e.stopPropagation()
+    const ok = await showConfirm('이 대화를 삭제하시겠습니까?\n대화 내용이 모두 삭제됩니다.', { confirmLabel: '삭제', danger: true })
+    if (!ok) return
+    try {
+      await deleteSession(sessionId)
+      addToast({ type: 'success', message: '대화가 삭제됐습니다.' })
+    } catch (err) {
+      addToast({ type: 'error', message: err?.message || '삭제에 실패했습니다.' })
+    }
+  }
+
+  function handleStartRename(e, session) {
+    e.stopPropagation()
+    setEditingSessionId(session.id)
+    setEditingTitle(session.title || '')
+  }
+
+  async function handleConfirmRename(e, sessionId) {
+    e.stopPropagation()
+    if (!editingTitle.trim()) return
+    try {
+      await renameSession(sessionId, editingTitle.trim())
+      addToast({ type: 'success', message: '이름이 변경됐습니다.' })
+    } catch (err) {
+      addToast({ type: 'error', message: err?.message || '변경에 실패했습니다.' })
+    } finally {
+      setEditingSessionId(null)
+    }
+  }
+
+  function handleCancelRename(e) {
+    e.stopPropagation()
+    setEditingSessionId(null)
+  }
+
   return (
     <div className="flex flex-col lg:flex-row h-[calc(100vh-8rem)] gap-3">
       {/* 모바일 세션 선택 드롭다운 (lg 미만에서만) */}
@@ -106,19 +147,37 @@ export default function QAPage() {
                 <p className="text-xs text-zinc-400 text-center py-4">대화 내역이 없습니다</p>
               )}
               {sessions.map((session) => (
-                <button
+                <div
                   key={session.id}
-                  type="button"
-                  onClick={() => { selectSession(session.id); setShowSessionList(false) }}
                   className={[
-                    'w-full text-left px-3 py-2 text-sm transition-colors duration-150',
+                    'flex items-center text-sm transition-colors',
                     currentSession?.id === session.id
                       ? 'bg-primary-50 text-primary-700'
                       : 'text-zinc-600 hover:bg-zinc-50',
                   ].join(' ')}
                 >
-                  <p className="truncate">{session.title || '새 대화'}</p>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => { selectSession(session.id); setShowSessionList(false) }}
+                    className="flex-1 text-left px-3 py-2 min-w-0"
+                  >
+                    <p className="truncate">{session.title || '새 대화'}</p>
+                  </button>
+                  <button
+                    onClick={(e) => handleStartRename(e, session)}
+                    aria-label="이름 변경"
+                    className="p-1.5 text-zinc-400 hover:text-zinc-600 flex-shrink-0"
+                  >
+                    <Pencil size={12} />
+                  </button>
+                  <button
+                    onClick={(e) => handleDeleteSession(e, session.id)}
+                    aria-label="삭제"
+                    className="p-1.5 mr-1 text-zinc-400 hover:text-red-500 flex-shrink-0"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
               ))}
             </div>
           </div>
@@ -142,22 +201,65 @@ export default function QAPage() {
             <p className="text-xs text-zinc-400 text-center py-4">대화 내역이 없습니다</p>
           )}
           {sessions.map((session) => (
-            <button
+            <div
               key={session.id}
-              type="button"
-              onClick={() => selectSession(session.id)}
               className={[
-                'w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors mb-0.5',
+                'group relative flex items-center rounded-lg mb-0.5 transition-colors',
                 currentSession?.id === session.id
                   ? 'bg-primary-50 text-primary-700'
                   : 'text-zinc-600 hover:bg-zinc-50',
               ].join(' ')}
             >
-              <p className="truncate font-medium">{session.title || '새 대화'}</p>
-              <p className="text-xs text-zinc-400 mt-0.5">
-                {formatDate(session.updatedAt || session.updated_at || session.createdAt || session.created_at)}
-              </p>
-            </button>
+              {editingSessionId === session.id ? (
+                <div className="flex items-center gap-1 px-2 py-1.5 w-full" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    autoFocus
+                    value={editingTitle}
+                    onChange={(e) => setEditingTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleConfirmRename(e, session.id)
+                      if (e.key === 'Escape') handleCancelRename(e)
+                    }}
+                    className="flex-1 text-sm px-2 py-1 border border-primary-400 rounded outline-none focus:ring-1 focus:ring-primary-500 min-w-0"
+                  />
+                  <button onClick={(e) => handleConfirmRename(e, session.id)} className="p-1 text-emerald-600 hover:text-emerald-700 flex-shrink-0">
+                    <Check size={13} />
+                  </button>
+                  <button onClick={handleCancelRename} className="p-1 text-zinc-400 hover:text-zinc-600 flex-shrink-0">
+                    <X size={13} />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => selectSession(session.id)}
+                    className="flex-1 text-left px-3 py-2.5 text-sm min-w-0"
+                  >
+                    <p className="truncate font-medium">{session.title || '새 대화'}</p>
+                    <p className="text-xs text-zinc-400 mt-0.5">
+                      {formatDate(session.updatedAt || session.updated_at || session.createdAt || session.created_at)}
+                    </p>
+                  </button>
+                  <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 pr-1.5 flex-shrink-0 transition-opacity">
+                    <button
+                      onClick={(e) => handleStartRename(e, session)}
+                      aria-label="이름 변경"
+                      className="p-1 rounded hover:bg-zinc-100 text-zinc-400 hover:text-zinc-600"
+                    >
+                      <Pencil size={12} />
+                    </button>
+                    <button
+                      onClick={(e) => handleDeleteSession(e, session.id)}
+                      aria-label="삭제"
+                      className="p-1 rounded hover:bg-red-50 text-zinc-400 hover:text-red-500"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           ))}
         </div>
       </div>

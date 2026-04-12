@@ -73,4 +73,25 @@ export const useQAStore = create((set, get) => ({
   },
 
   clearMessages: () => set({ messages: [], currentSession: null, streamingText: '' }),
+
+  deleteSession: async (sessionId) => {
+    await api.delete(`/qa/sessions/${sessionId}`)
+    set((state) => ({
+      sessions: state.sessions.filter((s) => s.id !== sessionId),
+      currentSession: state.currentSession?.id === sessionId ? null : state.currentSession,
+      messages: state.currentSession?.id === sessionId ? [] : state.messages,
+    }))
+  },
+
+  renameSession: async (sessionId, title) => {
+    const data = await api.patch(`/qa/sessions/${sessionId}`, { title })
+    const updated = data.data
+    set((state) => ({
+      sessions: state.sessions.map((s) => s.id === sessionId ? { ...s, title } : s),
+      currentSession: state.currentSession?.id === sessionId
+        ? { ...state.currentSession, title }
+        : state.currentSession,
+    }))
+    return updated
+  },
 }))

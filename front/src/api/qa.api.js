@@ -5,6 +5,9 @@ export const qaApi = {
   getMessages: (sessionId) => api.get(`/qa/sessions/${sessionId}/messages`),
   // ask는 Fetch Streaming으로 별도 처리 (useQAStream 훅)
 
+  deleteSession: (sessionId) => api.delete(`/qa/sessions/${sessionId}`),
+  renameSession: (sessionId, title) => api.patch(`/qa/sessions/${sessionId}`, { title }),
+
   // 에스컬레이션
   getEscalations: (params) =>
     api.get('/qa/escalations', { params }),

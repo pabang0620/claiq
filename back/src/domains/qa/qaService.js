@@ -170,3 +170,22 @@ export const replyEscalation = async ({ messageId, response, teacherId }) => {
   }
   return qaRepository.replyEscalation(messageId, response)
 }
+
+export const deleteSession = async (sessionId, studentId) => {
+  const result = await qaRepository.deleteSession(sessionId, studentId)
+  if (!result) {
+    const err = new Error('세션을 찾을 수 없습니다')
+    err.status = 404
+    throw err
+  }
+}
+
+export const renameSession = async (sessionId, studentId, title) => {
+  const result = await qaRepository.renameSession(sessionId, studentId, title)
+  if (!result) {
+    const err = new Error('세션을 찾을 수 없습니다')
+    err.status = 404
+    throw err
+  }
+  return result
+}

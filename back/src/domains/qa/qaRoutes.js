@@ -26,10 +26,16 @@ const replySchema = z.object({
   response: z.string().min(1, '답변을 입력하세요'),
 })
 
+const renameSessionSchema = z.object({
+  title: z.string().min(1).max(200),
+})
+
 router.post('/sessions', authMiddleware, requireRole('student'), validate(createSessionSchema), qaController.createSession)
 router.post('/ask', authMiddleware, requireRole('student'), aiLimiter, validate(askSchema), qaController.ask)
 router.get('/sessions', authMiddleware, qaController.getSessions)
 router.get('/sessions/:id/messages', authMiddleware, qaController.getSessionMessages)
+router.delete('/sessions/:id', authMiddleware, requireRole('student'), qaController.deleteSession)
+router.patch('/sessions/:id', authMiddleware, requireRole('student'), validate(renameSessionSchema), qaController.renameSession)
 router.get('/escalations', authMiddleware, requireRole('teacher'), qaController.getEscalations)
 router.post('/escalations/:id/reply', authMiddleware, requireRole('teacher'), validate(replySchema), qaController.replyEscalation)
 

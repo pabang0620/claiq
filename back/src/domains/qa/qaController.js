@@ -86,3 +86,21 @@ export const replyEscalation = async (req, res, next) => {
     next(err)
   }
 }
+
+export const deleteSession = async (req, res, next) => {
+  try {
+    await qaService.deleteSession(req.params.id, req.user.id)
+    return successResponse(res, null, '대화가 삭제됐습니다.')
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const renameSession = async (req, res, next) => {
+  try {
+    const session = await qaService.renameSession(req.params.id, req.user.id, req.body.title)
+    return successResponse(res, session)
+  } catch (err) {
+    next(err)
+  }
+}
