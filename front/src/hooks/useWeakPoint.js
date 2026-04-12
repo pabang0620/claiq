@@ -1,12 +1,26 @@
 import { useEffect, useState } from 'react'
 import { useRoadmapStore } from '../store/roadmapStore.js'
-import { ACTIVE_SUBJECTS } from '../constants/subjects.js'
+import api from '../api/axios.js'
 
 export function useWeakPoint() {
   const { weakTypes, isLoading, error, fetchWeakTypes } = useRoadmapStore()
-  const [selectedSubject, setSelectedSubject] = useState(ACTIVE_SUBJECTS[0]?.code || 'korean')
+  const [subjects, setSubjects] = useState([])
+  const [selectedSubject, setSelectedSubject] = useState('')
+  const [isSubjectLoading, setIsSubjectLoading] = useState(true)
 
   useEffect(() => {
+    api.get('/subjects')
+      .then((res) => {
+        const list = res.data || []
+        setSubjects(list)
+        if (list.length > 0) setSelectedSubject(list[0].code)
+      })
+      .catch(() => {})
+      .finally(() => setIsSubjectLoading(false))
+  }, [])
+
+  useEffect(() => {
+    if (!selectedSubject) return
     fetchWeakTypes(selectedSubject)
   }, [selectedSubject, fetchWeakTypes])
 
@@ -14,6 +28,8 @@ export function useWeakPoint() {
     weakTypes,
     isLoading,
     error,
+    subjects,
+    isSubjectLoading,
     selectedSubject,
     setSelectedSubject,
     refresh: () => fetchWeakTypes(selectedSubject),

@@ -5,14 +5,13 @@ import { PageSpinner } from '../../components/ui/Spinner.jsx'
 import { Button } from '../../components/ui/Button.jsx'
 import { Select } from '../../components/ui/Select.jsx'
 import { useWeakPoint } from '../../hooks/useWeakPoint.js'
-import { ACTIVE_SUBJECTS } from '../../constants/subjects.js'
 import { useUIStore } from '../../store/uiStore.js'
-
-const SUBJECT_OPTIONS = ACTIVE_SUBJECTS.map((s) => ({ value: s.code, label: s.label }))
 
 export default function WeakPointPage() {
   const addToast = useUIStore((s) => s.addToast)
-  const { weakTypes, isLoading, error, selectedSubject, setSelectedSubject, refresh } = useWeakPoint()
+  const { weakTypes, isLoading, error, subjects, isSubjectLoading, selectedSubject, setSelectedSubject, refresh } = useWeakPoint()
+
+  const subjectOptions = subjects.map((s) => ({ value: s.code, label: s.name }))
 
   useEffect(() => {
     if (error) {
@@ -34,7 +33,8 @@ export default function WeakPointPage() {
             id="subject"
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
-            options={SUBJECT_OPTIONS}
+            options={subjectOptions}
+            disabled={isSubjectLoading}
           />
           <Button variant="outline" size="sm" onClick={refresh}>
             새로고침
